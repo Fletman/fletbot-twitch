@@ -20,29 +20,29 @@ module.exports = {
 	 * Initiate chat with event handlers
 	 * @param chat_client tmi.js Client object
 	 */
-    init: (chat_client) => {
-        client = chat_client;
+	init: (chat_client) => {
+		client = chat_client;
 
-        // register event handlers
-        client.on('connected', handle_connect);
-        client.on('join', handle_join);
-        client.on("notice", handle_notice);
+		// register event handlers
+		client.on('connected', handle_connect);
+		client.on('join', handle_join);
+		client.on("notice", handle_notice);
 		client.on('chat', handle_chat_message);
 		client.on('whisper', handle_whisper);
 
-        // connect to channels specified in command line args
-        logger.log(`Connecting to channels: ${process.argv.slice(2)}`);
-        client.connect()
-            .then((data) => {
-                logger.log(data);
-            })
-            .catch((err) => {
-                logger.error(err);
+		// connect to channels specified in command line args
+		logger.log(`Connecting to channels: ${process.argv.slice(2)}`);
+		client.connect()
+			.then((data) => {
+				logger.log(data);
+			})
+			.catch((err) => {
+				logger.error(err);
 			});
 			
 		fletalytics = new Fletalytics(chat_client);
 		pyramids.set_block_messages(chat_meta.pyramid_block_pool);
-    }
+	}
 };
 
 // event for connecting to Twitch chat
@@ -205,35 +205,35 @@ function handle_chat_message(channel_name, context, msg, self) {
 			break;
 		case '!fletscrew':
 			pyramids.toggle_blocking(client, channel_name, context, msg_parts[1]);
-            break;
-        case '!fletalytics':
-            client.say(
-                channel_name,
+			break;
+		case '!fletalytics':
+			client.say(
+				channel_name,
 				`Previous update: Twitch clip and Youtube search commands. Musings for next update: Considering setting up something for automatic SO's. Maybe whenever a raid occurs that could be the SO trigger.`
-            ).then((data) => {
+			).then((data) => {
 				logger.log(data);
 			}).catch((err) => {
 				logger.error(err);
 			});
-            break;
-        case '!fletpfp':
-            fletalytics.get_pfp(msg_parts[1])
-                .then((result) => {
-                    let msg;
-                    if(!result) {
-                        msg = `@${context.username} No profile picture could be found for streamer`;
-                    } else {
-                        msg = `@${context.username} ${result}`
-                    }
-                    client.say(channel_name, msg)
-                            .then((data) => {
-                                logger.log(data);
-                            }).catch((err) => {
-                                logger.error(err);
-                            });
-                }).catch((err) => {
-                    logger.error(err);
-                });
+			break;
+		case '!fletpfp':
+			fletalytics.get_pfp(msg_parts[1])
+				.then((result) => {
+					let msg;
+					if(!result) {
+						msg = `@${context.username} No profile picture could be found for streamer`;
+					} else {
+						msg = `@${context.username} ${result}`
+					}
+					client.say(channel_name, msg)
+							.then((data) => {
+								logger.log(data);
+							}).catch((err) => {
+								logger.error(err);
+							});
+				}).catch((err) => {
+					logger.error(err);
+				});
 			break;
 		case '!fletpermit':
 			client.say(
