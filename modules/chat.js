@@ -514,6 +514,11 @@ function handle_whisper(username, context, msg, self) {
 				}
 			}
 			break;
+		case '!fletchannels':
+			if(chat_meta.bot_owners.includes(context.username)) {
+				logger.log(`Channel list:  ${client.getChannels()}`);
+			}
+			break;
 		default:
 			return;
 	}
