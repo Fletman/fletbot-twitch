@@ -91,14 +91,10 @@ function handle_chat_message(channel_name, context, msg, self) {
 			break;
 		case '!flethelp':
 			if(!msg_parts[1]) {
+				const cmd_list = Object.keys(chat_meta.commands).map((cmd) => "!" + cmd).join(" ");
 				client.say(
 					channel_name,
-					`@${context.username} Available commands: 
-					!flethelp !fletbot !fletpet !fletinc 
-					!sip !setsips !getsips 
-					!fletscrew !fletpfp !fletyt !fletclip 
-					!fletpermit !fletunpermit !fletevents 
-					Use !flethelp <command> for details on each command`
+					`@${context.username} Available commands: ${cmd_list} | Use !flethelp <command> for details on each command`
 				).then((data) => {
 					logger.log(data);
 				}).catch((err) => {
