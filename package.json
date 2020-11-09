@@ -1,0 +1,24 @@
+{
+  "name": "fletbot",
+  "version": "0.0.1",
+  "description": "Testing Twitch API",
+  "main": "index.js",
+  "scripts": {
+    "fletbot": "node index.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "Twitch"
+  ],
+  "author": "Fletman",
+  "license": "ISC",
+  "dependencies": {
+    "axios": "^0.20.0",
+    "string-similarity": "^4.0.2",
+    "tmi.js": "^1.5.0",
+    "twitch": "^4.2.6",
+    "twitch-auth": "^4.2.6",
+    "twitch-pubsub-client": "^4.2.6",
+    "unescape": "^1.0.1"
+  }
+}
