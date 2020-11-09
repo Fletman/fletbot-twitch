@@ -18,7 +18,7 @@ module.exports = class Fletalytics {
      * @param {object} chat_client tmi.js Client object
      */
     constructor(chat_client) {
-         this.fletscriber = new Fletscriber(chat_client);
+        this.fletscriber = new Fletscriber(chat_client);
     }
 
     /**
@@ -29,12 +29,12 @@ module.exports = class Fletalytics {
     get_permit_link(channel) {
         // TODO: if this ever actually sees proper use, add option to specify permission scopes
         return "https://id.twitch.tv/oauth2/authorize" +
-               `?client_id=${credentials.get_client_id()}` +
-               "&redirect_uri=http://localhost" +
-               "&response_type=code" +
-               "&scope=channel:read:redemptions" +
-               "&force_verify=true" +
-               `&state=${channel}#${Date.now().toString(36)}`;
+            `?client_id=${credentials.get_client_id()}` +
+            "&redirect_uri=http://localhost" +
+            "&response_type=code" +
+            "&scope=channel:read:redemptions" +
+            "&force_verify=true" +
+            `&state=${channel}#${Date.now().toString(36)}`;
     }
 
     /**
@@ -47,11 +47,11 @@ module.exports = class Fletalytics {
         const response = await axios({
             method: 'post',
             url: "https://id.twitch.tv/oauth2/token" +
-                 `?client_id=${credentials.get_client_id()}` +
-                 `&client_secret=${credentials.get_client_secret()}` +
-                 `&code=${access_code}` +
-                 "&grant_type=authorization_code" +
-                 "&redirect_uri=http://localhost"
+                `?client_id=${credentials.get_client_id()}` +
+                `&client_secret=${credentials.get_client_secret()}` +
+                `&code=${access_code}` +
+                "&grant_type=authorization_code" +
+                "&redirect_uri=http://localhost"
         });
         credentials.update_access_tokens(channel, response.data);
     }
@@ -128,16 +128,16 @@ module.exports = class Fletalytics {
     async get_yt_link(search) {
         logger.log(`Calling YouTube search for "${search}"`);
         const uri = "https://www.googleapis.com/youtube/v3/search" +
-                    `?key=${credentials.get_google_key()}` +
-                    "&type=video&part=snippet&maxResults=1" +
-                    `&q=${encodeURIComponent(search)}`;
+            `?key=${credentials.get_google_key()}` +
+            "&type=video&part=snippet&maxResults=1" +
+            `&q=${encodeURIComponent(search)}`;
         const response = await axios({
             method: 'get',
             url: uri
         });
         const title = response.data.items[0].snippet.title;
         const video_id = response.data.items[0].id.videoId;
-        
+
         return {
             title: unescape(title),
             url: `https://www.youtube.com/watch?v=${video_id}`
@@ -150,7 +150,7 @@ module.exports = class Fletalytics {
      * @param {string} clip_title Title of clip to search for
      * @param {boolean} [threading=true] Whether to spawn a worker thread to search or perform search in main thread
      */
-    async get_clip_link(channel, clip_title, threading=true) {
+    async get_clip_link(channel, clip_title, threading = true) {
         logger.log(`Search for clip [${clip_title}] under ${channel}, threading: ${threading}`);
 
         const client_id = credentials.get_client_id();

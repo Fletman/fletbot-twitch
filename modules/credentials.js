@@ -2,7 +2,7 @@ const axios = require('axios');
 const fs = require('fs');
 
 // client creds: client_id for API and oauth token for chat
-const credentials = JSON.parse(fs.readFileSync('./resources/auth.json', {encoding: 'utf8'}));
+const credentials = JSON.parse(fs.readFileSync('./resources/auth.json', { encoding: 'utf8' }));
 let default_token;
 
 module.exports = {
@@ -38,9 +38,9 @@ module.exports = {
         const response = await axios({
             method: 'post',
             url: "https://id.twitch.tv/oauth2/token" +
-                 `?client_id=${credentials.client_id}` +
-                 `&client_secret=${credentials.api_secret}` +
-                 `&grant_type=client_credentials`
+                `?client_id=${credentials.client_id}` +
+                `&client_secret=${credentials.api_secret}` +
+                `&grant_type=client_credentials`
         });
         default_token = response.data.access_token;
         return default_token;
@@ -100,10 +100,10 @@ module.exports = {
         const response = await axios({
             method: 'post',
             url: "https://id.twitch.tv/oauth2/token" +
-                 "?grant_type=refresh_token" +
-                 `&refresh_token=${encodeURI(credentials.permits[channel].refresh)}` +
-                 `&client_id=${credentials.client_id}` +
-                 `&client_secret=${credentials.api_secret}`
+                "?grant_type=refresh_token" +
+                `&refresh_token=${encodeURI(credentials.permits[channel].refresh)}` +
+                `&client_id=${credentials.client_id}` +
+                `&client_secret=${credentials.api_secret}`
         });
         module.exports.update_access_tokens(channel, response.data);
         return module.exports.get_access_token(channel);
@@ -123,6 +123,6 @@ module.exports = {
      */
     is_moderator: (user_context) => {
         return user_context.badges &&
-               (user_context.badges.broadcaster || user_context.badges.moderator)
+            (user_context.badges.broadcaster || user_context.badges.moderator)
     }
 }

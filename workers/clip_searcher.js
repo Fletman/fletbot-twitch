@@ -7,6 +7,6 @@ parentPort.on('message', (params) => {
             parentPort.postMessage(clip);
         })
         .catch((err) => {
-            throw(err);
+            throw (err);
         });
 });

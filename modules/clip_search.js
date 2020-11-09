@@ -9,9 +9,9 @@ const str_similarity = require('string-similarity');
  * @param {string} clip_title 
  * @param {number} match_threshold 
  */
-module.exports = async (client_id, token, channel_id, clip_title, match_threshold=.85) => {
+module.exports = async (client_id, token, channel_id, clip_title, match_threshold = .85) => {
     if(match_threshold < 0 || match_threshold > 1) {
-        throw(`Invalid match threshold: ${match_threshold} Value must be between 0 and 1`);
+        throw (`Invalid match threshold: ${match_threshold} Value must be between 0 and 1`);
     }
 
     let response = {};
@@ -20,9 +20,10 @@ module.exports = async (client_id, token, channel_id, clip_title, match_threshol
     const t0 = Date.now();
     do {
         const uri = (response.data &&
-                     response.data.pagination &&
-                     response.data.pagination.cursor ? `https://api.twitch.tv/helix/clips?broadcaster_id=${channel_id}&first=100&after=${response.data.pagination.cursor}` :
-                                                       `https://api.twitch.tv/helix/clips?broadcaster_id=${channel_id}&first=100`);
+            response.data.pagination &&
+            response.data.pagination.cursor ?
+            `https://api.twitch.tv/helix/clips?broadcaster_id=${channel_id}&first=100&after=${response.data.pagination.cursor}` :
+            `https://api.twitch.tv/helix/clips?broadcaster_id=${channel_id}&first=100`);
         response = await axios({
             method: 'get',
             url: uri,
@@ -34,14 +35,13 @@ module.exports = async (client_id, token, channel_id, clip_title, match_threshol
         page_index++;
         match = get_best_match(match, clip_title, response.data.data);
     } while(page_index <= 10 &&
-            match.percentage < match_threshold &&
-            response.data.pagination &&
-            response.data.pagination.cursor);
+        match.percentage < match_threshold &&
+        response.data.pagination &&
+        response.data.pagination.cursor);
 
     return match.url ?
         Object.assign(
-            match,
-            {
+            match, {
                 match_percent: Math.trunc(match.percentage * 10000) / 100,
                 pages_read: page_index,
                 search_time: `${(Date.now() - t0) / 1000} sec`

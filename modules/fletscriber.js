@@ -40,17 +40,17 @@ module.exports = class FletScriber {
             }
         });
         const channel_id = res.data.data[0].id;
-        
+
         try {
             await this.pubsub_client.registerUserListener(
-                new ApiClient({authProvider: this._create_auth_provider(client_id, channel)})
+                new ApiClient({ authProvider: this._create_auth_provider(client_id, channel) })
             );
-        } catch(e) {
-            if(e.message != "Invalid token supplied") { throw(e); }
+        } catch (e) {
+            if(e.message != "Invalid token supplied") { throw (e); }
             logger.log(`Invalid access token for ${channel}, attempting to refresh`);
             await credentials.refresh_tokens(channel);
             await this.pubsub_client.registerUserListener(
-                new ApiClient({authProvider: this._create_auth_provider(client_id, channel)})
+                new ApiClient({ authProvider: this._create_auth_provider(client_id, channel) })
             );
         }
 
@@ -129,18 +129,16 @@ module.exports = class FletScriber {
      */
     _create_auth_provider(client_id, channel) {
         return new RefreshableAuthProvider(
-            new StaticAuthProvider(client_id, credentials.get_access_token(channel)),
-            {
+            new StaticAuthProvider(client_id, credentials.get_access_token(channel)), {
                 clientSecret: credentials.get_client_secret(),
                 refreshToken: credentials.get_refresh_token(channel),
                 onRefresh: (new_tokens) => {
                     logger.log(`Pubsub refreshing tokens for ${channel}`);
                     credentials.update_access_tokens(
-                        channel,
-                        {access_token: new_tokens.accessToken, refresh: new_tokens.refreshToken}
+                        channel, { access_token: new_tokens.accessToken, refresh: new_tokens.refreshToken }
                     );
                 }
-            }   
+            }
         );
     }
 }
