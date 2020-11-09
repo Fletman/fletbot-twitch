@@ -16,7 +16,7 @@
  ```npm run fletbot <list of channels to connect to>```
   - ex.
    ```npm run fletbot fletman795 fletbot795```
-### Joing Channels
+### Joining Channels
 - Once active, Fletbot can join/leave any channel through a whispered command:
   - `!fletjoin <channel name>` to have Fletbot join a specified channel
   - `!fletleave <channel name>` to have Fletbot leave specified channel
