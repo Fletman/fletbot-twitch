@@ -6,6 +6,11 @@
 ### Auth
 - Chatbots require a valid OAuth tokens to authenticate against Twitch
 - Token can be generated [here](https://twitchapps.com/tmi/)
+- Additionally, a client ID and client secret are required which are generated [when the application is registered](https://dev.twitch.tv/dashboard/apps/create)
+- Save these 3 fields to a file called `resources/auth.json`. JSON file should be an object structured as:
+  - `client_id`: <Client ID>
+  - `api_secret`: <Client Secret>
+  - `oauth_token`: <OAuth Token>
 
 ## Usage
 ### Running
