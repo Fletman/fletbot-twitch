@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "fletbot": "node index.js",
-    "win-format": "format.bat",
+    "win-format": "call dev-resources/format.bat",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [
