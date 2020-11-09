@@ -44,7 +44,8 @@
         "fletevents": "!fletevents <active | inactive>: enable/disable fletevents such as reactions to channel rewards redemptions or bit cheers. Requires permissions to be given prior to use. See !fletpermit for details",
         "fletpermit": "!fletpermit: Retrieve a link to a Twitch authorization page to give Fletbot permission to view events on caller's channel",
         "fletunpermit": "!fletunpermit: Remove Fletbot's permissions to view events of a channel",
-        "fletalytics": "!fletalytics: View changelog and preview some fancy new (potential) features coming soon™"
+        "fletalytics": "!fletalytics: View changelog and preview some fancy new (potential) features coming soon™",
+        "fletsrc": "!fletsrc: View Fletbot source code"
     },
     "custom_greetings": {
         "fletman795": "GivePLZ Daddy",

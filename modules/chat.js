@@ -371,7 +371,7 @@ function handle_chat_message(channel_name, context, msg, self) {
 			}
 			break;
 		case '!fletsrc':
-			client.say(channel_name, "soon™")
+			client.say(channel_name, "https://github.com/Fletman/fletbot-twitch")
 				.then((data) => {
 					logger.log(data);
 				}).catch((err) => {
