@@ -1,7 +1,6 @@
 "use strict";
 
 const axios = require('axios');
-const str_similarity = require('string-similarity');
 const unescape = require('unescape');
 const { Worker } = require('worker_threads');
 const clip_search = require('./clip_search.js');
@@ -68,7 +67,7 @@ module.exports = class Fletalytics {
     /**
      * Retrieve a link to a user's (300px x 300px) Twitch profile picture
      * @param {string} username Username
-     * @returns {string?} Link to profile picture, or null if specified user does not exist
+     * @returns {Promise<string?>} Link to profile picture, or null if specified user does not exist
      */
     async get_pfp(username) {
         let channel_id;
@@ -100,7 +99,7 @@ module.exports = class Fletalytics {
     /**
      * Set up listener for specified channel's event stream
      * @param {string} channel Channel name
-     * @returns {string} Result message
+     * @returns {Promise<string>} Result message
      */
     async listen(channel) {
         if(!credentials.get_validated_channels().includes(channel)) {
@@ -113,7 +112,7 @@ module.exports = class Fletalytics {
     /**
      * Stop listening to specified channel's event stream
      * @param {string} channel Channel name
-     * @returns {string} Result message
+     * @returns {Promise<string>} Result message
      */
     async unlisten(channel) {
         await this.fletscriber.unsubscribe(channel);
@@ -123,7 +122,7 @@ module.exports = class Fletalytics {
     /**
      * Perform a YouTube search, returning a link to the video matching search criteria
      * @param {string} search Search query to provide to YouTube
-     * @returns {string} YouTube video link
+     * @returns {Promise<string>} YouTube video link
      */
     async get_yt_link(search) {
         logger.log(`Calling YouTube search for "${search}"`);
@@ -149,6 +148,7 @@ module.exports = class Fletalytics {
      * @param {string} channel Channel name
      * @param {string} clip_title Title of clip to search for
      * @param {boolean} [threading=true] Whether to spawn a worker thread to search or perform search in main thread
+     * @returns {Promise<string>} Clip link
      */
     async get_clip_link(channel, clip_title, threading = true) {
         logger.log(`Search for clip [${clip_title}] under ${channel}, threading: ${threading}`);
@@ -212,5 +212,14 @@ module.exports = class Fletalytics {
                 clip_title
             );
         }
+    }
+
+    /**
+     * "Shoutout" a specified user
+     * @param {string} username Username
+     * @returns {Promise<string>} String for user's shoutout
+     */
+    async shoutout(username) {
+
     }
 }
