@@ -264,7 +264,7 @@ module.exports = {
                     default:
                         timeout_len = 60;
                 }
-                client.say(channel_name, `/timeout @${username} ${timeout_len}`)
+                client.timeout(channel_name, username, timeout_len, "Filthy pyramids aren't allowed here")
                     .then((data) => {
                         logger.log(data);
                     })
