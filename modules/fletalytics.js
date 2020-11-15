@@ -18,6 +18,7 @@ module.exports = class Fletalytics {
      */
     constructor(chat_client) {
         this.fletscriber = new Fletscriber(chat_client);
+        this.so_channels = {};
     }
 
     /**
@@ -78,22 +79,8 @@ module.exports = class Fletalytics {
         } else {
             channel_id = username;
         }
-
-        const default_token = await credentials.get_default_access_token();
-        const response = await axios({
-            method: 'get',
-            url: `https://api.twitch.tv/helix/users?login=${channel_id}`,
-            headers: {
-                'client-id': credentials.get_client_id(),
-                'Authorization': `Bearer ${default_token}`
-            }
-        });
-        const channel_data = response.data.data[0];
-        if(!channel_data) {
-            return null;
-        } else {
-            return channel_data.profile_image_url;
-        }
+        const channel_data = await this._get_user(channel_id);
+        return (channel_data ? channel_data.profile_image_url : null);
     }
 
     /**
@@ -215,11 +202,52 @@ module.exports = class Fletalytics {
     }
 
     /**
-     * "Shoutout" a specified user
-     * @param {string} username Username
-     * @returns {Promise<string>} String for user's shoutout
+     * Add channel to list of channels to auto-so for
+     * @param {string} channel Channel name
+     * @param {boolean} active Whether shoutouts should be active for specified channel
      */
-    async shoutout(username) {
+    set_shoutout_channel(channel, active) {
+        if(active) {
+            this.so_channels[channel] = true;
+        } else {
+            delete this.so_channels[channel];
+        }
+        logger.log(`Shoutout update for ${channel}`, this.so_channels);
+    }
 
+    /**
+     * "Shoutout" a specified user
+     * @param {string} channel Channel name
+     * @param {string} username Username
+     * @param {number} [delay=3000] Time in milliseconds to wait before returning shoutout
+     * @returns {Promise<string?>} String for user's shoutout
+     */
+    async shoutout(channel, username, delay=3000) {
+        // TODO: might update this if a need arises for a custom SO message. For now, just use channel's SO command
+        if(this.so_channels[channel]) {
+            await new Promise((resolve, reject) => {
+                setTimeout(() => resolve(), delay);
+            })
+            return `!so @${username}`;
+        }
+    }
+
+    /**
+     * Get Twitch user data
+     * @private
+     * @param {string} username Username
+     * @returns {Promise<object?>} User data object
+     */
+    async _get_user(username) {
+        const default_token = await credentials.get_default_access_token();
+        const response = await axios({
+            method: 'get',
+            url: `https://api.twitch.tv/helix/users?login=${username}`,
+            headers: {
+                'client-id': credentials.get_client_id(),
+                'Authorization': `Bearer ${default_token}`
+            }
+        });
+        return response.data.data[0];
     }
 }

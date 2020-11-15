@@ -4,11 +4,11 @@
  */
 module.exports = {
     /**Log to stdout */
-    log: (data) => write(console.log, data),
+    log: (...data) => write(console.log, data),
     /**Log to stderr */
-    error: (err) => write(console.error, err)
+    error: (...err) => write(console.error, err)
 }
 
 function write(log_func, log) {
-    log_func(`[${new Date(Date.now()).toLocaleString()}]`, log)
+    log_func.apply(null, [`[ ${new Date(Date.now()).toLocaleString()} ]`].concat(log));
 }

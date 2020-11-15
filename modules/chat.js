@@ -29,6 +29,7 @@ module.exports = {
         client.on("notice", handle_notice);
         client.on('chat', handle_chat_message);
         client.on('whisper', handle_whisper);
+        client.on('raided', handle_raid);
 
         // connect to channels specified in command line args
         logger.log(`Connecting to channels: ${process.argv.slice(2)}`);
@@ -147,6 +148,29 @@ function handle_chat_message(channel_name, context, msg, self) {
                     logger.error(err);
                 });
             break;
+        case '!fletso':
+            let result_msg;
+            switch(msg_parts[1]) {
+                case 'active':
+                    fletalytics.set_shoutout_channel(channel_name, true);
+                    result_msg = "Auto-SO now active";
+                    break;
+                case 'inactive':
+                    fletalytics.set_shoutout_channel(channel_name, false);
+                    result_msg = "Auto-SO now inactive";
+                    break;
+                default:
+                    result_msg = "Invalid flag provided. Valid flags are <active | inactive>"
+                    break;
+            }
+            client.say(channel_name, `@${context.username} ${result_msg}`)
+                .then((data) => {
+                    logger.log(data);
+                }).catch((err) => {
+                    logger.error(err);
+                });
+            break;
+        
         case '!sip':
             if(sip_map[channel_name]) {
                 sip_map[channel_name] += 1;
@@ -515,7 +539,35 @@ function handle_whisper(username, context, msg, self) {
                 logger.log(`Channel list:  ${client.getChannels()}`);
             }
             break;
+        case '!fletupdate':
+            logger.log(`Update broadcast message triggered by ${username}`);
+            client.getChannels().forEach((channel) => {
+                client.action(channel, "Fletbot update started. Fletbot will be back online soon™")
+                    .then((data) => {
+                        logger.log(data);
+                    }).catch((err) => {
+                        logger.error(err);
+                    });
+            });
         default:
             return;
     }
+}
+
+// event for a channel being raided
+function handle_raid(channel_name, username, raider_count=0) {
+    logger.log(`${channel_name} raided by ${username} with ${raider_count} raiders`);
+    fletalytics.shoutout(channel_name, username, 2500)
+        .then((so_msg) => {
+            if(so_msg) {
+                client.say(channel_name, so_msg)
+                    .then((data) => {
+                        logger.log(data);
+                    }).catch((err) => {
+                        logger.error(err);
+                    });
+            }
+        }).catch((err) => {
+            logger.error(err);
+        });
 }
