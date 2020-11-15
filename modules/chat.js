@@ -231,14 +231,12 @@ function handle_chat_message(channel_name, context, msg, self) {
             pyramids.toggle_blocking(client, channel_name, context, msg_parts[1]);
             break;
         case '!fletalytics':
-            client.say(
-                channel_name,
-                `Previous update: Twitch clip and Youtube search commands. Musings for next update: Considering setting up something for automatic SO's. Maybe whenever a raid occurs that could be the SO trigger.`
-            ).then((data) => {
-                logger.log(data);
-            }).catch((err) => {
-                logger.error(err);
-            });
+            client.action(channel_name, chat_meta.changelog)
+                .then((data) => {
+                    logger.log(data);
+                }).catch((err) => {
+                    logger.error(err);
+                });
             break;
         case '!fletpfp':
             fletalytics.get_pfp(msg_parts[1])

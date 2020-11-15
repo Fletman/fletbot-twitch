@@ -61,5 +61,6 @@
             "KappaWealth",
             "KappaPride"
         ]
-    }
+    },
+    "changelog": "Recently added ability to auto-SO on being raided. Depending on usage, a future update may expand this capability"
 }
