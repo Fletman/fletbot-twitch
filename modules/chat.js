@@ -150,7 +150,7 @@ function handle_chat_message(channel_name, context, msg, self) {
             break;
         case '!fletso':
             let result_msg;
-            switch(msg_parts[1]) {
+            switch (msg_parts[1]) {
                 case 'active':
                     fletalytics.set_shoutout_channel(channel_name, true);
                     result_msg = "Auto-SO now active";
@@ -170,7 +170,7 @@ function handle_chat_message(channel_name, context, msg, self) {
                     logger.error(err);
                 });
             break;
-        
+
         case '!sip':
             if(sip_map[channel_name]) {
                 sip_map[channel_name] += 1;
@@ -553,7 +553,7 @@ function handle_whisper(username, context, msg, self) {
 }
 
 // event for a channel being raided
-function handle_raid(channel_name, username, raider_count=0) {
+function handle_raid(channel_name, username, raider_count = 0) {
     logger.log(`${channel_name} raided by ${username} with ${raider_count} raiders`);
     fletalytics.shoutout(channel_name, username, 2500)
         .then((so_msg) => {

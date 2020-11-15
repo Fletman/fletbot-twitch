@@ -222,7 +222,7 @@ module.exports = class Fletalytics {
      * @param {number} [delay=3000] Time in milliseconds to wait before returning shoutout
      * @returns {Promise<string?>} String for user's shoutout
      */
-    async shoutout(channel, username, delay=3000) {
+    async shoutout(channel, username, delay = 3000) {
         // TODO: might update this if a need arises for a custom SO message. For now, just use channel's SO command
         if(this.so_channels[channel]) {
             await new Promise((resolve, reject) => {
