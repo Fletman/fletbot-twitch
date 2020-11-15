@@ -27,6 +27,7 @@
 - `!fletbot`: Ping Fletbot
 - `!fletpet`: Show Fletbot some affection
 - `!fletinc`: #sponsored ad read
+- `!fletso <active | inactive>` Enable/disable automatic shoutouts when being raided
 - `!sip`: Increment sip counter
 - `!setsips <number>`: Set sip count to specified number
 - `!getsips`: Get current sip count

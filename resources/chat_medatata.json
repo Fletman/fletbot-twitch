@@ -34,7 +34,7 @@
         "fletbot": "!fletbot: Ping Fletbot",
         "fletpet": "!fletpet: Show Fletbot some affection",
         "fletinc": "!fletinc: #sponsored ad read",
-        "fletso": "!fletso <active | inactive>: Enable/disable auto-shoutouts on raids",
+        "fletso": "!fletso <active | inactive>: Enable/disable automatic shoutouts when being raided",
         "sip": "!sip: Increment sip counter",
         "setsips": "!setsips <number>: Set sip count to specified number",
         "getsips": "!getsips: Get current sip count",
