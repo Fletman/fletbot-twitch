@@ -36,7 +36,7 @@
   - 'normal' flag sets Fletbot to interrupt pyramids
   - 'max' flag will set Fletbot to time out pyramid makers. (requires moderator role for Fletbot)
 - `!fletpfp <username>`: Get a user's profile picture
-- `!fletclip <clip name>`: Search current channel for a clip whose title most closely resembles the provided clip name
+- `!fletclip <channel name> <clip name>`: Search given channel for a clip whose title most closely resembles the provided clip name
 - `!fletyt <query>`: Search YouTube for a video using the provided query
 - `!fletevents <active | inactive>`: enable/disable fletevents such as reactions to channel rewards redemptions or bit cheers
   - Requires permissions to be given prior to use. See !fletpermit for details
