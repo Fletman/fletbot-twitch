@@ -143,9 +143,10 @@ module.exports = class Fletalytics {
         const client_id = credentials.get_client_id();
         const default_token = await credentials.get_default_access_token();
 
+        const channel_name = (channel.startsWith("@") ? channel.slice(1) : channel);
         const res = await axios({
             method: 'get',
-            url: `https://api.twitch.tv/helix/users?login=${channel}`,
+            url: `https://api.twitch.tv/helix/users?login=${channel_name}`,
             headers: {
                 'client-id': client_id,
                 'Authorization': `Bearer ${default_token}`
@@ -170,16 +171,6 @@ module.exports = class Fletalytics {
                     }
                 })
             });
-
-            const res = await axios({
-                method: 'get',
-                url: `https://api.twitch.tv/helix/users?login=${channel}`,
-                headers: {
-                    'client-id': client_id,
-                    'Authorization': `Bearer ${default_token}`
-                }
-            });
-            const channel_id = res.data.data[0].id;
 
             worker.postMessage({
                 client_id: client_id,

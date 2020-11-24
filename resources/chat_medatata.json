@@ -40,7 +40,7 @@
         "getsips": "!getsips: Get current sip count",
         "fletscrew": "!fletscrew <off | normal | max>: Set anti-pyramid mode. 'off' flag disables pyramid countermeasures. 'normal' flag sets Fletbot to interrupt pyramids. 'max' flag will set Fletbot to time out pyramid makers. (requires moderator role)",
         "fletpfp": "!fletpfp <username>: Get a user's profile picture",
-        "fletclip": "!fletclip <clip name>: Search current channel for a clip whose title most closely resembles the provided clip name",
+        "fletclip": "!fletclip <channel name> <clip name>: Search given channel for a clip whose title most closely resembles the provided clip name",
         "fletyt": "!fletyt <query>: Search YouTube for a video using the provided query",
         "fletevents": "!fletevents <active | inactive>: enable/disable fletevents such as reactions to channel rewards redemptions or bit cheers. Requires permissions to be given prior to use. See !fletpermit for details",
         "fletpermit": "!fletpermit: Retrieve a link to a Twitch authorization page to give Fletbot permission to view events on caller's channel",
@@ -62,5 +62,5 @@
             "KappaPride"
         ]
     },
-    "changelog": "Recently added ability to auto-SO on being raided. Depending on usage, a future update may expand this capability"
+    "changelog": "Latest change: !fletclip command now supports searching for clips from external channels. Use \"!flethelp !fletclip\" for details"
 }

@@ -364,19 +364,18 @@ function handle_chat_message(channel_name, context, msg, self) {
             }
             break;
         case '!fletclip':
-            if(msg_parts.length < 2) {
-                client.say(channel_name, `@${context.username} No search criteria provided`)
+            if(msg_parts.length < 3) {
+                client.say(channel_name, `@${context.username} Invalid search criteria provided`)
                     .then((data) => {
                         logger.log(data);
                     }).catch((err) => {
                         logger.error(err);
                     });
             } else {
-                fletalytics.get_clip_link(channel_name.slice(1), msg_parts.slice(1).join(" "))
+                fletalytics.get_clip_link(msg_parts[1], msg_parts.slice(2).join(" "))
                     .then((clip) => {
-                        logger.log(clip);
                         const clip_response = (clip ? `This clip has ${clip.match_percent}% title match: ${clip.url}` :
-                            "Unable to find matching clip in this channel");
+                            "Unable to find matching clip from provided criteria");
                         client.say(channel_name, `@${context.username} ${clip_response}`)
                             .then((data) => {
                                 logger.log(data);
@@ -385,6 +384,14 @@ function handle_chat_message(channel_name, context, msg, self) {
                             });
                     }).catch((err) => {
                         logger.log(err);
+                        if(err.response && err.response.status == 400) {
+                            client.say(channel_name, `@${context.username} Invalid search criteria provided`)
+                                .then((data) => {
+                                    logger.log(data);
+                                }).catch((err) => {
+                                    logger.error(err);
+                                });
+                        }
                     });
             }
             break;
