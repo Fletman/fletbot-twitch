@@ -545,9 +545,13 @@ function handle_whisper(username, context, msg, self) {
             }
             break;
         case '!fletupdate':
+            if(!chat_meta.bot_owners.includes(context.username)) {
+                return;
+            }
             logger.log(`Update broadcast message triggered by ${username}`);
+            const update_msg = (msg_parts[1] ? `Update started, Fletbot will be back online soon™. Update message: ${msg_parts.slice(1).join(" ")}` : "Update started, Fletbot will be back online soon™");
             client.getChannels().forEach((channel) => {
-                client.action(channel, "Fletbot update started. Fletbot will be back online soon™")
+                client.action(channel, update_msg)
                     .then((data) => {
                         logger.log(data);
                     }).catch((err) => {
