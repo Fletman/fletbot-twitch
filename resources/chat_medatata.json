@@ -63,5 +63,5 @@
             "KappaPride"
         ]
     },
-    "changelog": "Latest change: !fletclip command now supports searching for clips from external channels. Use \"!flethelp !fletclip\" for details"
+    "changelog": "Latest change: Added !fso shoutout command. Use !flethelp !fso and !flethelp !fletso for details"
 }
