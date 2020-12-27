@@ -27,7 +27,8 @@
 - `!fletbot`: Ping Fletbot
 - `!fletpet`: Show Fletbot some affection
 - `!fletinc`: #sponsored ad read
-- `!fletso <active | inactive>` Enable/disable automatic shoutouts when being raided
+- `!fletso <active | inactive> <fso>`: Enable/disable automatic shoutouts when being raided.
+  - If optional 'fso' flag is provided, '!fso' shoutout is used instead of channel's '!so' shoutout
 - `!sip`: Increment sip counter
 - `!setsips <number>`: Set sip count to specified number
 - `!getsips`: Get current sip count

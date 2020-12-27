@@ -197,9 +197,9 @@ module.exports = class Fletalytics {
      * @param {string} channel Channel name
      * @param {boolean} active Whether shoutouts should be active for specified channel
      */
-    set_shoutout_channel(channel, active) {
+    set_shoutout_channel(channel, active, fso=false) {
         if(active) {
-            this.so_channels[channel] = true;
+            this.so_channels[channel] = {fso: fso};
         } else {
             delete this.so_channels[channel];
         }
@@ -207,19 +207,46 @@ module.exports = class Fletalytics {
     }
 
     /**
-     * "Shoutout" a specified user
+     * "Shoutout" a user, returning a string containing link to user's channel and their last played game
+     * @param username Username
+     * @returns {Promise<string>} String for user's shoutout
+    */
+    async shoutout(username) {
+        const channel_name = (username.startsWith("@") ? username.slice(1) : username);
+        const channel_data = await this._get_channel(channel_name);
+        let so_msg;
+        if(!channel_data) {
+            so_msg = `couldn't find anything for channel "${channel_name}"`;
+        } else if(channel_data.game_name) {
+            so_msg = `check out ${channel_data.broadcaster_name} over at https://www.twitch.tv/${channel_name}! They were last streaming ${channel_data.game_name}`;
+            if(channel_data.title) {
+                so_msg += `, doing "${channel_data.title}"`;
+            }
+        } else if(channel_data.title) {
+            so_msg = `check out ${channel_data.broadcaster_name} over at https://www.twitch.tv/${channel_name}! Not sure what game they were playing but their last stream was "${channel_data.title}"`;
+        } else {
+            so_msg = `it doesn't look like ${channel_data.broadcaster_name} streams, but check them out anyway over at https://twitch.tv/${channel_name}!`;
+        }
+        return `/me Bleep bloop ${so_msg}`;
+    }
+
+    /**
+     * Automatically shoutout a specified user, either using channel's shoutout command or Fletbot shoutout
      * @param {string} channel Channel name
      * @param {string} username Username
      * @param {number} [delay=3000] Time in milliseconds to wait before returning shoutout
      * @returns {Promise<string?>} String for user's shoutout
      */
-    async shoutout(channel, username, delay = 3000) {
-        // TODO: might update this if a need arises for a custom SO message. For now, just use channel's SO command
+    async auto_shoutout(channel, username, delay = 3000) {
         if(this.so_channels[channel]) {
             await new Promise((resolve, reject) => {
                 setTimeout(() => resolve(), delay);
-            })
-            return `!so @${username}`;
+            });
+            if(this.so_channels[channel].fso) {
+                return await this.shoutout(username)
+            } else {
+                return `!so @${username}`;
+            }
         }
     }
 
@@ -234,6 +261,29 @@ module.exports = class Fletalytics {
         const response = await axios({
             method: 'get',
             url: `https://api.twitch.tv/helix/users?login=${username}`,
+            headers: {
+                'client-id': credentials.get_client_id(),
+                'Authorization': `Bearer ${default_token}`
+            }
+        });
+        return response.data.data[0];
+    }
+
+    /**
+     * Get Twitch channel data
+     * @private
+     * @param {string} channel Channel name
+     * @returns {Promise<object?>} Channel data object
+     */
+    async _get_channel(channel) {
+        const user_data = await this._get_user(channel);
+        if(!user_data || !user_data.id) {
+            return null;
+        }
+        const default_token = await credentials.get_default_access_token();
+        const response = await axios({
+            method: 'get',
+            url: `https://api.twitch.tv/helix/channels?broadcaster_id=${user_data.id}`,
             headers: {
                 'client-id': credentials.get_client_id(),
                 'Authorization': `Bearer ${default_token}`
