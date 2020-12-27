@@ -156,8 +156,7 @@ function handle_chat_message(channel_name, context, msg, self) {
                     }).catch((err) => {
                         logger.error(err);
                     });
-            }
-            else if(!msg_parts[1]) {
+            } else if(!msg_parts[1]) {
                 client.say(channel_name, `@${context.username} no username provided`)
                     .then((data) => {
                         logger.log(data);
@@ -183,7 +182,7 @@ function handle_chat_message(channel_name, context, msg, self) {
             switch (msg_parts[1]) {
                 case 'active':
                     const use_fso = (msg_parts[2] && msg_parts[2] === 'fso');
-                    fletalytics.set_shoutout_channel(channel_name, true, fso=use_fso);
+                    fletalytics.set_shoutout_channel(channel_name, true, fso = use_fso);
                     result_msg = "Auto-SO now active";
                     if(use_fso) {
                         result_msg += " using Fletbot shoutout";
