@@ -197,9 +197,9 @@ module.exports = class Fletalytics {
      * @param {string} channel Channel name
      * @param {boolean} active Whether shoutouts should be active for specified channel
      */
-    set_shoutout_channel(channel, active, fso=false) {
+    set_shoutout_channel(channel, active, fso = false) {
         if(active) {
-            this.so_channels[channel] = {fso: fso};
+            this.so_channels[channel] = { fso: fso };
         } else {
             delete this.so_channels[channel];
         }
@@ -210,7 +210,7 @@ module.exports = class Fletalytics {
      * "Shoutout" a user, returning a string containing link to user's channel and their last played game
      * @param {string} username Username
      * @returns {Promise<string>} String for user's shoutout
-    */
+     */
     async shoutout(username) {
         const channel_name = (username.startsWith("@") ? username.slice(1) : username);
         const channel_data = await this._get_channel(channel_name);
