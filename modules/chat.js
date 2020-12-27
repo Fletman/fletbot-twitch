@@ -152,8 +152,12 @@ function handle_chat_message(channel_name, context, msg, self) {
             let result_msg;
             switch (msg_parts[1]) {
                 case 'active':
-                    fletalytics.set_shoutout_channel(channel_name, true);
+                    const use_fso = (msg_parts[2] && msg_parts[2] === 'fso');
+                    fletalytics.set_shoutout_channel(channel_name, true, fso=use_fso);
                     result_msg = "Auto-SO now active";
+                    if(use_fso) {
+                        result_msg += " using Fletbot shoutout";
+                    }
                     break;
                 case 'inactive':
                     fletalytics.set_shoutout_channel(channel_name, false);
@@ -566,7 +570,7 @@ function handle_whisper(username, context, msg, self) {
 // event for a channel being raided
 function handle_raid(channel_name, username, raider_count = 0) {
     logger.log(`${channel_name} raided by ${username} with ${raider_count} raiders`);
-    fletalytics.shoutout(channel_name, username, 2500)
+    fletalytics.auto_shoutout(channel_name, username.toLowerCase(), 2500)
         .then((so_msg) => {
             if(so_msg) {
                 client.say(channel_name, so_msg)

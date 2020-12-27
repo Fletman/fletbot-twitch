@@ -2,9 +2,7 @@ const credentials = require('./credentials.js');
 const logger = require('./fletlog.js');
 
 // channels where attempting pyramid = smite
-let mod_channels = [
-    "#guybrushthreeepwood"
-];
+let mod_channels = [];
 
 /*
 active_blocking: for each channel, state whether pyramid blocking is active
