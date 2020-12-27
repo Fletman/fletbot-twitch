@@ -148,6 +148,36 @@ function handle_chat_message(channel_name, context, msg, self) {
                     logger.error(err);
                 });
             break;
+        case '!fso':
+            if(!chat_meta.bot_owners.includes(context.username) && !credentials.is_moderator(context)) {
+                client.say(channel_name, `@${context.username} Only broadcaster and moderators can use this command`)
+                    .then((data) => {
+                        logger.log(data);
+                    }).catch((err) => {
+                        logger.error(err);
+                    });
+            }
+            else if(!msg_parts[1]) {
+                client.say(channel_name, `@${context.username} no username provided`)
+                    .then((data) => {
+                        logger.log(data);
+                    }).catch((err) => {
+                        logger.error(err);
+                    });
+            } else {
+                fletalytics.shoutout(msg_parts[1])
+                    .then((so_msg) => {
+                        client.say(channel_name, so_msg)
+                            .then((data) => {
+                                logger.log(data);
+                            }).catch((err) => {
+                                logger.error(err);
+                            });
+                    }).catch((err) => {
+                        logger.error(err);
+                    })
+            }
+            break;
         case '!fletso':
             let result_msg;
             switch (msg_parts[1]) {

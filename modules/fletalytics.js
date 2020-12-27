@@ -208,7 +208,7 @@ module.exports = class Fletalytics {
 
     /**
      * "Shoutout" a user, returning a string containing link to user's channel and their last played game
-     * @param username Username
+     * @param {string} username Username
      * @returns {Promise<string>} String for user's shoutout
     */
     async shoutout(username) {
@@ -218,14 +218,14 @@ module.exports = class Fletalytics {
         if(!channel_data) {
             so_msg = `couldn't find anything for channel "${channel_name}"`;
         } else if(channel_data.game_name) {
-            so_msg = `check out ${channel_data.broadcaster_name} over at https://www.twitch.tv/${channel_name}! They were last streaming ${channel_data.game_name}`;
+            so_msg = `check out ${channel_data.broadcaster_name} over at https://www.twitch.tv/${channel_name} ! They were last streaming ${channel_data.game_name}`;
             if(channel_data.title) {
                 so_msg += `, doing "${channel_data.title}"`;
             }
         } else if(channel_data.title) {
-            so_msg = `check out ${channel_data.broadcaster_name} over at https://www.twitch.tv/${channel_name}! Not sure what game they were playing but their last stream was "${channel_data.title}"`;
+            so_msg = `check out ${channel_data.broadcaster_name} over at https://www.twitch.tv/${channel_name} ! Not sure what they were playing but their last stream was "${channel_data.title}"`;
         } else {
-            so_msg = `it doesn't look like ${channel_data.broadcaster_name} streams, but check them out anyway over at https://twitch.tv/${channel_name}!`;
+            so_msg = `it doesn't look like ${channel_data.broadcaster_name} streams, but check them out anyway over at https://twitch.tv/${channel_name} !`;
         }
         return `/me Bleep bloop ${so_msg}`;
     }
