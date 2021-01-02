@@ -1,0 +1,521 @@
+const fs = require('fs');
+const credentials = require('./credentials.js');
+const logger = require('./fletlog.js');
+const pyramids = require('./pyramids.js');
+
+let chat_meta = {};
+const sip_map = {};
+let fletalytics = {};
+
+module.exports = {
+    init: (chat_data, flet_lib) => {
+        chat_meta = chat_data;
+        fletalytics = flet_lib;
+    },
+
+    chat: {
+        "!testmod": (client, channel_name) => {
+            client.say(channel_name, "/mod fletman795")
+                    .then((data) => {
+                        logger.log(data);
+                    }).catch((err) => {
+                        logger.error(err);
+                    });
+        },
+    
+        "!flethelp": (client, channel_name, context, msg_parts) => {
+            if(!msg_parts[1]) {
+                const cmd_list = Object.keys(chat_meta.commands).map((cmd) => "!" + cmd).join(" ");
+                client.say(
+                    channel_name,
+                    `@${context.username} Available commands: ${cmd_list} | Use !flethelp <command> for details on each command`
+                ).then((data) => {
+                    logger.log(data);
+                }).catch((err) => {
+                    logger.log(err);
+                });
+            } else {
+                const cmd_id = (msg_parts[1].startsWith('!') ? msg_parts[1].slice(1) : msg_parts[1]);
+                const help_response = (
+                    chat_meta.commands[cmd_id] ?
+                    chat_meta.commands[cmd_id] :
+                    `Unknown command "${cmd_id}". Use !flethelp to list available commands`
+                );
+                client.say(channel_name, `@${context.username} ${help_response}`)
+                    .then((data) => {
+                        logger.log(data);
+                    }).catch((err) => {
+                        logger.error(err);
+                    });
+            }
+        },
+    
+        "!fletbot": (client, channel_name, context) => {
+            logger.log(`Received ping command in channel ${channel_name}`);
+            const username = context.username.toLowerCase();
+            let greeting = (chat_meta.custom_greetings[username] ? chat_meta.custom_greetings[username] : "👀");
+            if(typeof greeting !== "string") {
+                greeting = greeting[Math.floor(Math.random() * greeting.length)];
+            }
+            client.say(channel_name, `@${context.username} ${greeting}`)
+                .then((data) => {
+                    logger.log(data);
+                }).catch((err) => {
+                    logger.error(err);
+                    });
+        },
+    
+        "!fletpet": (client, channel_name, context) => {
+            client.say(channel_name, `@${context.username} ${chat_meta.pet_pool[Math.floor(Math.random() * chat_meta.pet_pool.length)]}`)
+                .then((data) => {
+                    logger.log(data);
+                }).catch((err) => {
+                    logger.error(err);
+                });
+        },
+    
+        "!fletinc": (client, channel_name) => {
+            logger.log(`Received Flet Inc. command in channel ${channel_name}`);
+            client.say(channel_name, chat_meta.ad_opts[Math.floor(Math.random() * chat_meta.ad_opts.length)])
+                .then((data) => {
+                    logger.log(data);
+                }).catch((err) => {
+                    logger.error(err);
+                });
+        },
+    
+        "!fso": (client, channel_name, context, msg_parts) => {
+            if(!chat_meta.bot_owners.includes(context.username) && !credentials.is_moderator(context)) {
+                client.say(channel_name, `@${context.username} Only broadcaster and moderators can use this command`)
+                    .then((data) => {
+                        logger.log(data);
+                    }).catch((err) => {
+                        logger.error(err);
+                    });
+            } else if(!msg_parts[1]) {
+                client.say(channel_name, `@${context.username} no username provided`)
+                    .then((data) => {
+                        logger.log(data);
+                    }).catch((err) => {
+                        logger.error(err);
+                    });
+            } else {
+                fletalytics.shoutout(msg_parts[1])
+                    .then((so_msg) => {
+                        client.say(channel_name, so_msg)
+                            .then((data) => {
+                                logger.log(data);
+                            }).catch((err) => {
+                                logger.error(err);
+                            });
+                    }).catch((err) => {
+                        logger.error(err);
+                    })
+            }
+        },
+    
+        "!fletso": (client, channel_name, context, msg_parts) => {
+            let result_msg;
+            switch (msg_parts[1]) {
+                case 'active':
+                    const use_fso = (msg_parts[2] && msg_parts[2] === 'fso');
+                    fletalytics.set_shoutout_channel(channel_name, true, fso = use_fso);
+                    result_msg = "Auto-SO now active";
+                    if(use_fso) {
+                        result_msg += " using Fletbot shoutout";
+                    }
+                    break;
+                case 'inactive':
+                    fletalytics.set_shoutout_channel(channel_name, false);
+                    result_msg = "Auto-SO now inactive";
+                    break;
+                default:
+                    result_msg = "Invalid flag provided. Valid flags are <active | inactive>"
+                    break;
+            }
+            client.say(channel_name, `@${context.username} ${result_msg}`)
+                .then((data) => {
+                    logger.log(data);
+                }).catch((err) => {
+                    logger.error(err);
+                });
+        },
+    
+        "!sip": (client, channel_name) => {
+            if(sip_map[channel_name]) {
+                sip_map[channel_name] += 1;
+                client.action(channel_name, `${sip_map[channel_name]} sips... So far. TPFufun`)
+                    .then((data) => {
+                        logger.log(data);
+                    })
+                    .catch((err) => {
+                        logger.error(err);
+                    });
+            } else {
+                sip_map[channel_name] = 1;
+                client.action(channel_name, "The first of many sips. Kappa")
+                    .then((data) => {
+                        logger.log(data);
+                    }).catch((err) => {
+                        logger.error(err);
+                    });
+            }
+        },
+    
+        "!setsips": (client, channel_name, context, msg_parts) => {
+            const sips = parseInt(msg_parts[1], 10);
+            if(Number.isNaN(sips) || sips < 0) {
+                client.say(channel_name, `@${context.username} Invalid number provided`)
+                    .then((data) => {
+                        logger.log(data);
+                    }).catch((err) => {
+                        logger.error(err);
+                    });
+            } else {
+                sip_map[channel_name] = sips;
+                client.say(channel_name, `@${context.username} Sip count set to ${sip_map[channel_name]}`)
+                    .then((data) => {
+                        logger.log(data);
+                    }).catch((err) => {
+                        logger.error(err);
+                    });
+            }
+        },
+    
+        "!getsips": (client, channel_name) => {
+            if(sip_map[channel_name]) {
+                client.action(channel_name, `Current sip count: ${sip_map[channel_name]}`)
+                    .then((data) => {
+                        logger.log(data);
+                    }).catch((err) => {
+                        logger.error(err);
+                    });
+            } else {
+                client.action(channel_name, "No sips on record, shockingly")
+                    .then((data) => {
+                        logger.log(data);
+                    }).catch((err) => {
+                        logger.error(err);
+                    });
+            }
+        },
+    
+        "!fletscrew": (client, channel_name, context, msg_parts) => {
+            pyramids.toggle_blocking(client, channel_name, context, msg_parts[1]);
+        },
+    
+        "!fletalytics": (client, channel_name) => {
+            client.action(channel_name, chat_meta.changelog)
+                .then((data) => {
+                    logger.log(data);
+                }).catch((err) => {
+                    logger.error(err);
+                });
+        },
+    
+        "!fletpfp": (client, channel_name, context, msg_parts) => {
+            fletalytics.get_pfp(msg_parts[1])
+                .then((result) => {
+                    let msg;
+                    if(!result) {
+                        msg = `@${context.username} No profile picture could be found for streamer`;
+                    } else {
+                        msg = `@${context.username} ${result}`
+                    }
+                    client.say(channel_name, msg)
+                        .then((data) => {
+                            logger.log(data);
+                        }).catch((err) => {
+                            logger.error(err);
+                        });
+                }).catch((err) => {
+                    logger.error(err);
+                });
+        },
+    
+        "!fletpermit": (client, channel_name, context) => {
+            client.say(
+                channel_name,
+                `@${context.username} Permission link: ${fletalytics.get_permit_link(channel_name.slice(1))} ` +
+                "Upon permission confirmation, you will be redirected to a dummy URL containing an access code. " +
+                "From the URL copy the value for access code (i.e. code=<code value>), " +
+                "then *WHISPER* it to Fletbot using !fletpermit <code value>"
+            )
+            .then((data) => {
+                logger.log(data);
+            }).catch((err) => {
+                logger.log(err);
+            });
+        },
+    
+        "!fletunpermit": (client, channel_name, context) => {
+            if(!chat_meta.bot_owners.includes(context.username) && !credentials.is_moderator(context)) {
+                client.say(channel_name, `@${context.username} Only broadcaster and moderators can change this setting`)
+                    .then((data) => {
+                        logger.log(data);
+                    }).catch((err) => {
+                        logger.error(err);
+                    });
+            }
+            fletalytics.remove_permit(channel_name.slice(1))
+                .then(() => {
+                    client.say(channel_name, `@${context.username} fletalytics permissions removed`)
+                        .then((data) => {
+                            logger.log(data);
+                        }).catch((err) => {
+                            logger.error(err);
+                        });
+                }).catch((err) => {
+                    logger.error(err);
+                });
+        },
+    
+        "!fletevents": (client, channel_name, context, msg_parts) => {
+            if(!chat_meta.bot_owners.includes(context.username) && !credentials.is_moderator(context)) {
+                client.say(channel_name, `@${context.username} Only broadcaster and moderators can change this setting`)
+                    .then((data) => {
+                        logger.log(data);
+                    }).catch((err) => {
+                        logger.error(err);
+                    });
+            } else {
+                if(!msg_parts[1] && !["active", "inactive"].includes(msg_parts[1])) {
+                    client.say(channel_name, `@${context.username} Invalid argument`)
+                        .then((data) => {
+                            logger.log(data);
+                        }).catch((err) => {
+                            logger.error(err);
+                        });
+                } else {
+                    const channel = channel_name.slice(1);
+                    if(msg_parts[1] == "active") {
+                        fletalytics.listen(channel)
+                            .then((result) => {
+                                client.say(channel_name, `@${context.username} ${result}`)
+                                    .then((data) => {
+                                        logger.log(data);
+                                    }).catch((err) => {
+                                        logger.error(err);
+                                    });
+                            }).catch((err) => {
+                                logger.error(err);
+                            });
+                    } else if(msg_parts[1] == "inactive") {
+                        fletalytics.unlisten(channel)
+                            .then((result) => {
+                                client.say(channel_name, `@${context.username} ${result}`)
+                                    .then((data) => {
+                                        logger.log(data);
+                                    }).catch((err) => {
+                                        logger.error(err);
+                                    });
+                            }).catch((err) => {
+                                logger.error(err);
+                            })
+    
+                    }
+                }
+            }
+        },
+    
+        "!fletyt": (client, channel_name, context, msg_parts) => {
+            if(msg_parts.length < 2) {
+                client.say(channel_name, `@${context.username} No search criteria provided`)
+                    .then((data) => {
+                        logger.log(data);
+                    }).catch((err) => {
+                        logger.error(err);
+                    });
+            } else {
+                fletalytics.get_yt_link(msg_parts.slice(1).join(" "))
+                    .then((yt_link) => {
+                        const yt = (yt_link ? yt_link : "Unable to find video for search criteria");
+                        client.say(channel_name, `@${context.username} ${yt.title}: ${yt.url}`)
+                            .then((data) => {
+                                logger.log(data);
+                            }).catch((err) => {
+                                logger.log(err);
+                            });
+                    }).catch((err) => {
+                        logger.log(err);
+                    });
+            }
+        },
+    
+        "!fletclip": (client, channel_name, context, msg_parts) => {
+            if(msg_parts.length < 3) {
+                client.say(channel_name, `@${context.username} Invalid search criteria provided`)
+                    .then((data) => {
+                        logger.log(data);
+                    }).catch((err) => {
+                        logger.error(err);
+                    });
+            } else {
+                fletalytics.get_clip_link(msg_parts[1], msg_parts.slice(2).join(" "))
+                    .then((clip) => {
+                        const clip_response = (clip ? `This clip has ${clip.match_percent}% title match: ${clip.url}` :
+                            "Unable to find matching clip from provided criteria");
+                        client.say(channel_name, `@${context.username} ${clip_response}`)
+                            .then((data) => {
+                                logger.log(data);
+                            }).catch((err) => {
+                                logger.log(err);
+                            });
+                    }).catch((err) => {
+                        logger.log(err);
+                        if(err.response && err.response.status == 400) {
+                            client.say(channel_name, `@${context.username} Invalid search criteria provided`)
+                                .then((data) => {
+                                    logger.log(data);
+                                }).catch((err) => {
+                                    logger.error(err);
+                                });
+                        }
+                    });
+            }
+        },
+    
+        "!fletsrc": (client, channel_name) => {
+            client.say(channel_name, "https://github.com/Fletman/fletbot-twitch")
+                .then((data) => {
+                    logger.log(data);
+                }).catch((err) => {
+                    logger.error(err);
+                });
+        }
+    },
+
+    whispers: {
+        "!fletpermit": (client, context, msg_parts) => {
+            if(!msg_parts[1]) {
+                client.whisper(context.username, "No token provided")
+                    .then((data) => {
+                        logger.log(data);
+                    }).catch((err) => {
+                        logger.error(err);
+                    });
+            } else {
+                let uname;
+                if(msg_parts[2] && chat_meta.bot_owners.includes(context.username)) {
+                    uname = msg_parts[2];
+                } else {
+                    uname = context.username;
+                }
+                fletalytics.add_permit(uname, msg_parts[1])
+                    .then(() => {
+                        client.say(`#${uname}`, `@${uname} Fletalytics permit applied`)
+                            .then((data) => {
+                                logger.log(data);
+                            }).catch((err) => {
+                                logger.error(err);
+                            })
+                    }).catch((err) => {
+                        logger.error(err);
+                        client.say(`#${uname}`, `@${uname} Fletalytics permit failed. Try refreshing access code`)
+                            .then((data) => {
+                                logger.log(data);
+                            }).catch((err) => {
+                                logger.error(err);
+                            })
+                    });
+            }
+        },
+
+        "!fletjoin": (client, context, msg_parts) => {
+            if(!chat_meta.bot_owners.includes(context.username)) {
+                client.whisper(context.username, "Only daddy can use this command")
+                    .then((data) => {
+                        logger.log(data);
+                    }).catch((err) => {
+                        logger.error(err);
+                    });
+            } else if(!msg_parts[1]) {
+                client.whisper(context.username, "No channel provided")
+                    .then((data) => {
+                        logger.log(data);
+                    }).catch((err) => {
+                        logger.error(err);
+                    })
+            } else {
+                if(!client.getChannels().includes(`#${msg_parts[1]}`)) {
+                    client.join(msg_parts[1])
+                        .then(() => {
+                            logger.log(`Joining channel ${msg_parts[1]}`);
+                            logger.log(client.getChannels());
+                        }).catch((err) => {
+                            logger.error(err);
+                        })
+                } else {
+                    client.whisper(context.username, `Already connected to channel ${msg_parts[1]}`)
+                        .then((data) => {
+                            logger.log(data);
+                        }).catch((err) => {
+                            logger.error(err);
+                        })
+                }
+            }
+        },
+
+        "!fletleave": (client, context, msg_parts) => {
+            if(!chat_meta.bot_owners.includes(context.username)) {
+                client.whisper(context.username, "Only daddy can use this command")
+                    .then((data) => {
+                        logger.log(data);
+                    }).catch((err) => {
+                        logger.error(err);
+                    });
+            } else if(!msg_parts[1]) {
+                client.whisper(context.username, "No channel provided")
+                    .then((data) => {
+                        logger.log(data);
+                    }).catch((err) => {
+                        logger.error(err);
+                    })
+            } else {
+                if(client.getChannels().includes(`#${msg_parts[1]}`)) {
+                    client.action(`#${msg_parts[1]}`, "is now offline NotLikeThis")
+                        .then(() => {
+                            logger.log(`Leaving channel ${msg_parts[1]}`);
+                            client.part(msg_parts[1])
+                                .then(() => {
+                                    logger.log(client.getChannels());
+                                }).catch((err) => {
+                                    logger.error(err);
+                                });
+                        }).catch((err) => {
+                            logger.error(err);
+                        });
+                } else {
+                    client.whisper(context.username, `Not connected to channel ${msg_parts[1]}`)
+                        .then((data) => {
+                            logger.log(data);
+                        }).catch((err) => {
+                            logger.error(err);
+                        });
+                }
+            }
+        },
+
+        "!fletchannels": (client, context) => {
+            if(chat_meta.bot_owners.includes(context.username)) {
+                logger.log(`Channel list:  ${client.getChannels()}`);
+            }
+        },
+
+        "!fletupdate": (client, context, msg_parts) => {
+            if(!chat_meta.bot_owners.includes(context.username)) {
+                return;
+            }
+            logger.log(`Update broadcast message triggered by ${username}`);
+            const update_msg = (msg_parts[1] ? `Update started, Fletbot will be back online soon™. Update message: ${msg_parts.slice(1).join(" ")}` : "Update started, Fletbot will be back online soon™");
+            client.getChannels().forEach((channel) => {
+                client.action(channel, update_msg)
+                    .then((data) => {
+                        logger.log(data);
+                    }).catch((err) => {
+                        logger.error(err);
+                    });
+            });
+        }
+    }
+};
