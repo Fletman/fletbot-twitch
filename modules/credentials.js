@@ -124,5 +124,14 @@ module.exports = {
     is_moderator: (user_context) => {
         return user_context.badges &&
             (user_context.badges.broadcaster || user_context.badges.moderator)
+    },
+
+    /**
+     * Check whether a given user is a VIP
+     * @param {object} user_context tmi.js chat context object
+     * @returns {boolean} whether user is a VIP
+     */
+    is_vip: (user_context) => {
+        return (user_context.badges && user_context.badges.vip);
     }
 }
