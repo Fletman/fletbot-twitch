@@ -76,7 +76,7 @@ module.exports = {
 
         "!fletsetroles": (client, channel_name, context, msg_parts) => {
             if(msg_parts.length < 3) {
-                client.say(channel_name, `@${context.username} Invalid arguments provided. Type !flethelp !fletsetaccess for command usage`)
+                client.say(channel_name, `@${context.username} Invalid arguments provided. Type "!flethelp !fletsetroles" for command usage`)
                     .then((data) => {
                         logger.log(data);
                     }).catch((err) => {

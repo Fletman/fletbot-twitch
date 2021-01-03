@@ -24,29 +24,49 @@
 
 ### Commands
 - `!flethelp`: List available Fletbot commands | `!flethelp <command>`: Get a description for the specified Fletbot command
+  - Example: `!flethelp !fletpet`
 - `!fletsetroles <command> <list of roles>`: Set the roles that can use specified command as a space-delimited list
   - Valid roles are broadcaster, moderator, vip, subscriber, all, default
   - Special roles "all" and "default" cannot be specified alongside other roles
+  - Example: `!fletsetroles !fletclip vip moderator`
 - `!fletgetroles <command>`: Get the list of roles that can use the specified command
+  - Example: `!fletgetroles !fso`
 - `!fletbot`: Ping Fletbot
+  - Example `!fletbot`
 - `!fletpet`: Show Fletbot some affection
+  - Example: `!fletpet`
 - `!fletinc`: #sponsored ad read
+  - Example: `!fletinc`
 - `!otd`: Part of every pro streamer's balanced diet
+  - Example: `!otd`
 - `!fso <username>`: Shoutout a specified user (requires moderator role)
+  - Example: `!fso @fletbot795`
 - `!fletso <active | inactive> <fso>`: Enable/disable automatic shoutouts when being raided.
   - If optional 'fso' flag is provided, '!fso' shoutout is used instead of channel's '!so' shoutout command
+  - Example: `!fletso active fso`
 - `!sip`: Increment sip counter
+  - Example: `!sip`
 - `!setsips <number>`: Set sip count to specified number
+  - Example: `!setsips 50`
 - `!getsips`: Get current sip count
+  - Example: `!getsips`
 - `!fletscrew <off | normal | max>`: Set anti-pyramid mode
   - 'off' flag disables pyramid countermeasures
   - 'normal' flag sets Fletbot to interrupt pyramids
   - 'max' flag will set Fletbot to time out pyramid makers. (requires moderator role for Fletbot)
+  - Example: `!fletscrew max`
 - `!fletpfp <username>`: Get a user's profile picture
+  - Example: `!fletpfp @fletbot795`
 - `!fletclip <channel name> <clip name>`: Search given channel for a clip whose title most closely resembles the provided clip name
+  - Example: `!fletclip @ti8ick called out`
 - `!fletyt <query>`: Search YouTube for a video using the provided query
+  - Example: `!fletyt Boston Dynamics`
 - `!fletevents <active | inactive>`: enable/disable fletevents such as reactions to channel rewards redemptions or bit cheers
   - Requires permissions to be given prior to use. See !fletpermit for details
+  - Example: `!fletevents active`
 - `!fletpermit`: Retrieve a link to a Twitch authorization page to give Fletbot permission to view events on caller's channel
+  - Example: `!fletpermit`
 - `!fletunpermit`: Remove Fletbot's permissions to view events of a channel
+  - Example: `!fletunpermit`
 - `!fletalytics`: View changelog and preview some fancy new (potential) features coming soon™
+  - Example: `!fletalytics`
