@@ -31,87 +31,87 @@
     ],
     "commands": {
         "flethelp": {
-            "description": "Very funny -_- !flethelp: List available Fletbot commands | !flethelp <command>: Get a description for the specified Fletbot command",
+            "description": "Very funny -_- !flethelp: List available Fletbot commands | !flethelp <command>: Get a description for the specified Fletbot command | Example: \"!flethelp !fletpet\"",
             "default_access": []
         },
         "fletsetroles": {
-            "description": "!fletsetroles <command> <list of roles>: Set the list of roles that can use specified command. Valid roles are broadcaster, moderator, vip, subscriber, all, default",
+            "description": "!fletsetroles <command> <list of roles>: Set the list of roles that can use specified command. Valid roles are broadcaster, moderator, vip, subscriber, all, default | Example: \"!fletsetroles !fletclip vip moderator\"",
             "default_access": ["broadcaster"]
         },
         "fletgetroles": {
-            "description": "!fletgetroles <command>: Get the list of roles that can use the specified command",
+            "description": "!fletgetroles <command>: Get the list of roles that can use the specified command | Example: \"!fletgetroles !fso\"",
             "default_access": []
         },
         "fletbot": {
-            "description": "!fletbot: Ping Fletbot",
+            "description": "!fletbot: Ping Fletbot | Example: \"!fletbot\"",
             "default_access": []
         },
         "fletpet": {
-            "description": "!fletpet: Show Fletbot some affection",
+            "description": "!fletpet: Show Fletbot some affection | Example: \"!fletbot\"",
             "default_access": []
         },
         "fletinc": {
-            "description": "!fletinc: #sponsored ad read",
+            "description": "!fletinc: #sponsored ad read | Example: \"!fletinc\"",
             "default_access": []
         },
         "otd": {
-            "description": "Part of every pro streamer's balanced diet",
+            "description": "Part of every pro streamer's balanced diet | Example: \"!otd\"",
             "default_access": []
         },
         "fso": {
-            "description": "!fso <username>: Shoutout a specified user",
+            "description": "!fso <username>: Shoutout a specified user | Example: \"!fso @fletbot795\"",
             "default_access": ["moderator"]
         },
         "fletso": {
-            "description": "!fletso <active | inactive> <fso>: Enable/disable automatic shoutouts when being raided. If optional 'fso' flag is provided, '!fso' shoutout is used instead of channel's '!so' shoutout",
+            "description": "!fletso <active | inactive> <fso>: Enable/disable automatic shoutouts when being raided. If optional 'fso' flag is provided, '!fso' shoutout is used instead of channel's '!so' shoutout | Example: \"!fletso active fso\"",
             "default_access": ["moderator"]
         },
         "sip": {
-            "description": "!sip: Increment sip counter",
+            "description": "!sip: Increment sip counter | Example: \"!sip\"",
             "default_access": []
         },
         "setsips": {
-            "description": "!setsips <number>: Set sip count to specified number",
+            "description": "!setsips <number>: Set sip count to specified number | Example: \"!setsips 50\"",
             "default_access": []
         },
         "getsips": {
-            "description": "!getsips: Get current sip count",
+            "description": "!getsips: Get current sip count | Example: \"!getsips\"",
             "default_access": []
         },
         "fletscrew": {
-            "description": "!fletscrew <off | normal | max>: Set anti-pyramid mode. 'off' flag disables pyramid countermeasures. 'normal' flag sets Fletbot to interrupt pyramids. 'max' flag will set Fletbot to time out pyramid makers",
+            "description": "!fletscrew <off | normal | max>: Set anti-pyramid mode. 'off' flag disables pyramid countermeasures. 'normal' flag sets Fletbot to interrupt pyramids. 'max' flag will set Fletbot to time out pyramid makers | Example: \"!fletscrew max\"",
             "default_access": ["moderator"]
         },
         "fletpfp": {
-            "description": "!fletpfp <username>: Get a user's profile picture",
+            "description": "!fletpfp <username>: Get a user's profile picture | Example: \"!fletpfp @fletbot795\"",
             "default_access": []
         },
         "fletclip": {
-            "description": "!fletclip <channel name> <clip name>: Search given channel for a clip whose title most closely resembles the provided clip name",
+            "description": "!fletclip <channel name> <clip name>: Search given channel for a clip whose title most closely resembles the provided clip name | Example: \"!fletclip @ti8ick called out\"",
             "default_access": []
         },
         "fletyt": {
-            "description": "!fletyt <query>: Search YouTube for a video using the provided query",
+            "description": "!fletyt <query>: Search YouTube for a video using the provided query | Example: \"!fletyt Boston Dynamics\"",
             "default_access": []
         },
         "fletevents": {
-            "description": "!fletevents <active | inactive>: enable/disable fletevents such as reactions to channel rewards redemptions or bit cheers. Requires permissions to be given prior to use. See !fletpermit for details",
+            "description": "!fletevents <active | inactive>: enable/disable fletevents such as reactions to channel rewards redemptions or bit cheers. Requires permissions to be given prior to use. See !fletpermit for details | Example: \"!fletevents active\"",
             "default_access": ["moderator"]
         },
         "fletpermit": {
-            "description": "!fletpermit: Retrieve a link to a Twitch authorization page to give Fletbot permission to view events on caller's channel",
+            "description": "!fletpermit: Retrieve a link to a Twitch authorization page to give Fletbot permission to view events on caller's channel | Example: \"!fletpermit\"",
             "default_access": ["broadcaster"]
         },
         "fletunpermit": {
-            "description": "!fletunpermit: Remove Fletbot's permissions to view events of a channel",
+            "description": "!fletunpermit: Remove Fletbot's permissions to view events of a channel | Example: \"!fletunpermit\"",
             "default_access": ["broadcaster"]
         },
         "fletalytics": {
-            "description": "!fletalytics: View changelog and preview some fancy new (potential) features coming soon™",
+            "description": "!fletalytics: View changelog and preview some fancy new (potential) features coming soon™ | Example: \"!fletalytics\"",
             "default_access": []
         },
         "fletsrc": {
-            "description": "!fletsrc: View Fletbot source code",
+            "description": "!fletsrc: View Fletbot source code | Example: \"!fletsrc\"",
             "default_access": []
         }
     },
