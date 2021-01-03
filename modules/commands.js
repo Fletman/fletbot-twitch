@@ -612,7 +612,7 @@ module.exports = {
             if(!chat_meta.bot_owners.includes(context.username)) {
                 return;
             }
-            logger.log(`Update broadcast message triggered by ${username}`);
+            logger.log(`Update broadcast message triggered by ${context.username}`);
             const update_msg = (msg_parts[1] ? `Update started, Fletbot will be back online soon™. Update message: ${msg_parts.slice(1).join(" ")}` : "Update started, Fletbot will be back online soon™");
             client.getChannels().forEach((channel) => {
                 client.action(channel, update_msg)
