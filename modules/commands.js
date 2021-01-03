@@ -6,23 +6,47 @@ const pyramids = require('./pyramids.js');
 let chat_meta = {};
 const sip_map = {};
 let fletalytics = {};
+let cmd_access = {};
+const cmd_access_file = './resources/cmd_access.json';
 
 module.exports = {
     init: (chat_data, flet_lib) => {
         chat_meta = chat_data;
         fletalytics = flet_lib;
+        validate_commands();
+        load_cmd_access();
+    },
+
+    check_cmd_access: (channel_name, context, command) => {
+        const cmd_id = (command.startsWith('!') ? command.slice(1) : command);
+        const access_roles = (cmd_access[cmd_id][channel_name] ? cmd_access[cmd_id][channel_name] : cmd_access[cmd_id].default);
+        const can_access = access_roles.length === 0 ||
+            chat_meta.bot_owners.includes(context.username) ||
+            credentials.is_broadcaster(context) ||
+            access_roles.some((role) => {
+                let access_allowed = false;
+                switch(role) {
+                    case "moderator":
+                        access_allowed = credentials.is_moderator(context);
+                        break;
+                    case "vip":
+                        access_allowed = credentials.is_vip(context);
+                        break;
+                    case "subscriber":
+                        access_allowed = credentials.is_subscriber(context);
+                        break;
+                    default:
+                        break;
+                }
+                return access_allowed;
+            });
+        return {
+            allowed: can_access,
+            roles: access_roles
+        }
     },
 
     chat: {
-        "!testmod": (client, channel_name) => {
-            client.say(channel_name, "/mod fletman795")
-                    .then((data) => {
-                        logger.log(data);
-                    }).catch((err) => {
-                        logger.error(err);
-                    });
-        },
-    
         "!flethelp": (client, channel_name, context, msg_parts) => {
             if(!msg_parts[1]) {
                 const cmd_list = Object.keys(chat_meta.commands).map((cmd) => "!" + cmd).join(" ");
@@ -38,7 +62,7 @@ module.exports = {
                 const cmd_id = (msg_parts[1].startsWith('!') ? msg_parts[1].slice(1) : msg_parts[1]);
                 const help_response = (
                     chat_meta.commands[cmd_id] ?
-                    chat_meta.commands[cmd_id] :
+                    chat_meta.commands[cmd_id].description :
                     `Unknown command "${cmd_id}". Use !flethelp to list available commands`
                 );
                 client.say(channel_name, `@${context.username} ${help_response}`)
@@ -47,6 +71,101 @@ module.exports = {
                     }).catch((err) => {
                         logger.error(err);
                     });
+            }
+        },
+
+        "!fletsetroles": (client, channel_name, context, msg_parts) => {
+            if(msg_parts.length < 3) {
+                client.say(channel_name, `@${context.username} Invalid arguments provided. Type !flethelp !fletsetaccess for command usage`)
+                    .then((data) => {
+                        logger.log(data);
+                    }).catch((err) => {
+                        logger.error(err);
+                    });
+            } else {
+                const cmd_id = (msg_parts[1].startsWith('!') ? msg_parts[1].slice(1) : msg_parts[1]);
+                const valid_lvls = ['broadcaster', 'moderator', 'vip', 'subscriber', 'all', 'default'];
+                if(!chat_meta.commands.hasOwnProperty(cmd_id)) {
+                    client.say(channel_name, `@${context.username} Unkown command ${msg_parts[1]}`)
+                        .then((data) => {
+                            logger.log(data);
+                        }).catch((err) => {
+                            logger.error(err);
+                        });
+                } else {
+                    const levels = msg_parts.slice(2);
+                    if((levels.includes("all") || levels.includes("default")) && levels.length > 1) {
+                        client.say(channel_name, `@${context.username} Access levels "all" or "default" cannot be provided alongside other levels`)
+                            .then((data) => {
+                                logger.log(data);
+                            }).catch((err) => {
+                                logger.error(err);
+                            });
+                        return;
+                    }
+                    for(const lvl of levels) {
+                        if(!valid_lvls.includes(lvl)) {
+                            client.say(channel_name, `@${context.username} Invalid access level "${lvl}". Valid levels are ${valid_lvls.join(", ")}`)
+                                .then((data) => {
+                                    logger.log(data);
+                                }).catch((err) => {
+                                    logger.error(err);
+                                });
+                            return;
+                        }
+                    }
+                    let access_msg = "";
+                    switch(levels[0]) {//TODO: update this to account for empty arrays
+                        case 'all':
+                            cmd_access[cmd_id][channel_name] = [];
+                            access_msg = "no restrictions";
+                            break;
+                        case 'default':
+                            delete cmd_access[cmd_id][channel_name];
+                            access_msg = `default: ${cmd_access[cmd_id].default.length == 0 ? "no restrictions" : cmd_access[cmd_id].default.join(", ")}`;
+                            logger.log(cmd_access[cmd_id].default);
+                            logger.log(access_msg);
+                            break;
+                        default:
+                            cmd_access[cmd_id][channel_name] = levels;
+                            access_msg = cmd_access[cmd_id][channel_name].length == 0 ? "no restrictions" : cmd_access[cmd_id][channel_name].join(", ");
+                            break;
+                    }
+                    fs.writeFile(cmd_access_file, JSON.stringify(cmd_access), () => logger.log(`${cmd_id} permissions updated in channel ${channel_name}`));
+                    client.say(channel_name, `@${context.username} Access level for ${msg_parts[1]} updated to ${access_msg}`)
+                        .then((data) => {
+                            logger.log(data);
+                        }).catch((err) => {
+                            logger.error(err);
+                        });
+                }
+            }
+        },
+
+        "!fletgetroles": (client, channel_name, context, msg_parts) => {
+            if(!msg_parts[1]) {
+                client.say(channel_name, `@${context.username} No command name provided`)
+                    .then((data) => {
+                        logger.log(data);
+                    }).catch((err) => {
+                        logger.error(err);
+                    });
+            } else {
+                const cmd_id = (msg_parts[1].startsWith('!') ? msg_parts[1].slice(1) : msg_parts[1]);
+                let access_msg = "";
+                if(!(cmd_id in cmd_access)) {
+                    access_msg = `Unknown command ${msg_parts[1]}`;
+                } else if(!(channel_name in cmd_access[cmd_id])) {
+                    access_msg = `Default access for ${msg_parts[1]}: ${cmd_access[cmd_id].default.length == 0 ? "no restrictions" : cmd_access[cmd_id].default.join(", ")}`;
+                } else {
+                    access_msg = `Custom access for ${msg_parts[1]}: ${cmd_access[cmd_id][channel_name].length == 0 ? "no restrictions" : cmd_access[cmd_id][channel_name].join(", ")}`;
+                }
+                client.say(channel_name, `@${context.username} ${access_msg}`)
+                    .then((data) => {
+                        logger.log(data);
+                    }).catch((err) => {
+                        logger.error(err);
+                    })
             }
         },
     
@@ -85,14 +204,7 @@ module.exports = {
         },
     
         "!fso": (client, channel_name, context, msg_parts) => {
-            if(!chat_meta.bot_owners.includes(context.username) && !credentials.is_moderator(context)) {
-                client.say(channel_name, `@${context.username} Only broadcaster and moderators can use this command`)
-                    .then((data) => {
-                        logger.log(data);
-                    }).catch((err) => {
-                        logger.error(err);
-                    });
-            } else if(!msg_parts[1]) {
+            if(!msg_parts[1]) {
                 client.say(channel_name, `@${context.username} no username provided`)
                     .then((data) => {
                         logger.log(data);
@@ -144,7 +256,8 @@ module.exports = {
         "!sip": (client, channel_name) => {
             if(sip_map[channel_name]) {
                 sip_map[channel_name] += 1;
-                client.action(channel_name, `${sip_map[channel_name]} sips... So far. TPFufun`)
+                const sip_msg = sip_map[channel_name] == 69 ? "69 sips. Nice. TPFufun" : `${sip_map[channel_name]} sips... So far. TPFufun`;
+                client.action(channel_name, sip_msg)
                     .then((data) => {
                         logger.log(data);
                     })
@@ -249,14 +362,6 @@ module.exports = {
         },
     
         "!fletunpermit": (client, channel_name, context) => {
-            if(!chat_meta.bot_owners.includes(context.username) && !credentials.is_moderator(context)) {
-                client.say(channel_name, `@${context.username} Only broadcaster and moderators can change this setting`)
-                    .then((data) => {
-                        logger.log(data);
-                    }).catch((err) => {
-                        logger.error(err);
-                    });
-            }
             fletalytics.remove_permit(channel_name.slice(1))
                 .then(() => {
                     client.say(channel_name, `@${context.username} fletalytics permissions removed`)
@@ -271,51 +376,43 @@ module.exports = {
         },
     
         "!fletevents": (client, channel_name, context, msg_parts) => {
-            if(!chat_meta.bot_owners.includes(context.username) && !credentials.is_moderator(context)) {
-                client.say(channel_name, `@${context.username} Only broadcaster and moderators can change this setting`)
+            if(!msg_parts[1] && !["active", "inactive"].includes(msg_parts[1])) {
+                client.say(channel_name, `@${context.username} Invalid argument`)
                     .then((data) => {
                         logger.log(data);
                     }).catch((err) => {
                         logger.error(err);
                     });
             } else {
-                if(!msg_parts[1] && !["active", "inactive"].includes(msg_parts[1])) {
-                    client.say(channel_name, `@${context.username} Invalid argument`)
-                        .then((data) => {
-                            logger.log(data);
+                const channel = channel_name.slice(1);
+                if(msg_parts[1] == "active") {
+                    fletalytics.listen(channel)
+                        .then((result) => {
+                            client.say(channel_name, `@${context.username} ${result}`)
+                                .then((data) => {
+                                    logger.log(data);
+                                }).catch((err) => {
+                                    logger.error(err);
+                                });
                         }).catch((err) => {
                             logger.error(err);
                         });
-                } else {
-                    const channel = channel_name.slice(1);
-                    if(msg_parts[1] == "active") {
-                        fletalytics.listen(channel)
-                            .then((result) => {
-                                client.say(channel_name, `@${context.username} ${result}`)
-                                    .then((data) => {
-                                        logger.log(data);
-                                    }).catch((err) => {
-                                        logger.error(err);
-                                    });
-                            }).catch((err) => {
-                                logger.error(err);
-                            });
-                    } else if(msg_parts[1] == "inactive") {
-                        fletalytics.unlisten(channel)
-                            .then((result) => {
-                                client.say(channel_name, `@${context.username} ${result}`)
-                                    .then((data) => {
-                                        logger.log(data);
-                                    }).catch((err) => {
-                                        logger.error(err);
-                                    });
-                            }).catch((err) => {
-                                logger.error(err);
-                            })
-    
-                    }
+                } else if(msg_parts[1] == "inactive") {
+                    fletalytics.unlisten(channel)
+                        .then((result) => {
+                            client.say(channel_name, `@${context.username} ${result}`)
+                                .then((data) => {
+                                    logger.log(data);
+                                }).catch((err) => {
+                                    logger.error(err);
+                                });
+                        }).catch((err) => {
+                            logger.error(err);
+                        })
+
                 }
             }
+            
         },
     
         "!fletyt": (client, channel_name, context, msg_parts) => {
@@ -519,3 +616,45 @@ module.exports = {
         }
     }
 };
+
+/**
+ * Check whether all exposed chat commands are implemented
+ * @throws if a documented chat command does not have a corresponding implementation
+ */
+function validate_commands() {
+    const documented_cmds = Object.keys(chat_meta.commands);
+    documented_cmds.forEach((command) => {
+        const cmd = `!${command}`;
+        if(!(cmd in module.exports.chat)) {
+            throw(`Chat command ${cmd} implementation missing`);
+        }
+    });
+    logger.log("All chat commands validated");
+}
+
+/**
+ * Load command permission settings from file.
+ * If file does not exist, generate new one populated with default access levels
+ * Empty array implies no command restrictions
+ */
+function load_cmd_access() {
+    if(fs.existsSync(cmd_access_file)) {
+        logger.log(`Loading access permissions from ${require('path').resolve(cmd_access_file)}`);
+        cmd_access = JSON.parse(fs.readFileSync(cmd_access_file));
+        Object.entries(chat_meta.commands).forEach((entry) => {
+            const cmd_name = entry[0];
+            const access_lvl = entry[1].default_access;
+            if(!(cmd_name in cmd_access)) {
+                cmd_access[cmd_name] = {default: access_lvl};
+            }
+        });
+    } else {
+        logger.log(`No command permission file found. Genereating default file at ${require('path').resolve(cmd_access_file)}`);
+        Object.entries(chat_meta.commands).forEach((entry) => {
+            const cmd_name = entry[0];
+            const access_lvl = entry[1].default_access;
+            cmd_access[cmd_name] = {default: access_lvl};
+        });
+        fs.writeFileSync(cmd_access_file, JSON.stringify(cmd_access));
+    }
+}

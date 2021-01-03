@@ -28,6 +28,10 @@ module.exports = {
         client.on('whisper', handle_whisper);
         client.on('raided', handle_raid);
 
+        fletalytics = new Fletalytics(client);
+        commands.init(chat_meta, fletalytics);
+        pyramids.set_block_messages(chat_meta.pyramid_block_pool);
+
         // connect to channels specified in command line args
         logger.log(`Connecting to channels: ${process.argv.slice(2)}`);
         client.connect()
@@ -37,10 +41,6 @@ module.exports = {
             .catch((err) => {
                 logger.error(err);
             });
-
-        fletalytics = new Fletalytics(client);
-        commands.init(chat_meta, fletalytics);
-        pyramids.set_block_messages(chat_meta.pyramid_block_pool);
     }
 };
 
@@ -81,7 +81,17 @@ function handle_chat_message(channel_name, context, msg, self) {
     const cmd = msg_parts[0];
 
     if(commands.chat.hasOwnProperty(cmd)) {
-        commands.chat[cmd](client, channel_name, context, msg_parts);
+        const command_access = commands.check_cmd_access(channel_name, context, cmd);
+        if(command_access.allowed) {
+            commands.chat[cmd](client, channel_name, context, msg_parts);
+        } else {
+            client.say(channel_name, `@${context.username} Not allowed to use ${cmd} command. Must be one of: ${command_access.roles.join(", ")}`)
+                .then((data) => {
+                    logger.log(data);
+                }).catch((err) => {
+                    logger.error(err);
+                });
+        }
     } else if(message.includes("#teampav")) {
         client.say(channel_name, `@${context.username} Team Pav, the one true team`)
             .then((data) => {

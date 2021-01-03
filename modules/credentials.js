@@ -117,6 +117,15 @@ module.exports = {
     },
 
     /**
+     * Check whether a given user is channel broadcaster
+     * @param {object} user_context tmi.js chat context object
+     * @returns {boolean} whether user is channel broadcaster
+     */
+    is_broadcaster: (user_context) => {
+        return user_context.badges && user_context.badges.broadcaster;
+    },
+
+    /**
      * Check whether a given user has moderator-level privileges
      * @param {object} user_context tmi.js chat context object
      * @returns {boolean} whether user has moderator privileges
@@ -132,6 +141,15 @@ module.exports = {
      * @returns {boolean} whether user is a VIP
      */
     is_vip: (user_context) => {
-        return (user_context.badges && user_context.badges.vip);
-    }
+        return user_context.badges && user_context.badges.vip;
+    },
+
+    /**
+     * Check whether a given user is a channel subscriber
+     * @param {object} user_context tmi.js chat context object
+     * @returns {boolean} whether user is a subscriber
+     */
+    is_subscriber: (user_context) => {
+        return user_context.badges && user_context.badges.subscriber;
+    },
 }
