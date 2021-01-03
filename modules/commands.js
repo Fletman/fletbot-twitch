@@ -25,7 +25,7 @@ module.exports = {
             credentials.is_broadcaster(context) ||
             access_roles.some((role) => {
                 let access_allowed = false;
-                switch(role) {
+                switch (role) {
                     case "moderator":
                         access_allowed = credentials.is_moderator(context);
                         break;
@@ -115,7 +115,7 @@ module.exports = {
                         }
                     }
                     let access_msg = "";
-                    switch(levels[0]) {//TODO: update this to account for empty arrays
+                    switch (levels[0]) {
                         case 'all':
                             cmd_access[cmd_id][channel_name] = [];
                             access_msg = "no restrictions";
@@ -168,7 +168,7 @@ module.exports = {
                     })
             }
         },
-    
+
         "!fletbot": (client, channel_name, context) => {
             logger.log(`Received ping command in channel ${channel_name}`);
             const username = context.username.toLowerCase();
@@ -181,9 +181,9 @@ module.exports = {
                     logger.log(data);
                 }).catch((err) => {
                     logger.error(err);
-                    });
+                });
         },
-    
+
         "!fletpet": (client, channel_name, context) => {
             client.say(channel_name, `@${context.username} ${chat_meta.pet_pool[Math.floor(Math.random() * chat_meta.pet_pool.length)]}`)
                 .then((data) => {
@@ -192,7 +192,7 @@ module.exports = {
                     logger.error(err);
                 });
         },
-    
+
         "!fletinc": (client, channel_name) => {
             logger.log(`Received Flet Inc. command in channel ${channel_name}`);
             client.say(channel_name, chat_meta.ad_opts[Math.floor(Math.random() * chat_meta.ad_opts.length)])
@@ -211,7 +211,7 @@ module.exports = {
                     logger.error(err);
                 });
         },
-    
+
         "!fso": (client, channel_name, context, msg_parts) => {
             if(!msg_parts[1]) {
                 client.say(channel_name, `@${context.username} no username provided`)
@@ -234,7 +234,7 @@ module.exports = {
                     })
             }
         },
-    
+
         "!fletso": (client, channel_name, context, msg_parts) => {
             let result_msg;
             switch (msg_parts[1]) {
@@ -261,7 +261,7 @@ module.exports = {
                     logger.error(err);
                 });
         },
-    
+
         "!sip": (client, channel_name) => {
             if(sip_map[channel_name]) {
                 sip_map[channel_name] += 1;
@@ -283,7 +283,7 @@ module.exports = {
                     });
             }
         },
-    
+
         "!setsips": (client, channel_name, context, msg_parts) => {
             const sips = parseInt(msg_parts[1], 10);
             if(Number.isNaN(sips) || sips < 0) {
@@ -303,7 +303,7 @@ module.exports = {
                     });
             }
         },
-    
+
         "!getsips": (client, channel_name) => {
             if(sip_map[channel_name]) {
                 client.action(channel_name, `Current sip count: ${sip_map[channel_name]}`)
@@ -321,11 +321,11 @@ module.exports = {
                     });
             }
         },
-    
+
         "!fletscrew": (client, channel_name, context, msg_parts) => {
             pyramids.toggle_blocking(client, channel_name, context, msg_parts[1]);
         },
-    
+
         "!fletalytics": (client, channel_name) => {
             client.action(channel_name, chat_meta.changelog)
                 .then((data) => {
@@ -334,7 +334,7 @@ module.exports = {
                     logger.error(err);
                 });
         },
-    
+
         "!fletpfp": (client, channel_name, context, msg_parts) => {
             fletalytics.get_pfp(msg_parts[1])
                 .then((result) => {
@@ -354,22 +354,22 @@ module.exports = {
                     logger.error(err);
                 });
         },
-    
+
         "!fletpermit": (client, channel_name, context) => {
             client.say(
-                channel_name,
-                `@${context.username} Permission link: ${fletalytics.get_permit_link(channel_name.slice(1))} ` +
-                "Upon permission confirmation, you will be redirected to a dummy URL containing an access code. " +
-                "From the URL copy the value for access code (i.e. code=<code value>), " +
-                "then *WHISPER* it to Fletbot using !fletpermit <code value>"
-            )
-            .then((data) => {
-                logger.log(data);
-            }).catch((err) => {
-                logger.log(err);
-            });
+                    channel_name,
+                    `@${context.username} Permission link: ${fletalytics.get_permit_link(channel_name.slice(1))} ` +
+                    "Upon permission confirmation, you will be redirected to a dummy URL containing an access code. " +
+                    "From the URL copy the value for access code (i.e. code=<code value>), " +
+                    "then *WHISPER* it to Fletbot using !fletpermit <code value>"
+                )
+                .then((data) => {
+                    logger.log(data);
+                }).catch((err) => {
+                    logger.log(err);
+                });
         },
-    
+
         "!fletunpermit": (client, channel_name, context) => {
             fletalytics.remove_permit(channel_name.slice(1))
                 .then(() => {
@@ -383,7 +383,7 @@ module.exports = {
                     logger.error(err);
                 });
         },
-    
+
         "!fletevents": (client, channel_name, context, msg_parts) => {
             if(!msg_parts[1] && !["active", "inactive"].includes(msg_parts[1])) {
                 client.say(channel_name, `@${context.username} Invalid argument`)
@@ -421,9 +421,9 @@ module.exports = {
 
                 }
             }
-            
+
         },
-    
+
         "!fletyt": (client, channel_name, context, msg_parts) => {
             if(msg_parts.length < 2) {
                 client.say(channel_name, `@${context.username} No search criteria provided`)
@@ -447,7 +447,7 @@ module.exports = {
                     });
             }
         },
-    
+
         "!fletclip": (client, channel_name, context, msg_parts) => {
             if(msg_parts.length < 3) {
                 client.say(channel_name, `@${context.username} Invalid search criteria provided`)
@@ -480,7 +480,7 @@ module.exports = {
                     });
             }
         },
-    
+
         "!fletsrc": (client, channel_name) => {
             client.say(channel_name, "https://github.com/Fletman/fletbot-twitch")
                 .then((data) => {
@@ -635,7 +635,7 @@ function validate_commands() {
     documented_cmds.forEach((command) => {
         const cmd = `!${command}`;
         if(!(cmd in module.exports.chat)) {
-            throw(`Chat command ${cmd} implementation missing`);
+            throw (`Chat command ${cmd} implementation missing`);
         }
     });
     logger.log("All chat commands validated");
@@ -654,7 +654,7 @@ function load_cmd_access() {
             const cmd_name = entry[0];
             const access_lvl = entry[1].default_access;
             if(!(cmd_name in cmd_access)) {
-                cmd_access[cmd_name] = {default: access_lvl};
+                cmd_access[cmd_name] = { default: access_lvl };
             }
         });
     } else {
@@ -662,7 +662,7 @@ function load_cmd_access() {
         Object.entries(chat_meta.commands).forEach((entry) => {
             const cmd_name = entry[0];
             const access_lvl = entry[1].default_access;
-            cmd_access[cmd_name] = {default: access_lvl};
+            cmd_access[cmd_name] = { default: access_lvl };
         });
         fs.writeFileSync(cmd_access_file, JSON.stringify(cmd_access));
     }
