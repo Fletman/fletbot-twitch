@@ -202,6 +202,15 @@ module.exports = {
                     logger.error(err);
                 });
         },
+
+        "!otd": (client, channel_name) => {
+            client.action(channel_name, "Start your stream off right with some ItsBoshyTime Obligatory ItsBoshyTime Technical ItsBoshyTime Difficulties™, part of every pro streamer's balanced diet")
+                .then((data) => {
+                    logger.log(data);
+                }).catch((err) => {
+                    logger.error(err);
+                });
+        },
     
         "!fso": (client, channel_name, context, msg_parts) => {
             if(!msg_parts[1]) {

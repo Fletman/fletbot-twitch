@@ -24,9 +24,14 @@
 
 ### Commands
 - `!flethelp`: List available Fletbot commands | `!flethelp <command>`: Get a description for the specified Fletbot command
+- `!fletsetroles <command> <list of roles>`: Set the roles that can use specified command as a space-delimited list
+  - Valid roles are broadcaster, moderator, vip, subscriber, all, default
+  - Special roles "all" and "default" cannot be specified alongside other roles
+- `!fletgetroles <command>`: Get the list of roles that can use the specified command
 - `!fletbot`: Ping Fletbot
 - `!fletpet`: Show Fletbot some affection
 - `!fletinc`: #sponsored ad read
+- `!otd`: Part of every pro streamer's balanced diet
 - `!fso <username>`: Shoutout a specified user (requires moderator role)
 - `!fletso <active | inactive> <fso>`: Enable/disable automatic shoutouts when being raided.
   - If optional 'fso' flag is provided, '!fso' shoutout is used instead of channel's '!so' shoutout command

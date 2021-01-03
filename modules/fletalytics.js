@@ -152,6 +152,7 @@ module.exports = class Fletalytics {
                 'Authorization': `Bearer ${default_token}`
             }
         });
+        if(res.data.data.length == 0) {  return null; }
         const channel_id = res.data.data[0].id;
 
         if(threading) {
@@ -169,7 +170,7 @@ module.exports = class Fletalytics {
                     if(exit_code != 0) {
                         reject(`Worker exited with code ${exit_code}`);
                     }
-                })
+                });
             });
 
             worker.postMessage({

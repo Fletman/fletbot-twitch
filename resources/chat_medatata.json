@@ -38,7 +38,7 @@
             "default_access": ["broadcaster"]
         },
         "fletgetroles": {
-            "description": "!fletgetaccess <command>: Get the list of roles that can use the specified command",
+            "description": "!fletgetroles <command>: Get the list of roles that can use the specified command",
             "default_access": []
         },
         "fletbot": {
@@ -51,6 +51,10 @@
         },
         "fletinc": {
             "description": "!fletinc: #sponsored ad read",
+            "default_access": []
+        },
+        "otd": {
+            "description": "Part of every pro streamer's balanced diet",
             "default_access": []
         },
         "fso": {
@@ -122,7 +126,12 @@
             "KappaRoss",
             "KappaWealth",
             "KappaPride"
+        ],
+        "silentdrkangel": [
+            "Auntie TwitchUnity",
+            "DoritosChip TakeNRG",
+            "KappaPride"
         ]
     },
-    "changelog": "Latest change: Added !fso shoutout command. Use !flethelp !fso and !flethelp !fletso for details"
+    "changelog": "Latest change: Fun police paid the devs a visit; all Fletbot commands now have configurable access settings. Use \"!flethelp !fletsetroles\" and \"!flethelp !fletgetroles\" for details"
 }
