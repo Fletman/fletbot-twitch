@@ -152,7 +152,7 @@ module.exports = class Fletalytics {
                 'Authorization': `Bearer ${default_token}`
             }
         });
-        if(res.data.data.length == 0) {  return null; }
+        if(res.data.data.length == 0) { return null; }
         const channel_id = res.data.data[0].id;
 
         if(threading) {
