@@ -24,15 +24,35 @@ module.exports = class Fletalytics {
     /**
      * Retrieve a link to a Twitch authorization page to provide Fletbot permissions to access event stream for channel
      * @param {string} channel Channel name
+     * @param {string[]} scopes List of scopes to allow access to
      * @returns {string} Link to authorization page
      */
-    get_permit_link(channel) {
-        // TODO: if this ever actually sees proper use, add option to specify permission scopes
+    get_permit_link(channel, scopes) {
+        const required_scopes = [];
+        const valid_scopes = {
+            'bits': "bits:read",
+            'redeems': "channel:read:redemptions",
+            'subs': "channel_subscriptions",
+            'mods': "channel:moderate"
+        };
+
+        if(!scopes || scopes.length === 0) {
+            return `No scopes provided. Valid scopes are ${Object.keys(valid_scopes).join(", ")}`;
+        }
+        
+        for(const scope of scopes) {
+            if(scope in valid_scopes) {
+                required_scopes.push(valid_scopes[scope]);
+            } else {
+                return `Invalid scope "${scope}", valid scopes are ${Object.keys(valid_scopes).join(", ")}`;
+            }
+        }
+
         return "https://id.twitch.tv/oauth2/authorize" +
             `?client_id=${credentials.get_client_id()}` +
             "&redirect_uri=http://localhost" +
             "&response_type=code" +
-            "&scope=channel:read:redemptions" +
+            `&scope=${required_scopes.join("%20")}` +
             "&force_verify=true" +
             `&state=${channel}#${Date.now().toString(36)}`;
     }
@@ -53,6 +73,8 @@ module.exports = class Fletalytics {
                 "&grant_type=authorization_code" +
                 "&redirect_uri=http://localhost"
         });
+        logger.log(response.data);
+        // TODO: store response.data.scope string[] values
         credentials.update_access_tokens(channel, response.data);
     }
 

@@ -355,10 +355,10 @@ module.exports = {
                 });
         },
 
-        "!fletpermit": (client, channel_name, context) => {
+        "!fletpermit": (client, channel_name, context, msg_parts) => {
             client.say(
                     channel_name,
-                    `@${context.username} Permission link: ${fletalytics.get_permit_link(channel_name.slice(1))} ` +
+                    `@${context.username} Permission link: ${fletalytics.get_permit_link(channel_name.slice(1), msg_parts.slice(1))} ` +
                     "Upon permission confirmation, you will be redirected to a dummy URL containing an access code. " +
                     "From the URL copy the value for access code (i.e. code=<code value>), " +
                     "then *WHISPER* it to Fletbot using !fletpermit <code value>"
