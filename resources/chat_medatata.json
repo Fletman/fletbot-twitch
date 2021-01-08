@@ -134,5 +134,5 @@
             "KappaPride"
         ]
     },
-    "changelog": "Latest change: Fun police paid the devs a visit; all Fletbot commands now have configurable access settings. Use \"!flethelp !fletsetroles\" and \"!flethelp !fletgetroles\" for details"
+    "changelog": "Latest change: Increased stalking capability by 20%: Fletbot shoutouts now include time since user was last active, if applicable"
 }
