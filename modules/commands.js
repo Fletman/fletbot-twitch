@@ -618,6 +618,12 @@ module.exports = {
                 client.action(channel, update_msg)
                     .then((data) => {
                         logger.log(data);
+                        client.part(channel)
+                            .then((data) => {
+                                logger.log(data);
+                            }).catch((err) => {
+                                logger.error(err);
+                            });
                     }).catch((err) => {
                         logger.error(err);
                     });
