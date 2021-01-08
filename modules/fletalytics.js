@@ -222,7 +222,6 @@ module.exports = class Fletalytics {
     async shoutout(username) {
         const channel_name = (username.startsWith("@") ? username.slice(1) : username);
         const channel_data = await this._get_channel(channel_name);
-        logger.log(channel_data);
         let so_msg;
         if(!channel_data) {
             so_msg = `couldn't find anything for channel "${channel_name}"`;
