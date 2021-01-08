@@ -8,6 +8,13 @@ const credentials = require('./credentials.js');
 const logger = require('./fletlog.js');
 const Fletscriber = require('./fletscriber.js');
 
+const second_ms = 1000;
+const minute_ms = second_ms * 60;
+const hour_ms = minute_ms * 60;
+const day_ms = hour_ms * 24;
+const month_ms = day_ms * 30;
+const year_ms = month_ms * 12; // this and month aren't totally accurate but considering I'm rounding eh it's good enough
+
 /**
  * Class for handling all interactions with external APIs.
  * ex. Twitch auth and data API, Google data API
@@ -215,18 +222,27 @@ module.exports = class Fletalytics {
     async shoutout(username) {
         const channel_name = (username.startsWith("@") ? username.slice(1) : username);
         const channel_data = await this._get_channel(channel_name);
+        logger.log(channel_data);
         let so_msg;
         if(!channel_data) {
             so_msg = `couldn't find anything for channel "${channel_name}"`;
-        } else if(channel_data.game_name) {
-            so_msg = `check out ${channel_data.broadcaster_name} over at https://www.twitch.tv/${channel_name} ! They were last streaming ${channel_data.game_name}`;
-            if(channel_data.title) {
-                so_msg += `, doing "${channel_data.title}"`;
+        } else if(channel_data.channel.game_name) {
+            so_msg = `check out ${channel_data.channel.broadcaster_name} over at https://www.twitch.tv/${channel_name} !`;
+            so_msg += ` They ${channel_data.stream ? "are live right now streaming " + channel_data.channel.game_name : "were last streaming " + channel_data.channel.game_name}`;
+            if(channel_data.channel.title) {
+                so_msg += `, doing "${channel_data.channel.title}"`;
             }
-        } else if(channel_data.title) {
-            so_msg = `check out ${channel_data.broadcaster_name} over at https://www.twitch.tv/${channel_name} ! Not sure what they were playing but their last stream was "${channel_data.title}"`;
+            if(!channel_data.stream && channel_data.vod) {
+                so_msg += `, last active ${this._time_diff(channel_data.vod.created_at)}`;
+            }
+        } else if(channel_data.channel.title) {
+            so_msg = `check out ${channel_data.channel.broadcaster_name} over at https://www.twitch.tv/${channel_name} ! Not sure what they're playing but `;
+            so_msg += channel_data.live ? `they're live right now doing "${channel_data.channel.title}"` : `their last stream was "${channel_data.channel.title}"`;
+            if(!channel_data.stream && channel_data.vod) {
+                so_msg += `, last active ${this._time_diff(channel_data.vod.created_at)}`;
+            }
         } else {
-            so_msg = `it doesn't look like ${channel_data.broadcaster_name} streams, but check them out anyway over at https://twitch.tv/${channel_name} !`;
+            so_msg = `it doesn't look like ${channel_data.channel.broadcaster_name} streams, but check them out anyway over at https://twitch.tv/${channel_name} !`;
         }
         return `/me Bleep bloop ${so_msg}`;
     }
@@ -282,7 +298,7 @@ module.exports = class Fletalytics {
             return null;
         }
         const default_token = await credentials.get_default_access_token();
-        const response = await axios({
+        const channel_req = axios({
             method: 'get',
             url: `https://api.twitch.tv/helix/channels?broadcaster_id=${user_data.id}`,
             headers: {
@@ -290,6 +306,63 @@ module.exports = class Fletalytics {
                 'Authorization': `Bearer ${default_token}`
             }
         });
-        return response.data.data[0];
+        const stream_req = axios({
+            method: 'get',
+            url: `https://api.twitch.tv/helix/streams?user_id=${user_data.id}`,
+            headers: {
+                'client-id': credentials.get_client_id(),
+                'Authorization': `Bearer ${default_token}`
+            }
+        });
+        const vod_req = axios({
+            method: 'get',
+            url: `https://api.twitch.tv/helix/videos?user_id=${user_data.id}`,
+            headers: {
+                'client-id': credentials.get_client_id(),
+                'Authorization': `Bearer ${default_token}`
+            }
+        });
+        const channel_data = await channel_req;
+        const streams_data = await stream_req;
+        const vod_data = await vod_req;
+        return {
+            channel: channel_data.data.data[0],
+            stream: streams_data.data.data.length === 0 ? null : streams_data.data.data[0],
+            vod: vod_data.data.data.length === 0 ? null : vod_data.data.data[0]
+        };
+    }
+
+    /**
+     * Generate a string of difference between current and time and provided timestamp
+     * @param {string} timestamp_str String of timestamp of date to find difference from current time
+     * @returns {string} Time difference
+     */
+    _time_diff(timestamp_str, offset = 0) {
+        const date_diff = Date.now() - Date.parse(timestamp_str);
+        const diff = {
+            divide: null,
+            str: null
+        };
+        if(date_diff < minute_ms) {
+            diff.divide = second_ms;
+            diff.str = "second";
+        } else if (date_diff < hour_ms) {
+            diff.divide = minute_ms;
+            diff.str = "minute";
+        } else if (date_diff < day_ms) {
+            diff.divide = hour_ms;
+            diff.str = "hour";
+        } else if (date_diff < month_ms) {
+            diff.divide = day_ms;
+            diff.str = "day";
+        } else if (date_diff < year_ms) {
+            diff.divide = month_ms;
+            diff.str = "month";
+        } else {
+            diff.divide = year_ms;
+            diff.str = "year";
+        }
+        const divided_diff = Math.floor(date_diff / diff.divide);
+        return `${divided_diff} ${diff.str}${divided_diff > 1 ? "s" : ""} ago`;
     }
 }
