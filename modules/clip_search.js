@@ -17,31 +17,28 @@ module.exports = async (client_id, token, channel_id, clip_title, match_threshol
     let match = {};
     let page_index = 0;
     const t0 = Date.now();
-    let req = axios({
+    const req_body = {
         method: 'get',
         url: `https://api.twitch.tv/helix/clips?broadcaster_id=${channel_id}&first=100`,
         headers: {
             'client-id': client_id,
             'Authorization': `Bearer ${token}`
         }
-    });
+    };
+    let req = axios(req_body);
     let response;
     let paging;
 
     do {
         response = await req;
         paging = (response.data && response.data.pagination && response.data.pagination.cursor);
-        req = axios({
-            method: 'get',
-            url: paging ? `https://api.twitch.tv/helix/clips?broadcaster_id=${channel_id}&first=100&after=${response.data.pagination.cursor}` : `https://api.twitch.tv/helix/clips?broadcaster_id=${channel_id}&first=100`,
-            headers: {
-                'client-id': client_id,
-                'Authorization': `Bearer ${token}`
-            }
-        });
+        if(paging) {
+            req_body.url = `https://api.twitch.tv/helix/clips?broadcaster_id=${channel_id}&first=100&after=${response.data.pagination.cursor}`;
+            req = axios(req_body);
+        }
         page_index++;
         match = get_best_match(match, clip_title, response.data.data);
-    } while(page_index <= 10 && match.percentage < match_threshold && paging);
+    } while(paging && match.percentage < match_threshold);
 
     return match.url ?
         Object.assign(
