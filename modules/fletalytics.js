@@ -345,16 +345,16 @@ module.exports = class Fletalytics {
         if(date_diff < minute_ms) {
             diff.divide = second_ms;
             diff.str = "second";
-        } else if (date_diff < hour_ms) {
+        } else if(date_diff < hour_ms) {
             diff.divide = minute_ms;
             diff.str = "minute";
-        } else if (date_diff < day_ms) {
+        } else if(date_diff < day_ms) {
             diff.divide = hour_ms;
             diff.str = "hour";
-        } else if (date_diff < month_ms) {
+        } else if(date_diff < month_ms) {
             diff.divide = day_ms;
             diff.str = "day";
-        } else if (date_diff < year_ms) {
+        } else if(date_diff < year_ms) {
             diff.divide = month_ms;
             diff.str = "month";
         } else {
