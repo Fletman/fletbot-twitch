@@ -91,6 +91,38 @@ module.exports = class Fletalytics {
     }
 
     /**
+     * Retrieve link to a channel's emote image
+     * @param {string} channel Channel name
+     * @param {string} emote_code Emote code
+     * @returns {string?} URL to emote image, or null if no image could be found for code
+     */
+    async get_emote(channel, emote_code) {
+        const channel_name = (channel.startsWith("@") ? channel.slice(1) : channel);
+        const channel_data = await this._get_user(channel_name);
+        if(!channel_data) {
+            return null;
+        }
+        try {
+            const response = await axios({
+                method: 'get',
+                url: `https://api.twitchemotes.com/api/v4/channels/${channel_data.id}`
+            });
+            let emote_obj
+            if(response.data.emotes) {
+                emote_obj = response.data.emotes.find((emote) => emote.code.toLowerCase() === emote_code)
+            }
+            if(!emote_obj) {
+                return null;
+            }
+            return `https://static-cdn.jtvnw.net/emoticons/v2/${emote_obj.id}/default/light/3.0`;
+        } catch(e) {
+            if(e.response.data.error === 'Channel not found') {
+                return `${channel_data.display_name} has not registered their emotes`;
+            }
+        }
+    }
+
+    /**
      * Set up listener for specified channel's event stream
      * @param {string} channel Channel name
      * @returns {Promise<string>} Result message
