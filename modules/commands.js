@@ -355,6 +355,35 @@ module.exports = {
                 });
         },
 
+        "!fletmote": (client, channel_name, context, msg_parts) => {
+            if(msg_parts.length < 3) {
+                client.say(channel_name, `@${context.username} Channel name and emote code must be provided`)
+                    .then((data) => {
+                        logger.log(data);
+                    }).catch((err) => {
+                        logger.error(err);
+                    });
+            } else {
+                fletalytics.get_emote(msg_parts[1], msg_parts[2])
+                    .then((result) => {
+                        let msg;
+                        if(!result) {
+                            msg = `@${context.username} No emote could be found from given parameters`;
+                        } else {
+                            msg = `@${context.username} ${result}`;
+                        }
+                        client.say(channel_name, msg)
+                            .then((data) => {
+                                logger.log(data);
+                            }).catch((err) => {
+                                logger.error(err);
+                            });
+                    }).catch((err) => {
+                        logger.log(err);
+                    });
+            }
+        },
+
         "!fletpermit": (client, channel_name, context) => {
             client.say(
                     channel_name,

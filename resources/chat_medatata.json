@@ -86,6 +86,10 @@
             "description": "!fletpfp <username>: Get a user's profile picture | Example: \"!fletpfp @fletbot795\"",
             "default_access": []
         },
+        "fletmote": {
+            "description": "!fletmote <channel name> <emote code>: Get a channel's SUB emote as an image | Example: \"!fletmote hannahsulu hannah38Sip\"",
+            "default_access": []
+        },
         "fletclip": {
             "description": "!fletclip <channel name> <clip name>: Search given channel for a clip whose title most closely resembles the provided clip name | Example: \"!fletclip @ti8ick called out\"",
             "default_access": []
@@ -134,5 +138,5 @@
             "KappaPride"
         ]
     },
-    "changelog": "Latest change: Increased stalking capability by 20%: Fletbot shoutouts now include time since user was last active, if applicable"
+    "changelog": "Latest change: Increased shameless self-promotion capability by 50%: Fletbot can now fetch images of a channel's sub emotes. Bit emotes aren't supported. Use \"!flethelp !fletmote\" for details"
 }
