@@ -1,3 +1,4 @@
 node_modules
 resources/auth.json
 resources/cmd_access.json
+resources/channels.json
