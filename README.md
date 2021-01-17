@@ -57,6 +57,9 @@
   - Example: `!fletscrew max`
 - `!fletpfp <username>`: Get a user's profile picture
   - Example: `!fletpfp @fletbot795`
+- `!fletmote <username> <emote code>`: Get a channel's SUB emote as an image
+  - NOTE: Only works for sub emotes, not bit emotes
+  - Example: `!fletmote ti8ick ti8ickTibStalk`
 - `!fletclip <channel name> <clip name>`: Search given channel for a clip whose title most closely resembles the provided clip name
   - Example: `!fletclip @ti8ick called out`
 - `!fletyt <query>`: Search YouTube for a video using the provided query
