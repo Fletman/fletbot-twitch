@@ -16,10 +16,10 @@ module.exports = {
         shoutout_map = load_map(so_file, 'shoutout');
         access_map = load_map(cmd_access_file, 'command access');
         Object.entries(commands).forEach((entry) => {
-           const cmd_name = entry[0];
-           if(!(cmd_name in access_map)) {
-               access_map[cmd_name] = {default: entry[1].default_access}
-           } 
+            const cmd_name = entry[0];
+            if(!(cmd_name in access_map)) {
+                access_map[cmd_name] = { default: entry[1].default_access }
+            }
         });
         backup_loop(1000 * 60 * 60 * 12);
     },
@@ -42,7 +42,7 @@ module.exports = {
         if(sip_map[channel_name]) {
             sip_map[channel_name]++;
         } else {
-            sip_map[channel_name] = 1;   
+            sip_map[channel_name] = 1;
         }
         return sip_map[channel_name];
     },
@@ -76,7 +76,7 @@ module.exports = {
      */
     set_auto_shoutout: (channel_name, active, fso = false) => {
         if(active) {
-            shoutout_map[channel_name] = {fso: fso};
+            shoutout_map[channel_name] = { fso: fso };
         } else {
             delete shoutout_map[channel_name];
         }
@@ -100,24 +100,24 @@ module.exports = {
      * @returns {string[]} List of access roles for command
      */
     set_command_access: (channel_name, command, roles) => {
-        switch(roles[0]) {
+        switch (roles[0]) {
             case 'all':
                 access_map[command][channel_name] = [];
                 return {
                     type: 'custom',
-                    roles: []
+                        roles: []
                 };
             case 'default':
                 delete access_map[command][channel_name];
                 return {
                     type: 'default',
-                    roles: access_map[command].default
+                        roles: access_map[command].default
                 };
             default:
                 access_map[command][channel_name] = roles;
                 return {
                     type: 'custom',
-                    roles: access_map[command][channel_name]
+                        roles: access_map[command][channel_name]
                 };
         }
     },
@@ -141,6 +141,6 @@ function load_map(file_path, map_name = "") {
     }
 }
 
-function backup_loop(interval=3600000) {
+function backup_loop(interval = 3600000) {
     setInterval(module.exports.backup, interval);
 }

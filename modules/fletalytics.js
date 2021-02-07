@@ -114,7 +114,7 @@ module.exports = class Fletalytics {
                 return null;
             }
             return `https://static-cdn.jtvnw.net/emoticons/v2/${emote_obj.id}/default/light/3.0`;
-        } catch(e) {
+        } catch (e) {
             if(e.response.data.error === 'Channel not found') {
                 return `${channel_data.display_name} has not registered their emotes`;
             }
