@@ -173,12 +173,6 @@ module.exports = {
             return;
         }
 
-        // check if message starts with expected phrase
-        if(!message.startsWith(pyramid_log[channel_name].phrase.source)) {
-            track_pyramid(channel_name, username, message);
-            return;
-        }
-
         // check if message contains regex by filtering out all text that does not follow regex
         if(!pyramid_log[channel_name].phrase.test(message)) {
             track_pyramid(channel_name, username, message);
