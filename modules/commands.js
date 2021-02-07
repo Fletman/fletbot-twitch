@@ -593,6 +593,7 @@ module.exports = {
             }
             logger.log(`Update broadcast message triggered by ${context.username}`);
             const update_msg = (msg_parts[1] ? `Update started, Fletbot will be back online soon™. Update message: ${msg_parts.slice(1).join(" ")}` : "Update started, Fletbot will be back online soon™");
+            bot_data.backup();
             client.getChannels().forEach((channel) => {
                 client.action(channel, update_msg)
                     .then((data) => {
