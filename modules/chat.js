@@ -1,4 +1,5 @@
 const fs = require('fs');
+const bot_data = require('./data.js');
 const commands = require('./commands.js');
 const Fletalytics = require('./fletalytics.js');
 const logger = require('./fletlog.js');
@@ -29,6 +30,7 @@ module.exports = {
         client.on('raided', handle_raid);
 
         fletalytics = new Fletalytics(client);
+        bot_data.init(chat_meta.commands);
         commands.init(chat_meta, fletalytics);
         pyramids.set_block_messages(chat_meta.pyramid_block_pool);
 
@@ -126,18 +128,19 @@ function handle_whisper(username, context, msg, self) {
 
 // event for a channel being raided
 function handle_raid(channel_name, username, raider_count = 0) {
-    logger.log(`${channel_name} raided by ${username} with ${raider_count} raiders`);
-    fletalytics.auto_shoutout(channel_name, username.toLowerCase(), 2500)
-        .then((so_msg) => {
-            if(so_msg) {
+    const so_setting = bot_data.get_auto_shoutout(channel_name);
+    if(so_setting) {
+        logger.log(`${channel_name} raided by ${username} with ${raider_count} raiders`);
+        fletalytics.auto_shoutout(username.toLowerCase(), so_setting, 2500)
+            .then((so_msg) => {
                 client.say(channel_name, so_msg)
                     .then((data) => {
                         logger.log(data);
                     }).catch((err) => {
                         logger.error(err);
                     });
-            }
-        }).catch((err) => {
-            logger.error(err);
-        });
+            }).catch((err) => {
+                logger.error(err);
+            });
+    }
 }

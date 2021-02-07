@@ -25,7 +25,6 @@ module.exports = class Fletalytics {
      */
     constructor(chat_client) {
         this.fletscriber = new Fletscriber(chat_client);
-        this.so_channels = {};
     }
 
     /**
@@ -233,20 +232,6 @@ module.exports = class Fletalytics {
     }
 
     /**
-     * Add channel to list of channels to auto-so for
-     * @param {string} channel Channel name
-     * @param {boolean} active Whether shoutouts should be active for specified channel
-     */
-    set_shoutout_channel(channel, active, fso = false) {
-        if(active) {
-            this.so_channels[channel] = { fso: fso };
-        } else {
-            delete this.so_channels[channel];
-        }
-        logger.log(`Shoutout update for ${channel}`, this.so_channels);
-    }
-
-    /**
      * "Shoutout" a user, returning a string containing link to user's channel and their last played game
      * @param {string} username Username
      * @returns {Promise<string>} String for user's shoutout
@@ -280,21 +265,19 @@ module.exports = class Fletalytics {
 
     /**
      * Automatically shoutout a specified user, either using channel's shoutout command or Fletbot shoutout
-     * @param {string} channel Channel name
      * @param {string} username Username
+     * @param {Object} so_type Type of shoutout to perform. If so_type.fso is set to true, uses builtin shoutout, otherwise uses !so command
      * @param {number} [delay=3000] Time in milliseconds to wait before returning shoutout
      * @returns {Promise<string?>} String for user's shoutout
      */
-    async auto_shoutout(channel, username, delay = 3000) {
-        if(this.so_channels[channel]) {
-            await new Promise((resolve, reject) => {
-                setTimeout(() => resolve(), delay);
-            });
-            if(this.so_channels[channel].fso) {
-                return await this.shoutout(username)
-            } else {
-                return `!so @${username}`;
-            }
+    async auto_shoutout(username, so_type, delay = 3000) {
+        await new Promise((resolve, reject) => {
+            setTimeout(() => resolve(), delay);
+        });
+        if(so_type.fso) {
+            return await this.shoutout(username);
+        } else {
+            return `!so @${username}`;
         }
     }
 
