@@ -223,7 +223,7 @@ module.exports = {
         "!sip": (client, channel_name) => {
             const sips = bot_data.add_sip(channel_name);
             let sip_msg;
-            switch(sips) {
+            switch (sips) {
                 case 1:
                     sip_msg = "The first of many sips. Kappa";
                     break;
