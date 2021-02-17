@@ -244,7 +244,7 @@ module.exports = class Fletalytics {
             so_msg = `couldn't find anything for channel "${channel_name}"`;
         } else if(channel_data.channel.game_name) {
             so_msg = `check out ${channel_data.channel.broadcaster_name} over at https://www.twitch.tv/${channel_name} !`;
-            so_msg += ` They ${channel_data.stream ? "are live right now streaming " + channel_data.channel.game_name : "were last streaming " + channel_data.channel.game_name}`;
+            so_msg += ` They ${channel_data.stream ? "are live 🔴 RIGHT NOW 🔴 streaming " + channel_data.channel.game_name : "were last streaming " + channel_data.channel.game_name}`;
             if(channel_data.channel.title) {
                 so_msg += `, doing "${channel_data.channel.title}"`;
             }
@@ -253,7 +253,7 @@ module.exports = class Fletalytics {
             }
         } else if(channel_data.channel.title) {
             so_msg = `check out ${channel_data.channel.broadcaster_name} over at https://www.twitch.tv/${channel_name} ! Not sure what they're playing but `;
-            so_msg += channel_data.live ? `they're live right now doing "${channel_data.channel.title}"` : `their last stream was "${channel_data.channel.title}"`;
+            so_msg += channel_data.live ? `they're live 🔴 RIGHT NOW 🔴 doing "${channel_data.channel.title}"` : `their last stream was "${channel_data.channel.title}"`;
             if(!channel_data.stream && channel_data.vod) {
                 so_msg += `, last active ${this._time_diff(channel_data.vod.created_at)}`;
             }
