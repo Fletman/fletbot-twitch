@@ -66,12 +66,14 @@ function handle_join(channel_name, username, self) {
 
 // handle chat notices
 function handle_notice(channel, msg_id, message) {
-    logger.log("Notice received:");
-    logger.log({
-        channel: channel,
-        notice_id: msg_id,
-        message: message
-    });
+    if(msg_id !== 'host_target_went_offline') {
+        logger.log("Notice received:");
+        logger.log({
+            channel: channel,
+            notice_id: msg_id,
+            message: message
+        });
+    }
 }
 
 // event for chat messages

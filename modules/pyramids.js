@@ -31,6 +31,8 @@ const pyramid_history = {};
 // list of possible messages for ruining the filthy pyramids
 let message_pool = [];
 
+// minimum log length before pyramid pattern is checked
+const min_pyramid_size = 4;
 
 module.exports = {
     /**
@@ -63,18 +65,6 @@ module.exports = {
      * max: time out users attempting to create pyramids (requires Fletbot to have moderator-level privileges)
      */
     toggle_blocking: (client, channel_name, context, flag) => {
-        // only broadcaster or moderators can toggle pyramid blocking
-        if(context.username != "fletman795" && !credentials.is_moderator(context)) {
-            client.say(channel_name, `@${context.username} Only broadcaster and moderators can change this setting`)
-                .then((data) => {
-                    logger.log(data);
-                })
-                .catch((err) => {
-                    logger.error(err);
-                });
-            return;
-        }
-
         switch (flag) {
             case 'off': // disable pyramid blocking completely
                 active_blocking[channel_name] = false;
@@ -179,6 +169,12 @@ module.exports = {
             return;
         }
 
+        // check if message begins with repeated phrase
+        if(!message.startsWith(pyramid_log[channel_name].str_phrase)) {
+            track_pyramid(channel_name, username, message);
+            return;
+        }
+
         // record pyramid "steps"
         const steps = message.match(pyramid_log[channel_name].phrase).length;
         const repeat_count = pyramid_log[channel_name].repetition_log.push(steps);
@@ -186,7 +182,6 @@ module.exports = {
         // each pyramid step size must have a delta of 1
         if(repeat_count > 1) {
             const repeat_log = pyramid_log[channel_name].repetition_log;
-            // TODO: bug here: absolute value does not take step direction into account
             if(Math.abs(repeat_log[repeat_log.length - 1] - repeat_log[repeat_log.length - 2]) != 1) {
                 track_pyramid(channel_name, username, message);
                 return;
@@ -200,19 +195,28 @@ module.exports = {
         	check if a pyramid is near completion:
         		- repetition counts match in each direction (excluding first entry)
         		- pyramid has more than a single step (i.e. a "peak" of 2 repeat phrases)
-        			- 4 or more log entries recorded denote a pyramid with a "peak" of at least 3 repeat phrases
+        			- <min_pyramd_size> or more log entries recorded denote a pyramid with a "peak" of at least 3 repeat phrases
         				* aka ignore small pp pyramids
         		- even number of repetitions, denoting pyramid as one step away from finished
         */
-        if(repeat_count >= 4 && repeat_count % 2 == 0) {
+        if(repeat_count >= min_pyramid_size) {
             const repeat_log = pyramid_log[channel_name].repetition_log;
-            for(let i = 1; i < repeat_log.length / 2; i++) {
-                logger.log(`${repeat_log[i]} ${repeat_log[repeat_log.length - i]}`);
-                if(repeat_log[i] != repeat_log[repeat_log.length - i]) {
-                    // pyramid not at final stage, nothing to do yet
-                    return;
+            const pyramid_found = repeat_log.slice(0, repeat_log.length - (min_pyramid_size - 1)).some((_, index) => {
+                const log_section = repeat_log.slice(index);
+                if(log_section[2] - log_section[1] != log_section[1] - log_section[0]) {
+                    // pyramid beginning step delta doesn't match subsequent step delta
+                    return false;
                 }
-            }
+                for(let i = 1; i < log_section.length / 2; i++) {
+                    if(log_section[i] != log_section[log_section.length - i]) {
+                        // pyramid not at final stage, nothing to do yet
+                        return false;
+                    }
+                }
+                logger.log(log_section);
+                return true;
+            });
+            if(!pyramid_found) {  return; }
 
             // all conditions met, pyramid is about to be completed, commence countermeasure
             client.say(channel_name, `@${username} ${message_pool[Math.floor(Math.random() * message_pool.length)]}`)
@@ -295,12 +299,13 @@ module.exports = {
 
 // record user making pyramid and a regular expression of the phrase used for pyramid
 function track_pyramid(channel_name, username, message) {
-    const regex_str = message.split(" ")[0]
-        .replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&'); // escape any special regex characters
+    const phrase_str = message.split(' ')[0];
+    const regex_str = phrase_str.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&'); // escape any special regex characters
     const regex = new RegExp(`(${regex_str})`, 'g'); // create regular expression out of given phrase
     pyramid_log[channel_name] = {
         user: username,
         phrase: regex,
+        str_phrase: phrase_str,
         repetition_log: [message.match(regex).length]
     };
 }
