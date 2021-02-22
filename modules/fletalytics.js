@@ -3,7 +3,7 @@
 const axios = require('axios');
 const unescape = require('unescape');
 const { Worker } = require('worker_threads');
-const clip_search = require('./clip_search.js');
+const clip_searcher = require('./clip_search.js');
 const credentials = require('./credentials.js');
 const logger = require('./fletlog.js');
 const Fletscriber = require('./fletscriber.js');
@@ -222,12 +222,18 @@ module.exports = class Fletalytics {
             worker.terminate();
             return clip;
         } else {
-            return await clip_search(
-                client_id,
-                default_token,
-                channel_id,
-                clip_title
-            );
+            return clip_title === '*' ?
+                await clip_searcher.random_clip(
+                    client_id,
+                    default_token,
+                    channel_id
+                ):
+                await clip_searcher.clip_search(
+                    client_id,
+                    default_token,
+                    channel_id,
+                    clip_title
+                );
         }
     }
 

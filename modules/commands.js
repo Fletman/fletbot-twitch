@@ -438,7 +438,8 @@ module.exports = {
             } else {
                 fletalytics.get_clip_link(msg_parts[1], msg_parts.slice(2).join(" "))
                     .then((clip) => {
-                        const clip_response = (clip ? `This clip has ${clip.match_percent}% title match: ${clip.url}` :
+                        const clip_response = (clip ? 
+                            (clip.match_percent ? `This clip has ${clip.match_percent}% title match: ${clip.url}` : clip.url) :
                             "Unable to find matching clip from provided criteria");
                         client.say(channel_name, `@${context.username} ${clip_response}`)
                             .then((data) => {
