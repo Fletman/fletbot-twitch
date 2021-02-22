@@ -227,7 +227,7 @@ module.exports = class Fletalytics {
                     client_id,
                     default_token,
                     channel_id
-                ):
+                ) :
                 await clip_searcher.clip_search(
                     client_id,
                     default_token,
