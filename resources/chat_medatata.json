@@ -91,7 +91,7 @@
             "default_access": []
         },
         "fletclip": {
-            "description": "!fletclip <channel name> <clip name>: Search given channel for a clip whose title most closely resembles the provided clip name | Example: \"!fletclip @ti8ick called out\"",
+            "description": "!fletclip <channel name> <clip name>: Search given channel for a clip whose title most closely resembles the provided clip name. Setting clip name to * will return a random clip from the channel's top 100 clips | Example: \"!fletclip @ti8ick called out\"",
             "default_access": []
         },
         "fletyt": {
@@ -138,5 +138,5 @@
             "KappaPride"
         ]
     },
-    "changelog": "Latest change: Increased shameless self-promotion capability by 50%: Fletbot can now fetch images of a channel's sub emotes. Bit emotes aren't supported. Use \"!flethelp !fletmote\" for details"
+    "changelog": "Latest change: Increased RNGesus worship by 12%: Using \"!fletclip <channel name> *\" will now randomly return one of the channel's top 100 clips"
 }
