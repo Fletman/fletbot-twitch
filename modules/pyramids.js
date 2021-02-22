@@ -201,22 +201,12 @@ module.exports = {
         */
         if(repeat_count >= min_pyramid_size) {
             const repeat_log = pyramid_log[channel_name].repetition_log;
-            const pyramid_found = repeat_log.slice(0, repeat_log.length - (min_pyramid_size - 1)).some((_, index) => {
-                const log_section = repeat_log.slice(index);
-                if(log_section[2] - log_section[1] != log_section[1] - log_section[0]) {
-                    // pyramid beginning step delta doesn't match subsequent step delta
-                    return false;
+            for(let i = 1; i < repeat_log.length / 2; i++) {
+                if(repeat_log[i] != repeat_log[repeat_log.length - i]) {
+                    // pyramid not at final stage, nothing to do yet
+                    return;
                 }
-                for(let i = 1; i < log_section.length / 2; i++) {
-                    if(log_section[i] != log_section[log_section.length - i]) {
-                        // pyramid not at final stage, nothing to do yet
-                        return false;
-                    }
-                }
-                logger.log(log_section);
-                return true;
-            });
-            if(!pyramid_found) {  return; }
+            }
 
             // all conditions met, pyramid is about to be completed, commence countermeasure
             client.say(channel_name, `@${username} ${message_pool[Math.floor(Math.random() * message_pool.length)]}`)
