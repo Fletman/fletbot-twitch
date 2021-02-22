@@ -201,6 +201,10 @@ module.exports = {
         */
         if(repeat_count >= min_pyramid_size && repeat_count % 2 == 0) {
             const repeat_log = pyramid_log[channel_name].repetition_log;
+            if(repeat_log[2] - repeat_log[1] != repeat_log[1] - repeat_log[0]) {
+                // pyramid beginning step delta doesn't match subsequent step delta
+                return;
+            }
             for(let i = 1; i < repeat_log.length / 2; i++) {
                 if(repeat_log[i] != repeat_log[repeat_log.length - i]) {
                     // pyramid not at final stage, nothing to do yet
