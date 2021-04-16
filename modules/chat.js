@@ -87,11 +87,11 @@ function handle_chat_message(channel_name, context, msg, self) {
     if(commands.chat.hasOwnProperty(cmd)) {
         const command_access = commands.check_cmd_access(channel_name, context, cmd);
         const command_cooldown = commands.check_cmd_cooldown(channel_name, cmd);
-        if(command_access.allowed && command_cooldown.can_use) {
+        if(command_access.allowed && command_cooldown.available) {
             commands.chat[cmd](client, channel_name, context, msg_parts);
         } else {
-            let deny_msg = (!command_cooldown.cmd_available) ?
-                `@${context.username} !${cmd} is on cooldown for ${command_cooldown.time_remaining_sec} seconds` :
+            let deny_msg = (!command_cooldown.available) ?
+                `@${context.username} ${cmd} is on cooldown for ${command_cooldown.time_remaining_sec} ${command_cooldown.time_remaining_sec > 1 ? "seconds" : "second"}` :
                 `@${context.username} Not allowed to use ${cmd} command. Must be one of: ${command_access.roles.join(", ")}`;
             client.say(channel_name, deny_msg)
                 .then((data) => {
