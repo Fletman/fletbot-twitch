@@ -5,23 +5,26 @@ const path_resolve = require('path').resolve;
 const sip_file = './data/sips.json';
 const so_file = './data/so.json';
 const cmd_access_file = './data/cmd_access.json';
+const cmd_cd_file = './data/cmd_cooldown.json';
 
 let sip_map;
 let shoutout_map;
 let access_map;
+let cooldown_map;
 
 module.exports = {
     init: (commands) => {
         sip_map = load_map(sip_file, 'sip');
         shoutout_map = load_map(so_file, 'shoutout');
         access_map = load_map(cmd_access_file, 'command access');
+        cooldown_map = load_map(cmd_cd_file, 'command cooldown');
         Object.entries(commands).forEach((entry) => {
             const cmd_name = entry[0];
             if(!(cmd_name in access_map)) {
                 access_map[cmd_name] = { default: entry[1].default_access }
             }
         });
-        backup_loop(1000 * 60 * 60 * 12);
+        backup_loop(1000 * 60 * 60 * 12); // auto backup every 12hrs
     },
 
     /**
@@ -31,6 +34,7 @@ module.exports = {
         fs.writeFile(sip_file, JSON.stringify(sip_map), () => logger.log(`Sip counts saved to ${path_resolve(sip_file)}`));
         fs.writeFile(so_file, JSON.stringify(shoutout_map), () => logger.log(`Shoutout settings saved to ${path_resolve(so_file)}`));
         fs.writeFile(cmd_access_file, JSON.stringify(access_map), () => logger.log(`Command access settings saved to ${path_resolve(cmd_access_file)}`));
+        fs.writeFile(cmd_cd_file, JSON.stringify(cooldown_map), () => logger.log(`Command cooldown settings saved to ${path_resolve(cmd_cd_file)}`));
     },
 
     /**
@@ -128,6 +132,34 @@ module.exports = {
      */
     get_command_access: (command) => {
         return access_map[command];
+    },
+
+    /**
+     * Set cooldown period for specified command in a channel
+     * @param {string} channel_name Channel name
+     * @param {string} command Command name
+     * @param {Number} cd_sec Intever value for cooldown time (in seconds)
+     */
+    set_command_cooldown: (channel_name, command, cd_sec) => {
+        if(cd_sec === 0) {
+            delete cooldown_map[channel_name][command];
+        } else {
+            cooldown_map[channel_name][command];
+        }
+    },
+
+    /**
+     * Get cooldown time for a specified command in a channel
+     * @param {string} channel_name Channel name
+     * @param {string} command Command name
+     * @returns {Number} Cooldown time, returns 0 if command has no cooldown
+     */
+    get_command_cooldown: (channel_name, command) => {
+        if(cooldown_map[channel_name] && cooldown_map[channel_name][command]) {
+            return cooldown_map[channel_name][command];
+        } else {
+            return 0;
+        }
     }
 };
 

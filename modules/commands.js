@@ -6,6 +6,7 @@ const pyramids = require('./pyramids.js');
 
 let chat_meta = {};
 let fletalytics = {};
+let active_cooldowns = {};
 
 module.exports = {
     init: (chat_data, flet_lib) => {
@@ -41,6 +42,28 @@ module.exports = {
         return {
             allowed: can_access,
             roles: access_roles
+        }
+    },
+
+    check_cmd_cooldown: (channel_name, command) => {
+        const cooldown_len = bot_data.get_command_cooldown(channel_name, command);
+        if(!cooldown_len) {
+            return {available: true};
+        } else if(active_cooldowns[channel_name] &&
+                  active_cooldowns[channel_name][command] &&
+                  active_cooldowns[channel_name][command].active) {
+            return {
+                available: false,
+                time_remaining_sec: Math.ceil((Date.now() - active_cooldowns[channel_name][command].cooldown_start) / 1000)
+            };
+        } else {
+            const cmd_cooldown = {
+                cooldown_start: Date.now(),
+                active: true
+            };
+            active_cooldowns[channel_name][command] = cmd_cooldown;
+            setTimeout(() => {active_cooldowns[channel_name][command].active = false}, cooldown_len * 1000);
+            return {available: true};
         }
     },
 
