@@ -48,10 +48,10 @@ module.exports = {
     check_cmd_cooldown: (channel_name, command) => {
         const cooldown_len = bot_data.get_command_cooldown(channel_name, command);
         if(!cooldown_len) {
-            return {available: true};
+            return { available: true };
         } else if(active_cooldowns[channel_name] &&
-                  active_cooldowns[channel_name][command] &&
-                  active_cooldowns[channel_name][command].active) {
+            active_cooldowns[channel_name][command] &&
+            active_cooldowns[channel_name][command].active) {
             return {
                 available: false,
                 time_remaining_sec: Math.ceil(cooldown_len - (Date.now() - active_cooldowns[channel_name][command].cooldown_start) / 1000)
@@ -61,13 +61,12 @@ module.exports = {
                 cooldown_start: Date.now(),
                 active: true
             };
-            console.log("Begin cooldown");
             if(!active_cooldowns[channel_name]) {
                 active_cooldowns[channel_name] = {};
             }
             active_cooldowns[channel_name][command] = cmd_cooldown;
-            setTimeout(() => {active_cooldowns[channel_name][command].active = false;}, cooldown_len * 1000);
-            return {available: true};
+            setTimeout(() => { active_cooldowns[channel_name][command].active = false; }, cooldown_len * 1000);
+            return { available: true };
         }
     },
 
