@@ -54,15 +54,19 @@ module.exports = {
                   active_cooldowns[channel_name][command].active) {
             return {
                 available: false,
-                time_remaining_sec: Math.ceil((Date.now() - active_cooldowns[channel_name][command].cooldown_start) / 1000)
+                time_remaining_sec: Math.ceil(cooldown_len - (Date.now() - active_cooldowns[channel_name][command].cooldown_start) / 1000)
             };
         } else {
             const cmd_cooldown = {
                 cooldown_start: Date.now(),
                 active: true
             };
+            console.log("Begin cooldown");
+            if(!active_cooldowns[channel_name]) {
+                active_cooldowns[channel_name] = {};
+            }
             active_cooldowns[channel_name][command] = cmd_cooldown;
-            setTimeout(() => {active_cooldowns[channel_name][command].active = false}, cooldown_len * 1000);
+            setTimeout(() => {active_cooldowns[channel_name][command].active = false;}, cooldown_len * 1000);
             return {available: true};
         }
     },
@@ -148,6 +152,35 @@ module.exports = {
                         logger.error(err);
                     })
             }
+        },
+
+        "!fcooldown": (client, channel_name, context, msg_parts) => {
+            let cooldown_msg;
+            if(!msg_parts[1]) {
+                cooldown_msg = `@${context.username} No command name provided`;
+            } else {
+                const cmd_id = (msg_parts[1].startsWith('!') ? msg_parts[1].slice(1) : msg_parts[1]);
+                if(!module.exports.chat.hasOwnProperty(`!${cmd_id}`)) {
+                    cooldown_msg = `@${context.username} Unknown command !${cmd_id}`;
+                } else if(msg_parts[2]) {
+                    const cooldown_sec = parseInt(msg_parts[2], 10);
+                    if(Number.isNaN(cooldown_sec) || cooldown_sec < 0 || cooldown_sec % 1 != 0) {
+                        cooldown_msg = `@${context.username} Invalid number provided`;
+                    } else {
+                        bot_data.set_command_cooldown(channel_name, cmd_id, cooldown_sec);
+                        cooldown_msg = `@${context.username} !${cmd_id} cooldown set to ${cooldown_sec} seconds`;
+                    }
+                } else {
+                    const cooldown_sec = bot_data.get_command_cooldown(channel_name, cmd_id);
+                    cooldown_msg = `@${context.username} Cooldown for !${cmd_id} is set to ${cooldown_sec} seconds`;
+                }
+            }
+            client.say(channel_name, cooldown_msg)
+                .then((data) => {
+                    logger.log(data);
+                }).catch((err) => {
+                    logger.log(err);
+                })
         },
 
         "!fletbot": (client, channel_name, context) => {

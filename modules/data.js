@@ -144,7 +144,10 @@ module.exports = {
         if(cd_sec === 0) {
             delete cooldown_map[channel_name][command];
         } else {
-            cooldown_map[channel_name][command];
+            if(!cooldown_map[channel_name]) {
+                cooldown_map[channel_name] = {};
+            }
+            cooldown_map[channel_name][command] = cd_sec;
         }
     },
 
@@ -155,8 +158,9 @@ module.exports = {
      * @returns {Number} Cooldown time, returns 0 if command has no cooldown
      */
     get_command_cooldown: (channel_name, command) => {
-        if(cooldown_map[channel_name] && cooldown_map[channel_name][command]) {
-            return cooldown_map[channel_name][command];
+        const cmd_id = (command.startsWith('!') ? command.slice(1) : command);
+        if(cooldown_map[channel_name] && cooldown_map[channel_name][cmd_id] !== undefined) {
+            return cooldown_map[channel_name][cmd_id];
         } else {
             return 0;
         }

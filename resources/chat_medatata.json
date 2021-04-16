@@ -42,6 +42,10 @@
             "description": "!fletgetroles <command>: Get the list of roles that can use the specified command | Example: \"!fletgetroles !fso\"",
             "default_access": []
         },
+        "fcooldown": {
+            "description": "!fcooldown <command> <cooldown seconds>: When cooldown time is not provided, returns the current cooldown setting for a specified command. When cooldown time is provided, sets cooldown time (in seconds) for given command. | Example \"!fcooldown !sip\" OR \"!fcooldown !sip 5\"",
+            "default_access": ["moderator"]
+        },
         "fletbot": {
             "description": "!fletbot: Ping Fletbot | Example: \"!fletbot\"",
             "default_access": []
