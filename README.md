@@ -31,8 +31,11 @@
   - Example: `!fletsetroles !fletclip vip moderator`
 - `!fletgetroles <command>`: Get the list of roles that can use the specified command
   - Example: `!fletgetroles !fso`
+- `!fcooldown <command> <cooldown time>`:  When cooldown time is not provided, returns the current cooldown setting for a specified command. When cooldown time is provided, sets cooldown time (in seconds) for given command
+  - Example: `!fcooldown !sip`
+  - Example: `!fcooldown !sip 5`
 - `!fletbot`: Ping Fletbot
-  - Example `!fletbot`
+  - Example: `!fletbot`
 - `!fletpet`: Show Fletbot some affection
   - Example: `!fletpet`
 - `!fletinc`: #sponsored ad read
