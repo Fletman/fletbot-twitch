@@ -171,7 +171,7 @@ module.exports = {
                             clearTimeout(active_cooldowns[channel_name][cmd_name].cooldown_fn);
                             const time_diff = Math.ceil((Date.now() - active_cooldowns[channel_name][cmd_name].cooldown_start) / 1000);
                             if(time_diff < cooldown_sec) {
-                                active_cooldowns[channel_name][cmd_name].cooldown_fn =  setTimeout(() => { active_cooldowns[channel_name][cmd_name].active = false; }, (cooldown_sec - time_diff) * 1000)
+                                active_cooldowns[channel_name][cmd_name].cooldown_fn = setTimeout(() => { active_cooldowns[channel_name][cmd_name].active = false; }, (cooldown_sec - time_diff) * 1000)
                             } else {
                                 active_cooldowns[channel_name][cmd_name].active = false;
                             }
