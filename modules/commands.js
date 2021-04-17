@@ -59,17 +59,16 @@ module.exports = {
         } else {
             const cmd_cooldown = {
                 cooldown_start: Date.now(),
-                active: true
+                active: true,
+                cooldown_fn: setTimeout(() => { active_cooldowns[channel_name][command].active = false; }, cooldown_len * 1000)
             };
             if(!active_cooldowns[channel_name]) {
                 active_cooldowns[channel_name] = {};
             }
             active_cooldowns[channel_name][command] = cmd_cooldown;
-            setTimeout(() => { active_cooldowns[channel_name][command].active = false; }, cooldown_len * 1000);
             return { available: true };
         }
     },
-
     chat: {
         "!flethelp": (client, channel_name, context, msg_parts) => {
             if(!msg_parts[1]) {
@@ -159,15 +158,25 @@ module.exports = {
                 cooldown_msg = `@${context.username} No command name provided`;
             } else {
                 const cmd_id = (msg_parts[1].startsWith('!') ? msg_parts[1].slice(1) : msg_parts[1]);
-                if(!module.exports.chat.hasOwnProperty(`!${cmd_id}`)) {
-                    cooldown_msg = `@${context.username} Unknown command !${cmd_id}`;
+                const cmd_name = '!' + cmd_id;
+                if(!module.exports.chat.hasOwnProperty(cmd_name)) {
+                    cooldown_msg = `@${context.username} Unknown command ${cmd_name}`;
                 } else if(msg_parts[2]) {
                     const cooldown_sec = parseInt(msg_parts[2], 10);
                     if(Number.isNaN(cooldown_sec) || cooldown_sec < 0 || cooldown_sec % 1 != 0) {
                         cooldown_msg = `@${context.username} Invalid number provided`;
                     } else {
                         bot_data.set_command_cooldown(channel_name, cmd_id, cooldown_sec);
-                        cooldown_msg = `@${context.username} !${cmd_id} cooldown set to ${cooldown_sec} seconds`;
+                        if(active_cooldowns[channel_name] && active_cooldowns[channel_name][cmd_name] && active_cooldowns[channel_name][cmd_name].active) {
+                            clearTimeout(active_cooldowns[channel_name][cmd_name].cooldown_fn);
+                            const time_diff = Math.ceil((Date.now() - active_cooldowns[channel_name][cmd_name].cooldown_start) / 1000);
+                            if(time_diff < cooldown_sec) {
+                                active_cooldowns[channel_name][cmd_name].cooldown_fn =  setTimeout(() => { active_cooldowns[channel_name][cmd_name].active = false; }, (cooldown_sec - time_diff) * 1000)
+                            } else {
+                                active_cooldowns[channel_name][cmd_name].active = false;
+                            }
+                        }
+                        cooldown_msg = `@${context.username} ${cmd_name} cooldown set to ${cooldown_sec} seconds`;
                     }
                 } else {
                     const cooldown_sec = bot_data.get_command_cooldown(channel_name, cmd_id);
