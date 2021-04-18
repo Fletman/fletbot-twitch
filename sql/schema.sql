@@ -5,6 +5,7 @@ CREATE TABLE IF NOT EXISTS cmd_metric (
     invoke_time TIMESTAMP, -- timestamp when command was invoked
     latency INTERVAL, -- time in milliseconds between command invocation and result
     valid BOOLEAN, -- whether command was allowed to be executed by caller
+    host TEXT, -- local IP of Fletbot server
     PRIMARY KEY (channel, command, invoke_time)
 );
 CREATE INDEX IF NOT EXISTS idx_cmd_time ON cmd_metric(invoke_time);
