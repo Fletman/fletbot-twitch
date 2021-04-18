@@ -1,15 +1,21 @@
+const data = require('./data.js');
 const database = require('./database.js');
+const logger = require('./fletlog.js');
 
 module.exports = class Fletrics {
-    constructor(datasource = "postgres") {
-        this.ds_type = datasource;
+    constructor(datasource = 'console') {
         switch(datasource) {
-            case "postgres":
-                this.datasource = database.get_db();
+            case 'console':
+                this.publish_fn = console_log_metric;
+                this.datasource = logger;
                 break;
+            case 'postgres':
+                this.publish_fn = insert_metric_to_pg;
+                this.datasource = database.get_db();
             default:
-                throw(`Unsupported datasource: ${datasource}`);
+                throw(`Unsupported datasource ${datasource}`);
         }
+        this.ds_type = datasource;
     }
 
     /**
@@ -22,18 +28,31 @@ module.exports = class Fletrics {
      * @param {string} caller Caller of command
      */
     async publish_cmd_metric(channel, command, start_time, latency, was_valid, caller) {
-        switch(this.ds_type) {
-            case "postgres":
-                insert_cmd_metric_row(channel, command, start_time, latency, was_valid, caller);
-                break;
-            default:
-                throw(`Cannot publish metric to unknown datasource: ${this.ds_type}`);
-        }
+        await this.publish_fn(
+            channel,
+            command,
+            start_time,
+            latency,
+            was_valid,
+            caller
+        );
     }
 }
 
-function insert_cmd_metric_row(channel, command, start_time, latency, was_valid, caller) {
-    const res = await this.datasource.query(
+async function console_log_metric(channel, command, start_time, latency, was_valid, caller) {
+    const metric_obj = {
+        channel: channel,
+        command: command,
+        caller: caller,
+        invoked: new Date(start_time).toLocaleString(),
+        latency: `${latency}ms`,
+        valid: was_valid
+    };
+    this.datasource.log(metric_obj);
+}
+
+async function insert_metric_to_pg(channel, command, start_time, latency, was_valid, caller) {
+    await this.datasource.query(
         `INSERT INTO cmd_metric (channel, command, calling_user, invoke_time, valid, latency)
          VALUES ($1::text, $2::text, $3::text, to_timestamp($4::bigint), $5::boolean INTERVAL '${latency} milliseconds')`,
         [channel, command, caller, start_time, was_valid]
