@@ -1,3 +1,4 @@
+const os = require('os');
 const data = require('./data.js');
 const database = require('./database.js');
 const logger = require('./fletlog.js');
@@ -46,15 +47,16 @@ async function console_log_metric(channel, command, start_time, latency, was_val
         caller: caller,
         invoked: new Date(start_time).toLocaleString(),
         latency: `${latency}ms`,
-        valid: was_valid
+        valid: was_valid,
+        host: os.hostname()
     };
     this.datasource.log(metric_obj);
 }
 
 async function insert_metric_to_pg(channel, command, start_time, latency, was_valid, caller) {
     await this.datasource.query(
-        `INSERT INTO cmd_metric (channel, command, calling_user, invoke_time, valid, latency)
-         VALUES ($1::text, $2::text, $3::text, to_timestamp($4::bigint), $5::boolean INTERVAL '${latency} milliseconds')`,
-        [channel, command, caller, start_time, was_valid]
+        `INSERT INTO cmd_metric (channel, command, calling_user, invoke_time, valid, host, latency)
+         VALUES ($1::text, $2::text, $3::text, to_timestamp($4::bigint), $5::boolean, $6::text, INTERVAL '${latency} milliseconds')`,
+        [channel, command, caller, start_time, was_valid, os.hostname()]
     );
 }
