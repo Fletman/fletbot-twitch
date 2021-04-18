@@ -12,7 +12,13 @@ module.exports = class Fletrics {
                 break;
             case 'postgres':
                 this.publish_fn = insert_metric_to_pg;
-                this.datasource = database.get_db();
+                database.get_db()
+                    .then((db_client) => {
+                        this.datasource = db_client;
+                    }).catch((err) => {
+                        logger.error(err);
+                    })
+                break;
             default:
                 throw(`Unsupported datasource ${datasource}`);
         }
@@ -55,7 +61,7 @@ async function console_log_metric(channel, command, start_time, latency, was_val
 
 async function insert_metric_to_pg(channel, command, start_time, latency, was_valid, caller) {
     await this.datasource.query(
-        `INSERT INTO cmd_metric (channel, command, calling_user, invoke_time, valid, host, latency)
+        `INSERT INTO fletbot.cmd_metric (channel, command, calling_user, invoke_time, valid, host, latency)
          VALUES ($1::text, $2::text, $3::text, to_timestamp($4::bigint), $5::boolean, $6::text, INTERVAL '${latency} milliseconds')`,
         [channel, command, caller, start_time, was_valid, os.hostname()]
     );

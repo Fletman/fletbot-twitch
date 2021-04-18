@@ -35,7 +35,7 @@ module.exports = {
         client.on('raided', handle_raid);
 
         fletalytics = new Fletalytics(client);
-        fletrics = new Fletrics();
+        fletrics = new Fletrics("postgres");
         bot_data.init(chat_meta.commands);
         commands.init(chat_meta, fletalytics);
         pyramids.set_block_messages(chat_meta.pyramid_block_pool);
