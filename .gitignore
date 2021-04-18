@@ -1,4 +1,5 @@
 node_modules
 resources/auth.json
 resources/channels.json
+resources/db_config.json
 data
