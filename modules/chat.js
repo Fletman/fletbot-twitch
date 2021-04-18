@@ -2,6 +2,7 @@ const fs = require('fs');
 const bot_data = require('./data.js');
 const commands = require('./commands.js');
 const Fletalytics = require('./fletalytics.js');
+const Fletrics = require('./metrics.js');
 const logger = require('./fletlog.js');
 const pyramids = require('./pyramids.js');
 
@@ -11,7 +12,11 @@ let client;
 // data used in responses to certain commands
 const chat_meta = JSON.parse(fs.readFileSync('./resources/chat_medatata.json'));
 
+/** @type {Fletalytics} */
 let fletalytics;
+
+/** @type {Fletrics} */
+let fletrics;
 
 module.exports = {
     /**
@@ -30,6 +35,7 @@ module.exports = {
         client.on('raided', handle_raid);
 
         fletalytics = new Fletalytics(client);
+        fletrics = new Fletrics();
         bot_data.init(chat_meta.commands);
         commands.init(chat_meta, fletalytics);
         pyramids.set_block_messages(chat_meta.pyramid_block_pool);
@@ -85,11 +91,15 @@ function handle_chat_message(channel_name, context, msg, self) {
     const cmd = msg_parts[0];
 
     if(commands.chat.hasOwnProperty(cmd)) {
+        let cmd_valid;
+        const cmd_start_time = Date.now();
         const command_access = commands.check_cmd_access(channel_name, context, cmd);
         const command_cooldown = commands.check_cmd_cooldown(channel_name, cmd);
         if(command_access.allowed && command_cooldown.available) {
+            cmd_valid = true;
             commands.chat[cmd](client, channel_name, context, msg_parts);
         } else {
+            cmd_valid = false;
             let deny_msg = (!command_cooldown.available) ?
                 `@${context.username} ${cmd} is on cooldown for ${command_cooldown.time_remaining_sec} ${command_cooldown.time_remaining_sec > 1 ? "seconds" : "second"}` :
                 `@${context.username} Not allowed to use ${cmd} command. Must be one of: ${command_access.roles.join(", ")}`;
@@ -100,6 +110,15 @@ function handle_chat_message(channel_name, context, msg, self) {
                     logger.error(err);
                 });
         }
+        const cmd_end_time = Date.now();
+        fletrics.publish_cmd_metric(
+            channel_name.slice(1),
+            cmd.slice(1),
+            cmd_start_time.valueOf(),
+            cmd_end_time - cmd_start_time,
+            cmd_valid,
+            context.username
+        ).catch((err) => logger.error(err));
     } else if(message.includes("#teampav")) {
         client.say(channel_name, `@${context.username} Team Pav, the one true team`)
             .then((data) => {
