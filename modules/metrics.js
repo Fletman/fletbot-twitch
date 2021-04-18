@@ -60,9 +60,10 @@ async function console_log_metric(channel, command, start_time, latency, was_val
 }
 
 async function insert_metric_to_pg(channel, command, start_time, latency, was_valid, caller) {
+    console.log(new Date(start_time).toISOString());
     await this.datasource.query(
         `INSERT INTO fletbot.cmd_metric (channel, command, calling_user, invoke_time, valid, host, latency)
-         VALUES ($1::text, $2::text, $3::text, to_timestamp($4::bigint), $5::boolean, $6::text, INTERVAL '${latency} milliseconds')`,
-        [channel, command, caller, start_time, was_valid, os.hostname()]
+         VALUES ($1::text, $2::text, $3::text, $4::timestamp, $5::boolean, $6::text, $7::int)`,
+        [channel, command, caller, new Date(start_time).toISOString(), was_valid, os.hostname(), latency]
     );
 }

@@ -14,6 +14,17 @@ module.exports = {
             db_config = {};
         }
         const client = new Client(db_config);
+        client.on('error', (err) => {
+            logger.log(err);
+            setTimeout(5000, () => {
+                client.connect()
+                    .then(() => {
+                        logger.log("Successfully reconnected");
+                    }).catch((err) => {
+                        logger.error(err);
+                    });
+            })
+        });
         await client.connect();
         logger.log("Successfully connected to DB");
         await init_db_schema(client);
