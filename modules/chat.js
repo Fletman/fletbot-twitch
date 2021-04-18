@@ -96,8 +96,30 @@ function handle_chat_message(channel_name, context, msg, self) {
         const command_access = commands.check_cmd_access(channel_name, context, cmd);
         const command_cooldown = commands.check_cmd_cooldown(channel_name, cmd);
         if(command_access.allowed && command_cooldown.available) {
-            cmd_valid = true;
-            commands.chat[cmd](client, channel_name, context, msg_parts);
+            commands.chat[cmd](client, channel_name, context, msg_parts)
+                .then((result) => {
+                    const cmd_end_time = Date.now();
+                    fletrics.publish_cmd_metric(
+                        channel_name.slice(1),
+                        cmd.slice(1),
+                        cmd_start_time.valueOf(),
+                        (cmd_end_time - cmd_start_time || 1),
+                        result.success,
+                        context.username
+                    ).catch((err) => logger.error(err));
+                    logger.log(result.data);
+                }).catch((err) => {
+                    const cmd_end_time = Date.now();
+                    fletrics.publish_cmd_metric(
+                        channel_name.slice(1),
+                        cmd.slice(1),
+                        cmd_start_time.valueOf(),
+                        (cmd_end_time - cmd_start_time || 1),
+                        false,
+                        context.username
+                    ).catch((err) => logger.error(err));
+                    logger.error(err);
+                });
         } else {
             cmd_valid = false;
             let deny_msg = (!command_cooldown.available) ?
@@ -105,20 +127,29 @@ function handle_chat_message(channel_name, context, msg, self) {
                 `@${context.username} Not allowed to use ${cmd} command. Must be one of: ${command_access.roles.join(", ")}`;
             client.say(channel_name, deny_msg)
                 .then((data) => {
+                    const cmd_end_time = Date.now();
+                    fletrics.publish_cmd_metric(
+                        channel_name.slice(1),
+                        cmd.slice(1),
+                        cmd_start_time.valueOf(),
+                        (cmd_end_time - cmd_start_time || 1),
+                        false,
+                        context.username
+                    ).catch((err) => logger.error(err));
                     logger.log(data);
                 }).catch((err) => {
+                    const cmd_end_time = Date.now();
+                    fletrics.publish_cmd_metric(
+                        channel_name.slice(1),
+                        cmd.slice(1),
+                        cmd_start_time.valueOf(),
+                        (cmd_end_time - cmd_start_time || 1),
+                        false,
+                        context.username
+                    ).catch((err) => logger.error(err));
                     logger.error(err);
                 });
         }
-        const cmd_end_time = Date.now();
-        fletrics.publish_cmd_metric(
-            channel_name.slice(1),
-            cmd.slice(1),
-            cmd_start_time.valueOf(),
-            cmd_end_time - cmd_start_time,
-            cmd_valid,
-            context.username
-        ).catch((err) => logger.error(err));
     } else if(message.includes("#teampav")) {
         client.say(channel_name, `@${context.username} Team Pav, the one true team`)
             .then((data) => {
