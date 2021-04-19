@@ -85,7 +85,7 @@ module.exports = {
                 let success;
                 let help_response;
                 if(cmd_id in chat_meta.commands) {
-                    help_response = chat_meta.commands[cmd_id];
+                    help_response = chat_meta.commands[cmd_id].description;
                     success = true;
                 } else {
                     help_response = `Unknown command "${cmd_id}". Use !flethelp to list available commands`;
