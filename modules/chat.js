@@ -165,7 +165,12 @@ function handle_chat_message(channel_name, context, msg, self) {
     } else {
         const pyramid = pyramids.pyramid_check(client, channel_name, context.username, message);
         if(pyramid) {
-            // TODO: pass pyramid data to backend
+            fletrics.publish_pyramid_metric(
+                pyramid.channel,
+                pyramid.phrase,
+                pyramid.time,
+                pyramid.user
+            );
         }
     }
 }
