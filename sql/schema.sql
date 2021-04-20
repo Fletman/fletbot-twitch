@@ -14,10 +14,10 @@ CREATE INDEX IF NOT EXISTS idx_cmd_time ON fletbot.cmd_metric(invoke_time);
 
 CREATE TABLE IF NOT EXISTS fletbot.pyramid (
     channel TEXT, -- name of channel where pyramid was blocked
-    user TEXT, -- name of user making pyramid
+    pyramid_user TEXT, -- name of user making pyramid
     phrase TEXT, -- phrase used for pyramid
     pyramid_time TIMESTAMP, -- timestamp when pyramid was detected
     host TEXT, -- hostname of Fletbot server
-    PRIMARY KEY (channel, block_time)
+    PRIMARY KEY (channel, pyramid_time)
 );
 CREATE INDEX IF NOT EXISTS idx_pyramid_time ON fletbot.pyramid(pyramid_time);
