@@ -199,6 +199,7 @@ module.exports = {
         				* aka ignore small pp pyramids
         		- even number of repetitions, denoting pyramid as one step away from finished
         */
+       let result;
         if(repeat_count >= min_pyramid_size && repeat_count % 2 == 0) {
             const repeat_log = pyramid_log[channel_name].repetition_log;
             if(repeat_log[2] - repeat_log[1] != repeat_log[1] - repeat_log[0]) {
@@ -280,6 +281,12 @@ module.exports = {
                         });
                 }
             }
+            result = {
+                channel: channel_name.slice(1),
+                user: username,
+                phrase: pyramid_log[channel_name].str_phrase,
+                time: pyramid_history[channel_name][username].last_pyramid
+            };
 
             //cleanup for next target
             pyramid_log[channel_name] = {
@@ -288,6 +295,7 @@ module.exports = {
                 repetition_log: []
             };
         }
+        return result;
     }
 };
 

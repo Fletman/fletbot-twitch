@@ -91,7 +91,6 @@ function handle_chat_message(channel_name, context, msg, self) {
     const cmd = msg_parts[0];
 
     if(commands.chat.hasOwnProperty(cmd)) {
-        let cmd_valid;
         const cmd_start_time = Date.now();
         const command_access = commands.check_cmd_access(channel_name, context, cmd);
         const command_cooldown = commands.check_cmd_cooldown(channel_name, cmd);
@@ -121,7 +120,6 @@ function handle_chat_message(channel_name, context, msg, self) {
                     logger.error(err);
                 });
         } else {
-            cmd_valid = false;
             let deny_msg = (!command_cooldown.available) ?
                 `@${context.username} ${cmd} is on cooldown for ${command_cooldown.time_remaining_sec} ${command_cooldown.time_remaining_sec > 1 ? "seconds" : "second"}` :
                 `@${context.username} Not allowed to use ${cmd} command. Must be one of: ${command_access.roles.join(", ")}`;
@@ -165,7 +163,10 @@ function handle_chat_message(channel_name, context, msg, self) {
                 logger.error(err);
             });
     } else {
-        pyramids.pyramid_check(client, channel_name, context.username, message);
+        const pyramid = pyramids.pyramid_check(client, channel_name, context.username, message);
+        if(pyramid) {
+            // TODO: pass pyramid data to backend
+        }
     }
 }
 
