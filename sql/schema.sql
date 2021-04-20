@@ -7,7 +7,17 @@ CREATE TABLE IF NOT EXISTS fletbot.cmd_metric (
     invoke_time TIMESTAMP, -- timestamp when command was invoked
     latency INTEGER, -- number of milliseconds between command invocation and result
     valid BOOLEAN, -- whether command was allowed to be executed by caller
-    host TEXT, -- local IP of Fletbot server
+    host TEXT, -- hostname of Fletbot server
     PRIMARY KEY (channel, command, invoke_time)
 );
 CREATE INDEX IF NOT EXISTS idx_cmd_time ON fletbot.cmd_metric(invoke_time);
+
+CREATE TABLE IF NOT EXISTS fletbot.pyramid (
+    channel TEXT, -- name of channel where pyramid was blocked
+    user TEXT, -- name of user making pyramid
+    phrase TEXT, -- phrase used for pyramid
+    pyramid_time TIMESTAMP, -- timestamp when pyramid was detected
+    host TEXT, -- hostname of Fletbot server
+    PRIMARY KEY (channel, block_time)
+);
+CREATE INDEX IF NOT EXISTS idx_pyramid_time ON fletbot.pyramid(pyramid_time);
