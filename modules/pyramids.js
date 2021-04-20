@@ -199,7 +199,7 @@ module.exports = {
         				* aka ignore small pp pyramids
         		- even number of repetitions, denoting pyramid as one step away from finished
         */
-       let result;
+        let result;
         if(repeat_count >= min_pyramid_size && repeat_count % 2 == 0) {
             const repeat_log = pyramid_log[channel_name].repetition_log;
             if(repeat_log[2] - repeat_log[1] != repeat_log[1] - repeat_log[0]) {
