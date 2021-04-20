@@ -5,7 +5,7 @@ const logger = require('./fletlog.js');
 
 module.exports = class Fletrics {
     constructor(datasource = 'console') {
-        switch(datasource) {
+        switch (datasource) {
             case 'console':
                 this.cmd_publish_fn = console_log_cmd_metric;
                 this.pyramid_publish_fn = console_log_pyramid_metric;
@@ -22,7 +22,7 @@ module.exports = class Fletrics {
                     })
                 break;
             default:
-                throw(`Unsupported datasource ${datasource}`);
+                throw (`Unsupported datasource ${datasource}`);
         }
         this.ds_type = datasource;
     }

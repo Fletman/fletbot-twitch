@@ -43,6 +43,6 @@ module.exports = {
  * @param {string} schema_file 
  */
 async function init_db_schema(db_client, schema_file = './sql/schema.sql') {
-    const schema = fs.readFileSync(schema_file, {encoding: 'utf8'});
+    const schema = fs.readFileSync(schema_file, { encoding: 'utf8' });
     await db_client.query(schema);
 }

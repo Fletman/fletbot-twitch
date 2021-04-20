@@ -77,8 +77,8 @@ module.exports = {
                     data: await client.say(
                         channel_name,
                         `@${context.username} Available commands: ${cmd_list} | Use !flethelp <command> for details on each command`
-                        ),
-                    success: true   
+                    ),
+                    success: true
                 }
             } else {
                 const cmd_id = (msg_parts[1].startsWith('!') ? msg_parts[1].slice(1) : msg_parts[1]);
@@ -301,15 +301,13 @@ module.exports = {
 
         "!setsips": async (client, channel_name, context, msg_parts) => {
             const sips = parseInt(msg_parts[1], 10);
-            return (Number.isNaN(sips) || sips < 0) ?
-                {
-                    data: await client.say(channel_name, `@${context.username} Invalid number provided`),
-                    success: false
-                } :
-                {
-                    data: await client.say(channel_name, `@${context.username} Sip count set to ${bot_data.set_sips(channel_name, sips)}`),
-                    success: true
-                };
+            return (Number.isNaN(sips) || sips < 0) ? {
+                data: await client.say(channel_name, `@${context.username} Invalid number provided`),
+                success: false
+            } : {
+                data: await client.say(channel_name, `@${context.username} Sip count set to ${bot_data.set_sips(channel_name, sips)}`),
+                success: true
+            };
         },
 
         "!getsips": async (client, channel_name) => {
@@ -392,7 +390,7 @@ module.exports = {
             } else {
                 const channel = channel_name.slice(1);
                 if(msg_parts[1] == "active") {
-                    const result =  await fletalytics.listen(channel);
+                    const result = await fletalytics.listen(channel);
                     return {
                         data: await client.say(channel_name, `@${context.username} ${result}`),
                         success: true
@@ -439,11 +437,11 @@ module.exports = {
                         data: await client.say(channel_name, `@${context.username} ${clip_response}`),
                         success: true
                     };
-                } catch(err) {
+                } catch (err) {
                     if(err.response && err.response.status == 400) {
                         return await client.say(channel_name, `@${context.username} Invalid search criteria provided`);
                     } else {
-                        throw(err);
+                        throw (err);
                     }
                 }
             }
