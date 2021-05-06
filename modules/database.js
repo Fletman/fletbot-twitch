@@ -13,10 +13,11 @@ module.exports = {
             logger.log("No database config file found. Using config defaults");
             db_config = {};
         }
-        const client = new Client(db_config);
+        let client = new Client(db_config);
         client.on('error', (err) => {
             logger.log(err);
             setTimeout(5000, () => {
+                client = new Client(db_config);
                 client.connect()
                     .then(() => {
                         logger.log("Successfully reconnected");
