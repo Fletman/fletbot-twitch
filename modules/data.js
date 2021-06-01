@@ -43,12 +43,18 @@ module.exports = {
      * @returns {Number} Updated sip count
      */
     add_sip: (channel_name) => {
-        if(sip_map[channel_name]) {
-            sip_map[channel_name]++;
+        let active_profile;
+        if(!sip_map[channel_name]) {
+            active_profile = 'default';
+            sip_map[channel_name] = {
+                active_profile: active_profile,
+                profiles: { [active_profile]: 1 }
+            }
         } else {
-            sip_map[channel_name] = 1;
+            active_profile = sip_map[channel_name].active_profile;
+            sip_map[channel_name].profiles[active_profile]++;
         }
-        return sip_map[channel_name];
+        return sip_map[channel_name].profiles[active_profile];
     },
 
     /**
@@ -58,8 +64,9 @@ module.exports = {
      * @returns {Number} Updated sip count
      */
     set_sips: (channel_name, sip_count) => {
-        sip_map[channel_name] = sip_count;
-        return sip_map[channel_name];
+        const active_profile = sip_map[channel_name].active_profile;
+        sip_map[channel_name].profiles[active_profile] = sip_count;
+        return sip_map[channel_name].profiles[active_profile];
     },
 
     /**
@@ -68,7 +75,7 @@ module.exports = {
      * @returns {Number} Updated sip count
      */
     get_sips: (channel_name) => {
-        return sip_map[channel_name] ? sip_map[channel_name] : null;
+        return sip_map[channel_name] ? sip_map[channel_name].profiles[sip_map[channel_name].active_profile] : null;
     },
 
     /**
