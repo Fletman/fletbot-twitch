@@ -279,6 +279,30 @@ module.exports = {
             };
         },
 
+        "!sipprofile": async (client, channel_name, context, msg_parts) => {
+            let result_msg;
+            let success;
+            if(!msg_parts[1]) {
+                result_msg = `Active profile: ${bot_data.get_active_sip_profile(channel_name)}`;
+                success = true;
+            } else if(msg_parts[1] === 'delete') {
+                if(!msg_parts[2]) {
+                    result_msg = "No profile name specified for removal";
+                    success = false;
+                } else{
+                    bot_data.remove_sip_profile(channel_name, msg_parts[2]);
+                    result_msg = `Removed profile ${msg_parts[2]}`;
+                }
+            } else {
+                bot_data.set_active_sip_profile(channel_name, msg_parts[1])
+            }
+            return {
+                data: await client.say(channel_name, `@${context.username} ${result_msg}`),
+                success: success
+            };
+            
+        },
+
         "!sip": async (client, channel_name) => {
             const sips = bot_data.add_sip(channel_name);
             let sip_msg;
