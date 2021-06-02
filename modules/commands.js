@@ -285,16 +285,46 @@ module.exports = {
             if(!msg_parts[1]) {
                 result_msg = `Active profile: ${bot_data.get_active_sip_profile(channel_name)}`;
                 success = true;
-            } else if(msg_parts[1] === 'delete') {
-                if(!msg_parts[2]) {
-                    result_msg = "No profile name specified for removal";
-                    success = false;
-                } else{
-                    bot_data.remove_sip_profile(channel_name, msg_parts[2]);
-                    result_msg = `Removed profile ${msg_parts[2]}`;
-                }
             } else {
-                bot_data.set_active_sip_profile(channel_name, msg_parts[1])
+                switch(msg_parts[1]) {
+                    case 'set':
+                        if(!msg_parts[2]) {
+                            result_msg = "No profile name specified";
+                            success = false;
+                        } else {
+                            const profile_count = bot_data.set_active_sip_profile(channel_name, msg_parts[2]);
+                            if(profile_count === -1) {
+                                result_msg = "Max profile count already reached";
+                                success = false;
+                            } else {
+                                result_msg = `Switched to profile ${msg_parts[2]}, ${profile_count}/10 profile slots in use`;
+                                success = true;
+                            }
+                        }
+                        break;
+                    case 'list':
+                        const profiles = bot_data.list_sip_profiles(channel_name);
+                        result_msg = `Profiles: ${profiles.join(', ')}`;
+                        success = true;
+                        break;
+                    case 'delete':
+                        if(!msg_parts[2]) {
+                            result_msg = "No profile name specified";
+                            success = false;
+                        } else if(msg_parts[2] === 'default') {
+                            result_msg = "Default profile cannot be deleted";
+                            success = false;
+                        } else {
+                            bot_data.remove_sip_profile(channel_name, msg_parts[2]);
+                            result_msg = `Removed profile ${msg_parts[2]}`;
+                            success = true;
+                        }
+                        break;
+                    default:
+                        result_msg = `Unknown option '${msg_parts[1]}', valid options are <set | list | delete>`;
+                        success = false;
+                        break;
+                }
             }
             return {
                 data: await client.say(channel_name, `@${context.username} ${result_msg}`),
