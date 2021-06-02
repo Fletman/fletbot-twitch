@@ -36,6 +36,63 @@ module.exports = {
         fs.writeFile(cmd_access_file, JSON.stringify(access_map), () => logger.log(`Command access settings saved to ${path_resolve(cmd_access_file)}`));
         fs.writeFile(cmd_cd_file, JSON.stringify(cooldown_map), () => logger.log(`Command cooldown settings saved to ${path_resolve(cmd_cd_file)}`));
     },
+    
+    set_active_sip_profile: (channel_name, profile) => {
+        let profile_count;
+        if(!sip_map[channel_name]) {
+            sip_map[channel_name] = {
+                active_profile: profile,
+                profiles: {
+                    'default': 0,
+                    [profile]: 0
+                }
+            };
+            profile_count = Object.keys(sip_map[channel_name].profiles).length;
+        } else if(!sip_map[channel_name].profiles[profile]) {
+            if(Object.keys(sip_map[channel_name].profiles).length < 10) {
+                sip_map[channel_name].active_profile = profile;
+                sip_map[channel_name].profiles[profile] = 0;
+                profile_count = Object.keys(sip_map[channel_name].profiles).length;
+            } else {
+                profile_count = -1;
+            }
+        } else {
+            sip_map[channel_name].active_profile = profile;
+            profile_count = Object.keys(sip_map[channel_name].profiles).length;
+        }
+        return profile_count;
+    },
+
+    get_active_sip_profile: (channel_name) => {
+        if(!sip_map[channel_name]) {
+            sip_map[channel_name] = {
+                active_profile: 'default',
+                profiles: { 'default': 0 }
+            };
+        }
+        return sip_map[channel_name].active_profile;
+    },
+
+    list_sip_profiles: (channel_name) => {
+        if(!sip_map[channel_name]) {
+            sip_map[channel_name] = {
+                active_profile: 'default',
+                profiles: { 'default': 0 }
+            };
+        }
+        return Object.keys(sip_map[channel_name].profiles);
+    },
+
+    remove_sip_profile: (channel_name, profile) => {
+        if(!sip_map[channel_name]) {
+            // nothing to do here
+            return;
+        }
+        delete sip_map[channel_name].profiles[profile];
+        if(sip_map[channel_name].active_profile === profile) {
+            sip_map[channel_name].active_profile = 'default';
+        }
+    },
 
     /**
      * Incremenet channel's sip counter

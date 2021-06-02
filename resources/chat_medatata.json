@@ -70,6 +70,10 @@
             "description": "!fletso <active | inactive> <fso>: Enable/disable automatic shoutouts when being raided. If optional 'fso' flag is provided, '!fso' shoutout is used instead of channel's '!so' shoutout | Example: \"!fletso active fso\"",
             "default_access": ["moderator"]
         },
+        "sipprofile": {
+            "description": "TODO",
+            "default_access": ["moderator"]
+        },
         "sip": {
             "description": "!sip: Increment sip counter | Example: \"!sip\"",
             "default_access": []
