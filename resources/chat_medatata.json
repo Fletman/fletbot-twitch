@@ -71,7 +71,7 @@
             "default_access": ["moderator"]
         },
         "sipprofile": {
-            "description": "TODO",
+            "description": "!sipprofile <set | list | delete> <profile name>: Create, list, or delete profiles that can be used to track multiple sip counters simultaneously | Example: \"!sipprofile set halo\"",
             "default_access": ["moderator"]
         },
         "sip": {

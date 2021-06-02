@@ -37,6 +37,12 @@ module.exports = {
         fs.writeFile(cmd_cd_file, JSON.stringify(cooldown_map), () => logger.log(`Command cooldown settings saved to ${path_resolve(cmd_cd_file)}`));
     },
     
+    /**
+     * Set active sip profile in specified channel to a given profile. If profile does not exist, it is created then set active
+     * @param {String} channel_name Channel name
+     * @param {String} profile Profile name
+     * @returns {Number} Total number of profiles saved under channel, or -1 if new profile could not be created
+     */
     set_active_sip_profile: (channel_name, profile) => {
         let profile_count;
         if(!sip_map[channel_name]) {
@@ -63,16 +69,11 @@ module.exports = {
         return profile_count;
     },
 
-    get_active_sip_profile: (channel_name) => {
-        if(!sip_map[channel_name]) {
-            sip_map[channel_name] = {
-                active_profile: 'default',
-                profiles: { 'default': 0 }
-            };
-        }
-        return sip_map[channel_name].active_profile;
-    },
-
+    /**
+     * List all sip profiles and the active profile for a specified channel
+     * @param {String} channel_name name of channel
+     * @returns {Object} Channel's active profile and list of all profiles
+     */
     list_sip_profiles: (channel_name) => {
         if(!sip_map[channel_name]) {
             sip_map[channel_name] = {
@@ -80,9 +81,17 @@ module.exports = {
                 profiles: { 'default': 0 }
             };
         }
-        return Object.keys(sip_map[channel_name].profiles);
+        return {
+            active_profile: sip_map[channel_name].active_profile,
+            profiles: Object.keys(sip_map[channel_name].profiles)
+        };
     },
 
+    /**
+     * Delete a profile from a given channel. Idempotent operation, will take no action if profile did not already exist
+     * @param {String} channel_name Channel name
+     * @param {*} profile Profile name
+     */
     remove_sip_profile: (channel_name, profile) => {
         if(!sip_map[channel_name]) {
             // nothing to do here
