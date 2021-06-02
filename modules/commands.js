@@ -283,8 +283,8 @@ module.exports = {
             let result_msg;
             let success;
             if(!msg_parts[1]) {
-                result_msg = `Active profile: ${bot_data.get_active_sip_profile(channel_name)}`;
-                success = true;
+                result_msg = "No flag specified, valid options are <set | list | delete>";
+                success = false;
             } else {
                 switch(msg_parts[1]) {
                     case 'set':
@@ -303,8 +303,8 @@ module.exports = {
                         }
                         break;
                     case 'list':
-                        const profiles = bot_data.list_sip_profiles(channel_name);
-                        result_msg = `Profiles: ${profiles.join(', ')}`;
+                        const channel_profile = bot_data.list_sip_profiles(channel_name);
+                        result_msg = `Profiles: ${channel_profile.profiles.join(', ')} | Active profile: ${channel_profile.active_profile}`;
                         success = true;
                         break;
                     case 'delete':
@@ -321,7 +321,7 @@ module.exports = {
                         }
                         break;
                     default:
-                        result_msg = `Unknown option '${msg_parts[1]}', valid options are <set | list | delete>`;
+                        result_msg = `Unknown flag '${msg_parts[1]}', valid options are <set | list | delete>`;
                         success = false;
                         break;
                 }

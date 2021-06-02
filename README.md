@@ -47,6 +47,10 @@
 - `!fletso <active | inactive> <fso>`: Enable/disable automatic shoutouts when being raided.
   - If optional 'fso' flag is provided, '!fso' shoutout is used instead of channel's '!so' shoutout command
   - Example: `!fletso active fso`
+- `!sipprofile <set | list | delete> <profile name>`: Create, list, or delete profiles that can be used to track multiple sip counters simultaneously
+  - Example: `!sipprofile list`
+  - Example: `!sipprofile set halo`
+  - Example: `!sipprofile delete halo`
 - `!sip`: Increment sip counter
   - Example: `!sip`
 - `!setsips <number>`: Set sip count to specified number
