@@ -48,9 +48,12 @@
   - If optional 'fso' flag is provided, '!fso' shoutout is used instead of channel's '!so' shoutout command
   - Example: `!fletso active fso`
 - `!sipprofile <set | list | delete> <profile name>`: Create, list, or delete profiles that can be used to track multiple sip counters simultaneously
-  - Example: `!sipprofile list`
-  - Example: `!sipprofile set halo`
-  - Example: `!sipprofile delete halo`
+  - 'set' flag will change the active profile, creating a new one of if it doesn't exist. A channel can have a max of 10 profiles
+    - Example: `!sipprofile set halo`
+  - 'delete' flag will delete a specified profile. If the deleted profile was the active profile, the default profile becomes the active one
+    - Example: `!sipprofile delete halo`
+  - 'list' flag will list all of a channel's profiles, as well as the currently active profile
+    - Example: `!sipprofile list`
 - `!sip`: Increment sip counter
   - Example: `!sip`
 - `!setsips <number>`: Set sip count to specified number
