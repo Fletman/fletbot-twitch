@@ -19,7 +19,8 @@ const chat_client = new tmi.client({
         password: credentials.get_oauth_token()
     },
     connection: {
-        reconnect: true
+        reconnect: true,
+        secure: true
     },
     channels: get_channels()
 });
