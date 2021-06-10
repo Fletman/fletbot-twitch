@@ -19,20 +19,22 @@ module.exports = {
         const cmd_id = (command.startsWith('!') ? command.slice(1) : command);
         const cmd_access = bot_data.get_command_access(cmd_id);
         const access_roles = (cmd_access[channel_name] ? cmd_access[channel_name] : cmd_access.default);
-        const can_access = access_roles.length === 0 ||
-            chat_meta.bot_owners.includes(context.username) ||
-            credentials.is_broadcaster(context) ||
+        const can_access = access_roles.length === 0 || // no roles specified implies no restrictions
+            chat_meta.bot_owners.includes(context.username) || // admin role
             access_roles.some((role) => {
                 let access_allowed = false;
                 switch (role) {
+                    case "broadcaster":
+                        access_allowed = credentials.is_broadcaster(context);
+                        break;
                     case "moderator":
-                        access_allowed = credentials.is_moderator(context);
+                        access_allowed = (credentials.is_broadcaster(context) || credentials.is_moderator(context));
                         break;
                     case "vip":
-                        access_allowed = credentials.is_vip(context);
+                        access_allowed = (credentials.is_broadcaster(context) || credentials.is_vip(context));
                         break;
                     case "subscriber":
-                        access_allowed = credentials.is_subscriber(context);
+                        access_allowed = (credentials.is_broadcaster(context) || credentials.is_subscriber(context));
                         break;
                     default:
                         break;
@@ -105,7 +107,7 @@ module.exports = {
                 role_msg = "Invalid arguments provided. Type \"!flethelp !fletsetroles\" for command usage";
                 success = false;
             } else {
-                const valid_lvls = ['broadcaster', 'moderator', 'vip', 'subscriber', 'all', 'default'];
+                const valid_lvls = ['admin', 'broadcaster', 'moderator', 'vip', 'subscriber', 'all', 'default'];
                 const cmd_id = (msg_parts[1].startsWith('!') ? msg_parts[1].slice(1) : msg_parts[1]);
                 const levels = msg_parts.slice(2);
                 if(!chat_meta.commands.hasOwnProperty(cmd_id)) {
