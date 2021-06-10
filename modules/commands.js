@@ -180,10 +180,10 @@ module.exports = {
                 } else {
                     if(msg_parts[2] === 'true') {
                         bot_data.ban_user(username);
-                        result_msg = `Fletbot has cancelled user ${username}`;
+                        result_msg = `Fletbot privileges revoked from user ${username}`;
                     } else {
                         bot_data.unban_user(username);
-                        result_msg = `Privileges restored to user ${username}`
+                        result_msg = `Fletbot privileges restored to user ${username}`
                     }
                     success = true;
                 }
