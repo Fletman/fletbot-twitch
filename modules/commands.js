@@ -111,6 +111,7 @@ module.exports = {
                 success = false;
             } else {
                 const valid_lvls = ['admin', 'broadcaster', 'moderator', 'vip', 'subscriber', 'all', 'default'];
+                const immutable_cmds = ['fcancel'];
                 const cmd_id = (msg_parts[1].startsWith('!') ? msg_parts[1].slice(1) : msg_parts[1]);
                 const levels = msg_parts.slice(2);
                 if(!chat_meta.commands.hasOwnProperty(cmd_id)) {
@@ -121,6 +122,9 @@ module.exports = {
                     success = false;
                 } else if(unknown_lvl = levels.find((lvl) => !valid_lvls.includes(lvl))) {
                     role_msg = `Invalid access level "${unknown_lvl}". Valid levels are ${valid_lvls.join(", ")}`;
+                    success = false;
+                } else if(immutable_cmds.includes(cmd_id)) {
+                    role_msg = `Access level cannot be altered for !${cmd_id}`;
                     success = false;
                 } else {
                     const new_access = bot_data.set_command_access(channel_name, cmd_id, levels);
