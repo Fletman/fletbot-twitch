@@ -46,6 +46,10 @@
             "description": "!fcooldown <command> <cooldown seconds>: When cooldown time is not provided, returns the current cooldown setting for a specified command. When cooldown time is provided, sets cooldown time (in seconds) for given command. | Example \"!fcooldown !sip\" OR \"!fcooldown !sip 5\"",
             "default_access": ["moderator"]
         },
+        "fcancel": {
+            "description": "!fcancel <username> <true | false>: Allow/deny a specified user access to Fletbot commands | Example: \"!fcancel mrguybrush true\"",
+            "default_access": ["admin"]
+        },
         "fletbot": {
             "description": "!fletbot: Ping Fletbot | Example: \"!fletbot\"",
             "default_access": []
