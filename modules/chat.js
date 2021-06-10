@@ -120,9 +120,14 @@ function handle_chat_message(channel_name, context, msg, self) {
                     logger.error(err);
                 });
         } else {
-            let deny_msg = (!command_cooldown.available) ?
-                `@${context.username} ${cmd} is on cooldown for ${command_cooldown.time_remaining_sec} ${command_cooldown.time_remaining_sec > 1 ? "seconds" : "second"}` :
-                `@${context.username} Not allowed to use ${cmd} command. Must be one of: ${command_access.roles.join(", ")}`;
+            let deny_msg;
+            if(!command_cooldown.available) {
+                deny_msg = `@${context.username} ${cmd} is on cooldown for ${command_cooldown.time_remaining_sec} ${command_cooldown.time_remaining_sec > 1 ? "seconds" : "second"}`;
+            } else if(command_access.ban) {
+                deny_msg = "";
+            } else {
+                deny_msg = `@${context.username} Not allowed to use ${cmd} command. Must be one of: ${command_access.roles.join(", ")}`;
+            }
             client.say(channel_name, deny_msg)
                 .then((data) => {
                     const cmd_end_time = Date.now();

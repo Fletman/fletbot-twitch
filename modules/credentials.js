@@ -5,6 +5,9 @@ const fs = require('fs');
 const credentials = JSON.parse(fs.readFileSync('./resources/auth.json', { encoding: 'utf8' }));
 let default_token;
 
+/**
+ * functions to manage both credentials for Fletbot as well as RBAC for users invoking Fletbot commands
+ */
 module.exports = {
     /**
      * @returns {string} Fletbot's client ID
@@ -29,7 +32,7 @@ module.exports = {
 
     /**
      * Fetch API OAuth token if not already cached
-     * @returns {string} API OAuth token
+     * @returns {Promise<string>} API OAuth token
      */
     get_default_access_token: async () => {
         if(default_token) {
@@ -105,8 +108,8 @@ module.exports = {
                 `&client_id=${credentials.client_id}` +
                 `&client_secret=${credentials.api_secret}`
         });
-        module.exports.update_access_tokens(channel, response.data);
-        return module.exports.get_access_token(channel);
+        this.update_access_tokens(channel, response.data);
+        return this.get_access_token(channel);
     },
 
     /**

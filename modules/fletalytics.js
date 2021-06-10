@@ -85,7 +85,7 @@ module.exports = class Fletalytics {
         } else {
             channel_id = username;
         }
-        const channel_data = await this._get_user(channel_id);
+        const channel_data = await this.get_user(channel_id);
         return (channel_data ? channel_data.profile_image_url : null);
     }
 
@@ -97,7 +97,7 @@ module.exports = class Fletalytics {
      */
     async get_emote(channel, emote_code) {
         const channel_name = (channel.startsWith("@") ? channel.slice(1) : channel);
-        const channel_data = await this._get_user(channel_name);
+        const channel_data = await this.get_user(channel_name);
         if(!channel_data) {
             return null;
         }
@@ -293,7 +293,7 @@ module.exports = class Fletalytics {
      * @param {string} username Username
      * @returns {Promise<object?>} User data object
      */
-    async _get_user(username) {
+    async get_user(username) {
         const default_token = await credentials.get_default_access_token();
         const response = await axios({
             method: 'get',
@@ -313,7 +313,7 @@ module.exports = class Fletalytics {
      * @returns {Promise<object?>} Channel data object
      */
     async _get_channel(channel) {
-        const user_data = await this._get_user(channel);
+        const user_data = await this.get_user(channel);
         if(!user_data || !user_data.id) {
             return null;
         }

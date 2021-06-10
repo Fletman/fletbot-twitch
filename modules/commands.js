@@ -19,7 +19,9 @@ module.exports = {
         const cmd_id = (command.startsWith('!') ? command.slice(1) : command);
         const cmd_access = bot_data.get_command_access(cmd_id);
         const access_roles = (cmd_access[channel_name] ? cmd_access[channel_name] : cmd_access.default);
-        const can_access = access_roles.length === 0 || // no roles specified implies no restrictions
+        const user_banned = bot_data.get_ban_list().includes(context.username);
+        const can_access = user_banned ? false :
+            access_roles.length === 0 || // no roles specified implies no restrictions
             chat_meta.bot_owners.includes(context.username) || // admin role
             access_roles.some((role) => {
                 let access_allowed = false;
@@ -43,6 +45,7 @@ module.exports = {
             });
         return {
             allowed: can_access,
+            ban: user_banned,
             roles: access_roles
         }
     },
@@ -157,6 +160,39 @@ module.exports = {
                     success: success
                 };
             }
+        },
+
+        "!fcancel": async (client, channel_name, context, msg_parts) => {
+            let result_msg;
+            let success;
+            if(msg_parts.length < 3) {
+                result_msg = "Invalid paramters specified. Must provide user and <true | false> flag";
+                success = false;
+            } else if(!['true', 'false'].includes(msg_parts[2])) {
+                result_msg = `Invalid flag "${msg_parts[2]}", must be true or false`;
+                success = false;
+            } else {
+                const username = msg_parts[1].startsWith('@') ? msg_parts[1].slice(1) : msg_parts[1];
+                const user = await fletalytics.get_user(username);
+                if(!user) {
+                    result_msg = `User ${username} does not exist`;
+                    success = false;
+                } else {
+                    if(msg_parts[2] === 'true') {
+                        bot_data.ban_user(username);
+                        result_msg = `Fletbot has cancelled user ${username}`;
+                    } else {
+                        bot_data.unban_user(username);
+                        result_msg = `Privileges restored to user ${username}`
+                    }
+                    success = true;
+                }
+            }
+
+            return {
+                data: await client.say(channel_name, `@${context.username} ${result_msg}`),
+                success: success
+            };
         },
 
         "!fcooldown": async (client, channel_name, context, msg_parts) => {
