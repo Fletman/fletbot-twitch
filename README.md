@@ -34,6 +34,8 @@
 - `!fcooldown <command> <cooldown time>`:  When cooldown time is not provided, returns the current cooldown setting for a specified command. When cooldown time is provided, sets cooldown time (in seconds) for given command
   - Example: `!fcooldown !sip`
   - Example: `!fcooldown !sip 5`
+- `!fcancel <username> <true | false>`: Allow/deny a specified user access to Fletbot commands
+  - Example: `!fcancel mrguybrush true`
 - `!fletbot`: Ping Fletbot
   - Example: `!fletbot`
 - `!fletpet`: Show Fletbot some affection
