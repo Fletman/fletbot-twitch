@@ -208,6 +208,36 @@ module.exports = {
     },
 
     /**
+     * Add username to list of banned Fletbot users
+     * @param {string} banned_username Name of user to ban
+     */
+    ban_user: (banned_username) => {
+        if(!access_map.ban_list) {
+            access_map.ban_list = [banned_username]
+        } else if(!access_map.ban_list.includes(banned_username)) {
+            fs.access_map.ban_list.push(banned_username);
+        }
+    },
+
+    /**
+     * Remove username from list of banned Fletbot users
+     * @param {string} unbanned_username 
+     */
+    unban_user(unbanned_username) {
+        if(access_map.ban_list) {
+            access_map.ban_list = access_map.ban_list.filter(username => username !== unbanned_username)
+        }
+    },
+
+    /**
+     * Get list of users banned from using Fletbot commands
+     * @returns {string[]} List of banned users
+     */
+     get_ban_list: () => {
+        return access_map.ban_list ? access_map.ban_list : []
+    },
+
+    /**
      * Set cooldown period for specified command in a channel
      * @param {string} channel_name Channel name
      * @param {string} command Command name
