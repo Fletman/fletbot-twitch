@@ -386,7 +386,9 @@ module.exports = {
                     sip_msg = "69 sips. Nice. TPFufun";
                     break;
                 default:
-                    sip_msg = `${sips} sips... So far. TPFufun`;
+                    sip_msg = sips % 50 === 0 ?
+                        `${sips} sips. ${chat_meta.sip_pool[Math.floor(Math.random() * chat_meta.sip_pool.length)]}` :
+                        `${sips} sips... So far. TPFufun`;
                     break;
             }
             return {
