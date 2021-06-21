@@ -30,6 +30,14 @@
         "VoteNay",
         "WutFace"
     ],
+    "sip_pool": [
+        "Anyone else concerned?  👀",
+        "Giving up is always an option, just saying TPFufun",
+        "Oof.",
+        "I still believe KPOPheart",
+        "LUL",
+        "So many WutFace"
+    ],
     "commands": {
         "flethelp": {
             "description": "Very funny -_- !flethelp: List available Fletbot commands | !flethelp <command>: Get a description for the specified Fletbot command | Example: \"!flethelp !fletpet\"",
