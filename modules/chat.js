@@ -60,12 +60,7 @@ function handle_connect(addr, port) {
 //handle user joining channel
 function handle_join(channel_name, username, self) {
     if(self) { // report self joining chat
-        client.action(channel_name, "is now online")
-            .then((data) => {
-                logger.log(data);
-            }).catch((err) => {
-                logger.error(err);
-            });
+        logger.log(`Connected to channel ${channel_name}`);
         pyramids.channel_init(channel_name);
     }
 }
