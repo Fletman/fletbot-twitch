@@ -33,6 +33,7 @@ module.exports = {
         client.on('chat', handle_chat_message);
         client.on('whisper', handle_whisper);
         client.on('raided', handle_raid);
+        client.on('cheer', handle_cheer);
 
         fletalytics = new Fletalytics(client);
         fletrics = new Fletrics("postgres");
@@ -155,13 +156,6 @@ function handle_chat_message(channel_name, context, msg, self) {
             }).catch((err) => {
                 logger.error(err);
             });
-    } else if(message.includes("#teamlina")) {
-        client.say(channel_name, `@${context.username} Team Lina is fake news`)
-            .then((data) => {
-                logger.log(data);
-            }).catch((err) => {
-                logger.error(err);
-            });
     } else {
         const pyramid = pyramids.pyramid_check(client, channel_name, context.username, message);
         if(pyramid) {
@@ -204,5 +198,19 @@ function handle_raid(channel_name, username, raider_count = 0) {
             }).catch((err) => {
                 logger.error(err);
             });
+    }
+}
+
+// event for someone cheering bits
+function handle_cheer(channel_name, context, msg) {
+    const message = msg.trim().toLowerCase();
+    const pyramid = pyramids.pyramid_check(client, channel_name, context.username, message);
+    if(pyramid) {
+        fletrics.publish_pyramid_metric(
+            pyramid.channel,
+            pyramid.phrase,
+            pyramid.time,
+            pyramid.user
+        );
     }
 }
