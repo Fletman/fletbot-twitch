@@ -20,7 +20,9 @@ module.exports = {
      */
     start_ban_loop: (chat_client, loop_period=one_hour_ms) => {
         setInterval(() => ban_wave(chat_client), loop_period);
-    }
+    },
+
+    manual_ban_wave: ban_wave
 }
 
 /**
@@ -42,9 +44,13 @@ function get_doc_lines(doc_elements) {
             }
         }
     }
-    return doc_lines;
+    return Array.from(new Set(doc_lines));
 }
 
+/**
+ * Pull list of banned usernames from Google Docs, apply bans across relevant channels
+ * @param {Object} chat_client
+ */
 function ban_wave(chat_client) {
     logger.log("Starting ban wave");
 
@@ -61,6 +67,18 @@ function ban_wave(chat_client) {
             .then((response) => {
                 const doc_lines = get_doc_lines(response.data.body.content);
                 for(const channel_name of chat_client.getChannels()) {
+                    let skip_reason = null;
+                    if(!chat_client.isMod(channel_name, "fletbot795")) {
+                        skip_reason = `Moderation not available in channel ${channel_name}`;
+                    }
+                    if(!bot_data.is_bot_protected_channel(channel_name)) {
+                        skip_reason = `Channel ${channel_name} does not have active protection`;
+                    }
+                    if(skip_reason) {
+                        logger.log(`${skip_reason}, skipping channel...`);
+                        continue;
+                    }
+
                     const ban_cache = bot_data.get_ban_cache(channel_name);
                     const to_ban_list = ban_cache ?
                         doc_lines.filter(username => !ban_cache.includes(username)) :

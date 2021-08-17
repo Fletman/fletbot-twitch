@@ -62,7 +62,6 @@ module.exports = {
             }
         ];
         for(const f of files) {
-            console.log(f);
             fs.writeFile(f.file, JSON.stringify(f.data_map), () => logger.log(`${f.desc} saved to ${path_resolve(f.file)}`));
         }
     },
@@ -299,12 +298,43 @@ module.exports = {
         }
     },
 
+    /**
+     * Add channel to list of bot protected channels
+     * @param {string} channel_name Channel name
+     */
     add_bot_protected_channel: (channel_name) => {
-        // TODO
+        if(ban_cache_map.channels) {
+            ban_cache_map.channels = Array.from(new Set(ban_cache_map.channels).add(channel_name));
+        } else {
+            ban_cache_map.channels = [channel_name];
+        }
     },
 
+    /**
+     * @returns {string[]} List of channels where bot protection is active
+     */
     get_bot_protected_channels: () => {
-        // TODO
+        return ban_cache_map.channels || [];
+    },
+
+    /**
+     * Remove given channel from list of bot protected channels
+     * @param {string} channel_name Channel name
+     */
+    remove_bot_protected_channel: (channel_name) => {
+        if(ban_cache_map.channels) {
+            ban_cache_map.channels = ban_cache_map.channels.filter((active_channel) => active_channel != channel_name);
+        }
+        delete ban_cache_map[channel_name];
+    },
+
+    /**
+     * Return whether a given channel has bot protection enabled
+     * @param {string} channel_name Channel name
+     * @returns {boolean}
+     */
+    is_bot_protected_channel: (channel_name) => {
+        return ban_cache_map.channels && ban_cache_map.channels.includes(channel_name);
     },
 
     /**
