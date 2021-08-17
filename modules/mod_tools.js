@@ -25,6 +25,10 @@ module.exports = {
     manual_ban_wave: ban_wave
 }
 
+function delay(t) {
+    return new Promise(resolve => setTimeout(resolve, t));
+}
+
 /**
  * 
  * @param {Array<Object>} doc_elements //Google Document object
@@ -78,7 +82,12 @@ function ban_wave(chat_client) {
                     const to_ban_list = ban_cache ?
                         doc_lines.filter(username => !ban_cache.includes(username)) :
                         doc_lines;
-                    const ban_promises = to_ban_list.map((username) => chat_client.say(channel_name, `/ban ${username}`));
+
+
+                    const ban_promises = to_ban_list.map(async (username) => {
+                        await delay(750);
+                        return await chat_client.say(channel_name, `/ban ${username}`);
+                    });
                     Promise.all(ban_promises)
                         .then((promise_values) => {
                             for(const data of promise_values) {
