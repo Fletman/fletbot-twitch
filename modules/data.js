@@ -6,11 +6,13 @@ const sip_file = './data/sips.json';
 const so_file = './data/so.json';
 const cmd_access_file = './data/cmd_access.json';
 const cmd_cd_file = './data/cmd_cooldown.json';
+const ban_cache_file = './data/ban_cache.json';
 
 let sip_map;
 let shoutout_map;
 let access_map;
 let cooldown_map;
+let ban_cache_map;
 
 module.exports = {
     init: (commands) => {
@@ -18,6 +20,7 @@ module.exports = {
         shoutout_map = load_map(so_file, 'shoutout');
         access_map = load_map(cmd_access_file, 'command access');
         cooldown_map = load_map(cmd_cd_file, 'command cooldown');
+        ban_cache_map = load_map(ban_cache_file, 'ban cache');
         Object.entries(commands).forEach((entry) => {
             const cmd_name = entry[0];
             if(!(cmd_name in access_map)) {
@@ -31,10 +34,37 @@ module.exports = {
      * Backup maps to file
      */
     backup: () => {
-        fs.writeFile(sip_file, JSON.stringify(sip_map), () => logger.log(`Sip counts saved to ${path_resolve(sip_file)}`));
-        fs.writeFile(so_file, JSON.stringify(shoutout_map), () => logger.log(`Shoutout settings saved to ${path_resolve(so_file)}`));
-        fs.writeFile(cmd_access_file, JSON.stringify(access_map), () => logger.log(`Command access settings saved to ${path_resolve(cmd_access_file)}`));
-        fs.writeFile(cmd_cd_file, JSON.stringify(cooldown_map), () => logger.log(`Command cooldown settings saved to ${path_resolve(cmd_cd_file)}`));
+        const files = [
+            {
+                file: sip_file,
+                data_map: sip_map,
+                desc: 'Sip counts'
+            },
+            {
+                file: so_file,
+                data_map: shoutout_map,
+                desc: 'Shoutout settings'
+            },
+            {
+                file: cmd_access_file,
+                data_map: access_map,
+                desc: 'Command access settings'
+            },
+            {
+                file: cmd_cd_file,
+                data_map: cooldown_map,
+                desc: 'Command cooldown settings'
+            },
+            {
+                file: ban_cache_file,
+                data_map: ban_cache_map,
+                desc: 'Ban cache'
+            }
+        ];
+        for(const f of files) {
+            console.log(f);
+            fs.writeFile(f.file, JSON.stringify(f.data_map), () => logger.log(`${f.desc} saved to ${path_resolve(f.file)}`));
+        }
     },
     
     /**
@@ -267,6 +297,34 @@ module.exports = {
         } else {
             return 0;
         }
+    },
+
+    add_bot_protected_channel: (channel_name) => {
+        // TODO
+    },
+
+    get_bot_protected_channels: () => {
+        // TODO
+    },
+
+    /**
+     * @param {string} channel_name Name of channel to pull cache from
+     * @returns {Array<string>} list of previously banned usernames from a channel
+     */
+    get_ban_cache: (channel_name) => {
+        return ban_cache_map[channel_name];
+    },
+
+    /**
+     * Update the list of previously banned accounts for a given channel
+     * @param {string} channel_name
+     * @param {string[]} banned_list
+     */
+    update_ban_cache: (channel_name, banned_list) => {
+        const new_channel_cache = channel_name in ban_cache_map ?
+            ban_cache_map[channel_name].concat(banned_list) :
+            banned_list;
+        ban_cache_map[channel_name] = Array.from(new Set(new_channel_cache));
     }
 };
 
