@@ -5,6 +5,7 @@ const Fletalytics = require('./fletalytics.js');
 const Fletrics = require('./metrics.js');
 const logger = require('./fletlog.js');
 const pyramids = require('./pyramids.js');
+const mod_tools = require('./mod_tools.js');
 
 // twitch chat client
 let client;
@@ -50,6 +51,7 @@ module.exports = {
             .catch((err) => {
                 logger.error(err);
             });
+        mod_tools.start_ban_loop(client);
     }
 };
 

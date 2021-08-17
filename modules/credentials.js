@@ -120,6 +120,25 @@ module.exports = {
     },
 
     /**
+     * Refreshes Google oauth tokens before returning the access token
+     * @returns {Promise<string>} object containing access_token and refresh_token fields for Google API oauth
+     */
+    get_google_access_token: async () => {
+        const prev_tokens = credentials.google_tokens;
+        const response = await axios({
+            method: 'post',
+            url: "https://oauth2.googleapis.com/token" +
+                "?grant_type=refresh_token" +
+                `&refresh_token=${encodeURI(prev_tokens.refresh_token)}` +
+                `&client_id=${credentials.google_client_id}` +
+                `&client_secret=${credentials.google_client_secret}`
+        });
+        credentials.google_tokens = Object.assign(response.data, {refresh_token: prev_tokens.refresh_token});
+        fs.writeFileSync('./resources/auth.json', JSON.stringify(credentials));
+        return response.data.access_token;
+    },
+
+    /**
      * Check whether a given user is channel broadcaster
      * @param {object} user_context tmi.js chat context object
      * @returns {boolean} whether user is channel broadcaster
