@@ -85,3 +85,9 @@
   - Example: `!fletunpermit`
 - `!fletalytics`: View changelog and preview some fancy new (potential) features coming soon™
   - Example: `!fletalytics`
+
+### Bot Protection
+Channels can opt in/out from Fletbot's bot account protection system. Bot usernames are pulled from a maintaned list and banned from every channel where the protection is active.
+- Opt in: Whisper `!fletprotect <channel name>`
+- Opt out: Whisper `!fletunprotect <channel name>`
+- Note: opt in/out commands are currently only available to bot owners
