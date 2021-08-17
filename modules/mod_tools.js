@@ -67,7 +67,10 @@ function ban_wave(chat_client) {
             .then((response) => {
                 const doc_lines = get_doc_lines(response.data.body.content);
                 for(const channel_name of chat_client.getChannels()) {
-                    if(!chat_client.isMod(channel_name, "fletbot795") || !bot_data.is_bot_protected_channel(channel_name)) {
+                    if(!bot_data.is_bot_protected_channel(channel_name)) {
+                        continue;
+                    } else if(!chat_client.isMod(channel_name, "fletbot795")) {
+                        logger.log(`Moderation not active in channel ${channel}, skipping`);
                         continue;
                     }
 
