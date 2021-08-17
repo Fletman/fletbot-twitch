@@ -18,7 +18,7 @@ module.exports = {
      * @param {Object} chat_client tmi.js chat client
      * @param {Number?} loop_period time in ms between ban waves
      */
-    start_ban_loop: (chat_client, loop_period=one_hour_ms) => {
+    start_ban_loop: (chat_client, loop_period=(one_hour_ms*4)) => {
         setInterval(() => ban_wave(chat_client), loop_period);
     },
 
@@ -51,6 +51,27 @@ function get_doc_lines(doc_elements) {
     return Array.from(new Set(doc_lines));
 }
 
+async function apply_bans(chat_client, full_ban_list, delay_ms=500) {
+    for(const channel_name of chat_client.getChannels()) {
+        if(!bot_data.is_bot_protected_channel(channel_name)) {
+            continue;
+        }
+        const ban_cache = bot_data.get_ban_cache(channel_name);
+        const to_ban_list = ban_cache ?
+            full_ban_list.filter(username => !ban_cache.includes(username)) :
+            full_ban_list;
+        for(const ban_name of to_ban_list) {
+            await delay(delay_ms);
+            try {
+                await chat_client.say(channel_name, `/ban ${ban_name}`);
+            } catch(e) {
+                logger.error(e);
+            }
+        }
+        bot_data.update_ban_cache(channel_name, to_ban_list);
+    }
+}
+
 /**
  * Pull list of banned usernames from Google Docs, apply bans across relevant channels
  * @param {Object} chat_client
@@ -70,35 +91,12 @@ function ban_wave(chat_client) {
             })
             .then((response) => {
                 const doc_lines = get_doc_lines(response.data.body.content);
-                for(const channel_name of chat_client.getChannels()) {
-                    if(!bot_data.is_bot_protected_channel(channel_name)) {
-                        continue;
-                    }/* else if(!chat_client.isMod(channel_name, "fletbot795")) {
-                        logger.log(`Moderation not active in channel ${channel_name}, skipping`);
-                        continue;
-                    }*/
-
-                    const ban_cache = bot_data.get_ban_cache(channel_name);
-                    const to_ban_list = ban_cache ?
-                        doc_lines.filter(username => !ban_cache.includes(username)) :
-                        doc_lines;
-
-
-                    const ban_promises = to_ban_list.map(async (username) => {
-                        await delay(750);
-                        return await chat_client.say(channel_name, `/ban ${username}`);
-                    });
-                    Promise.all(ban_promises)
-                        .then((promise_values) => {
-                            for(const data of promise_values) {
-                                logger.log(data);
-                            }
-                            bot_data.update_ban_cache(channel_name, to_ban_list);
-                            logger.log(`Completed ban wave for channel ${channel_name}`);
+                apply_bans(chat_client, doc_lines)
+                        .then(() => {
+                            logger.log("Ban wave completed");
                         }).catch((err) => {
                             logger.error(err);
                         });
-                }
             })
             .catch((err) => {
                 logger.error(err);
