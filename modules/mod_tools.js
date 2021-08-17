@@ -67,15 +67,7 @@ function ban_wave(chat_client) {
             .then((response) => {
                 const doc_lines = get_doc_lines(response.data.body.content);
                 for(const channel_name of chat_client.getChannels()) {
-                    let skip_reason = null;
-                    if(!chat_client.isMod(channel_name, "fletbot795")) {
-                        skip_reason = `Moderation not available in channel ${channel_name}`;
-                    }
-                    if(!bot_data.is_bot_protected_channel(channel_name)) {
-                        skip_reason = `Channel ${channel_name} does not have active protection`;
-                    }
-                    if(skip_reason) {
-                        logger.log(`${skip_reason}, skipping channel...`);
+                    if(!chat_client.isMod(channel_name, "fletbot795") || !bot_data.is_bot_protected_channel(channel_name)) {
                         continue;
                     }
 
