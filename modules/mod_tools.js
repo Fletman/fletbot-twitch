@@ -70,7 +70,7 @@ function ban_wave(chat_client) {
                     if(!bot_data.is_bot_protected_channel(channel_name)) {
                         continue;
                     } else if(!chat_client.isMod(channel_name, "fletbot795")) {
-                        logger.log(`Moderation not active in channel ${channel}, skipping`);
+                        logger.log(`Moderation not active in channel ${channel_name}, skipping`);
                         continue;
                     }
 
