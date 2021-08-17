@@ -3,6 +3,7 @@ const bot_data = require('./data.js');
 const credentials = require('./credentials.js');
 const logger = require('./fletlog.js');
 const pyramids = require('./pyramids.js');
+const mod_tools = require('./mod_tools.js');
 
 let chat_meta = {};
 let fletalytics = {};
@@ -591,7 +592,7 @@ module.exports = {
 
         "!fletjoin": (client, context, msg_parts) => {
             if(!chat_meta.bot_owners.includes(context.username)) {
-                client.whisper(context.username, "Only daddy can use this command")
+                client.whisper(context.username, "Only a daddy can use this command")
                     .then((data) => {
                         logger.log(data);
                     }).catch((err) => {
@@ -626,7 +627,7 @@ module.exports = {
 
         "!fletleave": (client, context, msg_parts) => {
             if(!chat_meta.bot_owners.includes(context.username)) {
-                client.whisper(context.username, "Only daddy can use this command")
+                client.whisper(context.username, "Only a daddy can use this command")
                     .then((data) => {
                         logger.log(data);
                     }).catch((err) => {
@@ -696,6 +697,61 @@ module.exports = {
         "!fletbackup": (client, context) => {
             if(chat_meta.bot_owners.includes(context.username)) {
                 bot_data.backup();
+            }
+        },
+
+        "!fletprotect": (client, context, msg_parts) => {
+            if(!chat_meta.bot_owners.includes(context.username)) {
+                client.whisper(context.username, "Only a daddy can use this command")
+                    .then((data) => {
+                        logger.log(data);
+                    }).catch((err) => {
+                        logger.error(err);
+                    });
+            } else if(!msg_parts[1]) {
+                client.whisper(context.username, "No channel provided")
+                    .then((data) => {
+                        logger.log(data);
+                    }).catch((err) => {
+                        logger.error(err);
+                    })
+            } else {
+                bot_data.add_bot_protected_channel(`#${msg_parts[1]}`);
+                logger.log(`Bot protection now enabled for channel ${msg_parts[1]}. Active channels: `, bot_data.get_bot_protected_channels());
+            }
+        },
+
+        "!fletunprotect": (client, context, msg_parts) => {
+            if(!chat_meta.bot_owners.includes(context.username)) {
+                client.whisper(context.username, "Only a daddy can use this command")
+                    .then((data) => {
+                        logger.log(data);
+                    }).catch((err) => {
+                        logger.error(err);
+                    });
+            } else if(!msg_parts[1]) {
+                client.whisper(context.username, "No channel provided")
+                    .then((data) => {
+                        logger.log(data);
+                    }).catch((err) => {
+                        logger.error(err);
+                    })
+            } else {
+                bot_data.remove_bot_protected_channel(`#${msg_parts[1]}`);
+                logger.log(`Bot protection now disabled for channel ${msg_parts[1]}. Active channels: `, bot_data.get_bot_protected_channels());
+            }
+        },
+
+        "!fban": (client, context) => {
+            if(!chat_meta.bot_owners.includes(context.username)) {
+                client.whisper(context.username, "Only a daddy can use this command")
+                    .then((data) => {
+                        logger.log(data);
+                    }).catch((err) => {
+                        logger.error(err);
+                    });
+            } else {
+                mod_tools.manual_ban_wave(client);
             }
         }
     }
