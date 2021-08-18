@@ -329,7 +329,7 @@ module.exports = {
                 result_msg = "No flag specified, valid options are <set | list | delete>";
                 success = false;
             } else {
-                switch(msg_parts[1]) {
+                switch (msg_parts[1]) {
                     case 'set':
                         if(!msg_parts[2]) {
                             result_msg = "No profile name specified";
@@ -373,7 +373,7 @@ module.exports = {
                 data: await client.say(channel_name, `@${context.username} ${result_msg}`),
                 success: success
             };
-            
+
         },
 
         "!sip": async (client, channel_name) => {
