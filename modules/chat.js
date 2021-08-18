@@ -51,8 +51,7 @@ module.exports = {
             .catch((err) => {
                 logger.error(err);
             });
-        //mod_tools.start_ban_loop(client);
-        mod_tools.manual_ban_wave(client);
+        mod_tools.start_ban_loop(client);
     }
 };
 

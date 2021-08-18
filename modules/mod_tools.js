@@ -131,6 +131,7 @@ function ban_wave(chat_client) {
         credentials.get_google_access_token()
             .then((access_token) => {
                 const user_doc_requests = mod_data.user_ban_docs.map((doc_data) => fetch_doc(access_token, doc_data));
+                // TODO: once API for banning terms is exposed, update this to include blocking terms as part of ban wave
                 Promise.all(user_doc_requests)
                     .then((doc_lines) => {
                         const ban_list = Array.from(new Set(doc_lines.flat()));
