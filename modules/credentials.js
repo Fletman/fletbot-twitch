@@ -133,7 +133,7 @@ module.exports = {
                 `&client_id=${credentials.google_client_id}` +
                 `&client_secret=${credentials.google_client_secret}`
         });
-        credentials.google_tokens = Object.assign(response.data, {refresh_token: prev_tokens.refresh_token});
+        credentials.google_tokens = Object.assign(response.data, { refresh_token: prev_tokens.refresh_token });
         fs.writeFileSync('./resources/auth.json', JSON.stringify(credentials));
         return response.data.access_token;
     },

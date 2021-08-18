@@ -18,7 +18,7 @@ module.exports = {
      * @param {Object} chat_client tmi.js chat client
      * @param {Number?} loop_period time in ms between ban waves
      */
-    start_ban_loop: (chat_client, loop_period=(one_hour_ms*6)) => {
+    start_ban_loop: (chat_client, loop_period = (one_hour_ms * 6)) => {
         setInterval(() => ban_wave(chat_client), loop_period);
     },
 
@@ -69,7 +69,7 @@ function get_sheet_lines(g_sheet) {
     return cell_list;
 }
 
-async function apply_bans(chat_client, full_ban_list, chat_cmd, delay_ms=500) {
+async function apply_bans(chat_client, full_ban_list, chat_cmd, delay_ms = 500) {
     for(const channel_name of chat_client.getChannels()) {
         if(!bot_data.is_bot_protected_channel(channel_name)) {
             continue;
@@ -82,7 +82,7 @@ async function apply_bans(chat_client, full_ban_list, chat_cmd, delay_ms=500) {
             await delay(delay_ms);
             try {
                 await chat_client.say(channel_name, `${chat_cmd} ${ban_name}`);
-            } catch(e) {
+            } catch (e) {
                 logger.error(e);
             }
         }
@@ -93,7 +93,7 @@ async function apply_bans(chat_client, full_ban_list, chat_cmd, delay_ms=500) {
 async function fetch_doc(access_token, doc_data) {
     let uri;
     let parse_func;
-    switch(doc_data.ban_doc_type) {
+    switch (doc_data.ban_doc_type) {
         case "doc":
             uri = `https://docs.googleapis.com/v1/documents/${doc_data.ban_doc_id}?key=${credentials.get_google_key()}`;
             parse_func = get_doc_lines;
@@ -103,7 +103,7 @@ async function fetch_doc(access_token, doc_data) {
             parse_func = get_sheet_lines;
             break;
         default:
-            throw(`Unrecognized doc type ${doc_data.ban_doc_type}`);
+            throw (`Unrecognized doc type ${doc_data.ban_doc_type}`);
     }
     const response = await axios({
         url: uri,
@@ -125,7 +125,7 @@ function ban_wave(chat_client) {
     fs.readFile(mod_data_file, 'utf8', (error, str_data) => {
         if(error) {
             logger.error(error);
-            throw(error);
+            throw (error);
         }
         const mod_data = JSON.parse(str_data);
         credentials.get_google_access_token()

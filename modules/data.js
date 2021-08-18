@@ -34,8 +34,7 @@ module.exports = {
      * Backup maps to file
      */
     backup: () => {
-        const files = [
-            {
+        const files = [{
                 file: sip_file,
                 data_map: sip_map,
                 desc: 'Sip counts'
@@ -65,7 +64,7 @@ module.exports = {
             fs.writeFile(f.file, JSON.stringify(f.data_map), () => logger.log(`${f.desc} saved to ${path_resolve(f.file)}`));
         }
     },
-    
+
     /**
      * Set active sip profile in specified channel to a given profile. If profile does not exist, it is created then set active
      * @param {String} channel_name Channel name
@@ -143,7 +142,8 @@ module.exports = {
             active_profile = 'default';
             sip_map[channel_name] = {
                 active_profile: active_profile,
-                profiles: { [active_profile]: 1 }
+                profiles: {
+                    [active_profile]: 1 }
             }
         } else {
             active_profile = sip_map[channel_name].active_profile;
@@ -262,7 +262,7 @@ module.exports = {
      * Get list of users banned from using Fletbot commands
      * @returns {string[]} List of banned users
      */
-     get_ban_list: () => {
+    get_ban_list: () => {
         return access_map.ban_list ? access_map.ban_list : []
     },
 
