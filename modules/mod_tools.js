@@ -18,7 +18,7 @@ module.exports = {
      * @param {Object} chat_client tmi.js chat client
      * @param {Number?} loop_period time in ms between ban waves
      */
-    start_ban_loop: (chat_client, loop_period=(one_hour_ms*4)) => {
+    start_ban_loop: (chat_client, loop_period=(one_hour_ms*6)) => {
         setInterval(() => ban_wave(chat_client), loop_period);
     },
 
@@ -49,12 +49,12 @@ function get_doc_lines(g_doc) {
             }
         }
     }
-    return Array.from(new Set(doc_lines));
+    return doc_lines;
 }
 
 /**
  * 
- * @param {Object} g_sheet Google Spreadhheet objects
+ * @param {Object} g_sheet Google Spreadsheet objects
  * @returns {Array<string>} list of strings from sheet cells
  */
 function get_sheet_lines(g_sheet) {
@@ -62,14 +62,14 @@ function get_sheet_lines(g_sheet) {
     const sheet = g_sheet.sheets[0];
     const rows = sheet.data[0].rowData;
     for(const row of rows) {
-        if(row.values && row.values[0]) {
+        if(row.values && row.values[0] && row.values[0].effectiveValue) {
             cell_list.push(row.values[0].effectiveValue.stringValue);
         }
     }
-    return Array.from(new Set(cell_list));
+    return cell_list;
 }
 
-async function apply_bans(chat_client, full_ban_list, delay_ms=500) {
+async function apply_bans(chat_client, full_ban_list, chat_cmd, delay_ms=500) {
     for(const channel_name of chat_client.getChannels()) {
         if(!bot_data.is_bot_protected_channel(channel_name)) {
             continue;
@@ -81,13 +81,38 @@ async function apply_bans(chat_client, full_ban_list, delay_ms=500) {
         for(const ban_name of to_ban_list) {
             await delay(delay_ms);
             try {
-                await chat_client.say(channel_name, `/ban ${ban_name}`);
+                await chat_client.say(channel_name, `${chat_cmd} ${ban_name}`);
             } catch(e) {
                 logger.error(e);
             }
         }
         bot_data.update_ban_cache(channel_name, to_ban_list);
     }
+}
+
+async function fetch_doc(access_token, doc_data) {
+    let uri;
+    let parse_func;
+    switch(doc_data.ban_doc_type) {
+        case "doc":
+            uri = `https://docs.googleapis.com/v1/documents/${doc_data.ban_doc_id}?key=${credentials.get_google_key()}`;
+            parse_func = get_doc_lines;
+            break;
+        case "sheet":
+            uri = `https://sheets.googleapis.com/v4/spreadsheets/${doc_data.ban_doc_id}?key=${credentials.get_google_key()}&ranges=${doc_data.data_range}&includeGridData=true`;
+            parse_func = get_sheet_lines;
+            break;
+        default:
+            throw(`Unrecognized doc type ${doc_data.ban_doc_type}`);
+    }
+    const response = await axios({
+        url: uri,
+        method: 'get',
+        headers: {
+            'Authorization': `Bearer ${access_token}`
+        }
+    });
+    return parse_func(response.data);
 }
 
 /**
@@ -97,45 +122,29 @@ async function apply_bans(chat_client, full_ban_list, delay_ms=500) {
 function ban_wave(chat_client) {
     logger.log("Starting ban wave");
 
-    const mod_data = JSON.parse(fs.readFileSync(mod_data_file));
-    let uri;
-    let parse_func;
-    switch(mod_data.ban_doc_type) {
-        case "doc":
-            uri = `https://docs.googleapis.com/v1/documents/${mod_data.ban_doc_id}?key=${credentials.get_google_key()}`;
-            parse_func = get_doc_lines;
-            break;
-        case "sheet":
-            uri = `https://sheets.googleapis.com/v4/spreadsheets/${mod_data.ban_doc_id}?key=${credentials.get_google_key()}&ranges=A2:A&includeGridData=true`;
-            parse_func = get_sheet_lines;
-            break;
-        default:
-            throw(`Unrecognized doc type ${mod_data.ban_doc_type}`);
-    }
-
-    credentials.get_google_access_token()
-        .then((access_token) => {
-            axios({
-                url: uri,
-                method: 'get',
-                headers: {
-                    'Authorization': `Bearer ${access_token}`
-                }
-            })
-            .then((response) => {
-                const ban_list = parse_func(response.data);
-                apply_bans(chat_client, ban_list)
-                    .then(() => {
-                        logger.log("Ban wave completed");
+    fs.readFile(mod_data_file, 'utf8', (error, str_data) => {
+        if(error) {
+            logger.error(error);
+            throw(error);
+        }
+        const mod_data = JSON.parse(str_data);
+        credentials.get_google_access_token()
+            .then((access_token) => {
+                const user_doc_requests = mod_data.user_ban_docs.map((doc_data) => fetch_doc(access_token, doc_data));
+                Promise.all(user_doc_requests)
+                    .then((doc_lines) => {
+                        const ban_list = Array.from(new Set(doc_lines.flat()));
+                        apply_bans(chat_client, ban_list, "/ban")
+                            .then(() => {
+                                logger.log("User ban wave completed");
+                            }).catch((err) => {
+                                logger.error(err);
+                            });
                     }).catch((err) => {
                         logger.error(err);
                     });
-            })
-            .catch((err) => {
+            }).catch((err) => {
                 logger.error(err);
             });
-        })
-        .catch((err) => {
-            logger.error(err);
-        });
+    });
 }

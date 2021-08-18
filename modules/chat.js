@@ -51,7 +51,8 @@ module.exports = {
             .catch((err) => {
                 logger.error(err);
             });
-        mod_tools.start_ban_loop(client);
+        //mod_tools.start_ban_loop(client);
+        mod_tools.manual_ban_wave(client);
     }
 };
 
@@ -65,14 +66,15 @@ function handle_join(channel_name, username, self) {
     if(self) { // report self joining chat
         logger.log(`Connected to channel ${channel_name}`);
         pyramids.channel_init(channel_name);
+    } else {
+        logger.log(`User ${username} has joined ${channel_name}`);
     }
 }
 
 // handle chat notices
 function handle_notice(channel, msg_id, message) {
     if(msg_id !== 'host_target_went_offline') {
-        logger.log("Notice received:");
-        logger.log({
+        logger.log("Notice received:", {
             channel: channel,
             notice_id: msg_id,
             message: message
