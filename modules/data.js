@@ -355,6 +355,33 @@ module.exports = {
             ban_cache_map[channel_name].concat(banned_list) :
             banned_list;
         ban_cache_map[channel_name] = Array.from(new Set(new_channel_cache));
+    },
+
+    /**
+     * Set the minimum hours required for an account's age to be able to chat in a channel
+     * @param {string} channel_name Name of channel to set threshold for
+     * @param {Number} threshold_hours Minimum number of hours
+     */
+    set_accountage_threshold: (channel_name, threshold_hours) => {
+        if(ban_cache_map.age_thresholds) {
+            ban_cache_map.age_thresholds[channel_name] = threshold_hours;
+        } else {
+            ban_cache_map.age_thresholds = { channel_name: threshold_hours };
+        }
+    },
+
+    /**
+     * 
+     * @param {string} channel_name Name of channel to check threshold for
+     * @param {Number?} default_threshold_hrs Default threshold to return if no threshold has been defined
+     * @returns {Number} Age threshold for channel
+     */
+    get_accountage_threshold: (channel_name, default_threshold_hrs=6) => {
+        if(!ban_cache_map.age_thresholds || !ban_cache_map.age_thresholds[channel_name]) {
+            return default_threshold_hrs;
+        } else {
+            return ban_cache_map.age_thresholds[channel_name];
+        }
     }
 };
 
