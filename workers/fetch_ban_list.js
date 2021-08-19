@@ -8,22 +8,22 @@ const credentials = require('../modules/credentials.js');
 parentPort.on('message', (params) => {
     fs.readFile(params.mod_data_file, 'utf8', (error, str_data) => {
         if(error) {
-            throw(error);
+            throw (error);
         }
         const mod_data = JSON.parse(str_data);
-            credentials.get_google_access_token()
-                .then((access_token) => {
-                    // TODO: once API for banning terms is exposed, update this to include blocking terms as part of ban wave
-                    const user_doc_requests = mod_data.user_ban_docs.map((doc_data) => fetch_doc(access_token, doc_data));
-                    Promise.all(user_doc_requests)
-                        .then((doc_lines) => {
-                            parentPort.postMessage({
-                                user_ban_list: [...new Set(doc_lines.flat())]
-                            });
-                        }).catch((err) => {
-                            throw(err);
-                        })
-                })
+        credentials.get_google_access_token()
+            .then((access_token) => {
+                // TODO: once API for banning terms is exposed, update this to include blocking terms as part of ban wave
+                const user_doc_requests = mod_data.user_ban_docs.map((doc_data) => fetch_doc(access_token, doc_data));
+                Promise.all(user_doc_requests)
+                    .then((doc_lines) => {
+                        parentPort.postMessage({
+                            user_ban_list: [...new Set(doc_lines.flat())]
+                        });
+                    }).catch((err) => {
+                        throw (err);
+                    })
+            })
 
     });
 });
@@ -33,7 +33,7 @@ parentPort.on('message', (params) => {
  * @param {Object} g_doc Google Document object
  * @returns {Array<string>} list of lines in doc
  */
- function get_doc_lines(g_doc) {
+function get_doc_lines(g_doc) {
     const doc_lines = [];
     const doc_elements = g_doc.body.content;
     for(const value of doc_elements) {

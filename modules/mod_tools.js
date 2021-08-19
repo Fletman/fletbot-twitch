@@ -76,7 +76,7 @@ async function apply_bans(chat_client, full_ban_list, chat_cmd, delay_ms = 500) 
                 logger.error(e);
             }
         }
-            
+
     }
 }
 
@@ -103,7 +103,7 @@ function ban_wave(chat_client) {
             }
         });
     });
-    
+
     fetch_promise.then((ban_lists) => {
         apply_bans(chat_client, ban_lists.user_ban_list, "/ban")
             .then(() => {
@@ -111,9 +111,9 @@ function ban_wave(chat_client) {
             }).catch((err) => {
                 logger.error(err);
             });
-        }).catch((err) => {
-            logger.error(err);
-        });
+    }).catch((err) => {
+        logger.error(err);
+    });
 
     worker.postMessage({
         mod_data_file
