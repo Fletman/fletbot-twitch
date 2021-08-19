@@ -27,6 +27,12 @@ module.exports = {
     init: (chat_client) => {
         client = chat_client;
 
+        fletalytics = new Fletalytics(client);
+        fletrics = new Fletrics("postgres");
+        bot_data.init(chat_meta.commands);
+        commands.init(chat_meta, fletalytics);
+        pyramids.set_block_messages(chat_meta.pyramid_block_pool);
+
         // register event handlers
         client.on('connected', handle_connect);
         client.on('join', handle_join);
@@ -35,12 +41,6 @@ module.exports = {
         client.on('whisper', handle_whisper);
         client.on('raided', handle_raid);
         client.on('cheer', handle_cheer);
-
-        fletalytics = new Fletalytics(client);
-        fletrics = new Fletrics("postgres");
-        bot_data.init(chat_meta.commands);
-        commands.init(chat_meta, fletalytics);
-        pyramids.set_block_messages(chat_meta.pyramid_block_pool);
 
         // connect to channels specified in command line args
         logger.log(`Connecting to channels: ${process.argv.slice(2)}`);
