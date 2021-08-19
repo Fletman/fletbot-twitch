@@ -245,7 +245,7 @@ module.exports = {
         if(!access_map.ban_list) {
             access_map.ban_list = [banned_username]
         } else if(!access_map.ban_list.includes(banned_username)) {
-            fs.access_map.ban_list.push(banned_username);
+            access_map.ban_list.push(banned_username);
         }
     },
 
@@ -339,23 +339,30 @@ module.exports = {
     },
 
     /**
-     * @param {string} channel_name Name of channel to pull cache from
-     * @returns {Array<string>} list of previously banned usernames from a channel
+     * @param {string} ban_name Name of cached banned user
+     * @returns {Array<string>} list of channels that have previously banned user
      */
-    get_ban_cache: (channel_name) => {
-        return ban_cache_map[channel_name];
+    get_ban_cache: (ban_name) => {
+        return (ban_cache_map.banned_users && ban_cache_map.banned_users.hasOwnProperty(ban_name)) ?
+            ban_cache_map.banned_users[ban_name] :
+            [];
     },
 
     /**
-     * Update the list of previously banned accounts for a given channel
+     * Update the list of channels that have previously banned an account
      * @param {string} channel_name
-     * @param {string[]} banned_list
+     * @param {string} ban_name
      */
-    update_ban_cache: (channel_name, banned_list) => {
-        const new_channel_cache = channel_name in ban_cache_map ?
-            ban_cache_map[channel_name].concat(banned_list) :
-            banned_list;
-        ban_cache_map[channel_name] = [...new Set(new_channel_cache)];
+    update_ban_cache: (channel_name, ban_name) => {
+        if(!ban_cache_map.banned_users) {
+            ban_cache_map.banned_users = {
+                [ban_name]: [channel_name]
+            };
+        } else if(!ban_cache_map.banned_users.hasOwnProperty(ban_name)) {
+            ban_cache_map.banned_users[ban_name] = [channel_name];
+        } else {
+            ban_cache_map.banned_users[ban_name].push(ban_name);
+        }
     },
 
     /**
