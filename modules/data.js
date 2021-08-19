@@ -344,8 +344,7 @@ module.exports = {
      */
     get_ban_cache: (ban_name) => {
         return (ban_cache_map.banned_users && ban_cache_map.banned_users.hasOwnProperty(ban_name)) ?
-            ban_cache_map.banned_users[ban_name] :
-            [];
+            ban_cache_map.banned_users[ban_name] : [];
     },
 
     /**
@@ -383,7 +382,8 @@ module.exports = {
                 [channel_name]: {
                     threshold_hours,
                     mod_action
-                } };
+                }
+            };
         }
         return ban_cache_map.age_thresholds[channel_name];
     },
