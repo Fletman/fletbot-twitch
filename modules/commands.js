@@ -243,6 +243,24 @@ module.exports = {
             };
         },
 
+        "!fletage": async (client, channel_name, context, msg_parts) => {
+            if(!msg_parts[1]) {
+                return {
+                    data: await client.say(channel_name, `@${context.username} No number provided`),
+                    success: false
+                };
+            } else {
+                const hours = parseInt(msg_parts[1], 10);
+                return (Number.isNaN(hours) || hours < 0) ? {
+                    data: await client.say(channel_name, `@${context.username} Invalid number provided`),
+                    success: false
+                } : {
+                    data: await client.say(channel_name, `@${context.username} Account age restriction set to ${bot_data.set_accountage_threshold(channel_name, hours)} hours`),
+                    success: true
+                };
+            }
+        },
+
         "!fletbot": async (client, channel_name, context) => {
             logger.log(`Received ping command in channel ${channel_name}`);
             const username = context.username.toLowerCase();

@@ -55,9 +55,9 @@
             "description": "!fcooldown <command> <cooldown seconds>: When cooldown time is not provided, returns the current cooldown setting for a specified command. When cooldown time is provided, sets cooldown time (in seconds) for given command. | Example \"!fcooldown !sip\" OR \"!fcooldown !sip 5\"",
             "default_access": ["moderator"]
         },
-        "fcancel": {
-            "description": "!fcancel <username> <true | false>: Allow/deny a specified user access to Fletbot commands | Example: \"!fcancel mrguybrush true\"",
-            "default_access": ["admin"]
+        "fletage": {
+            "description": "!fletage <hours>: For channels where security measures are enabled, set the minimum required account age (in hours) for users in chat. Accounts below the age threshold are automatically timed out for 12 hours",
+            "default_access": ["moderator"]
         },
         "fletbot": {
             "description": "!fletbot: Ping Fletbot | Example: \"!fletbot\"",
