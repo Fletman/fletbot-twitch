@@ -305,7 +305,7 @@ module.exports = {
      */
     add_bot_protected_channel: (channel_name) => {
         if(ban_cache_map.channels) {
-            ban_cache_map.channels = Array.from(new Set(ban_cache_map.channels).add(channel_name));
+            ban_cache_map.channels = [...new Set(ban_cache_map.channels).add(channel_name)];
         } else {
             ban_cache_map.channels = [channel_name];
         }
@@ -355,7 +355,7 @@ module.exports = {
         const new_channel_cache = channel_name in ban_cache_map ?
             ban_cache_map[channel_name].concat(banned_list) :
             banned_list;
-        ban_cache_map[channel_name] = Array.from(new Set(new_channel_cache));
+        ban_cache_map[channel_name] = [...new Set(new_channel_cache)];
     },
 
     /**
