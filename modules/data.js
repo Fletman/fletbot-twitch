@@ -360,7 +360,7 @@ module.exports = {
         } else if(!ban_cache_map.banned_users.hasOwnProperty(ban_name)) {
             ban_cache_map.banned_users[ban_name] = [channel_name];
         } else {
-            ban_cache_map.banned_users[ban_name].push(ban_name);
+            ban_cache_map.banned_users[ban_name].push(channel_name);
         }
     },
 
