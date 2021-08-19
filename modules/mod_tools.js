@@ -62,23 +62,21 @@ function delay(t) {
 }
 
 async function apply_bans(chat_client, full_ban_list, chat_cmd, delay_ms = 500) {
-    for(const channel_name of chat_client.getChannels()) {
-        if(!bot_data.is_bot_protected_channel(channel_name)) {
-            continue;
-        }
-        const ban_cache = bot_data.get_ban_cache(channel_name);
-        const to_ban_list = ban_cache ?
-            full_ban_list.filter(username => !ban_cache.includes(username)) :
-            full_ban_list;
-        for(const ban_name of to_ban_list) {
+    for(const ban_name of full_ban_list) {
+        const cached_channels = bot_data.get_ban_cache(ban_name);
+        for(const channel_name of chat_client.getChannels()) {
+            if(!bot_data.is_bot_protected_channel(channel_name) || cached_channels.includes(channel_name)) {
+                continue;
+            }
             await delay(delay_ms);
             try {
                 await chat_client.say(channel_name, `${chat_cmd} ${ban_name}`);
+                bot_data.update_ban_cache(channel_name, ban_name);
             } catch (e) {
                 logger.error(e);
             }
         }
-        bot_data.update_ban_cache(channel_name, to_ban_list);
+            
     }
 }
 
