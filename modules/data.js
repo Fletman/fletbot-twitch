@@ -388,7 +388,7 @@ module.exports = {
      * @returns {Number} Age threshold for channel
      */
     get_accountage_threshold: (channel_name, default_threshold_hrs = 0) => {
-        if(!ban_cache_map.age_thresholds || Number.isNaN(ban_cache_map.age_thresholds[channel_name])) {
+        if(!ban_cache_map.age_thresholds || !ban_cache_map.age_thresholds[channel_name]) {
             return {
                 threshold_hours: default_threshold_hrs,
                 mod_action: "timeout"
