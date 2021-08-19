@@ -70,7 +70,9 @@ function handle_join(channel_name, username, self) {
             mod_tools.verify_account_age(channel_name, username, fletalytics)
                 .then((verification) => {
                     if(verification.valid) {
-                        logger.log(`User ${username} has been verified for ${channel_name}: Account age is ${verification.account_age} hours old, required age is ${verification.required_age} hours`);
+                        if(verification.check_required) {
+                            logger.log(`User ${username} has been verified for ${channel_name}: Account age is ${verification.account_age} hours old, required age is ${verification.required_age} hours`);
+                        }
                     } else {
                         client.timeout(channel_name, username, 43200, `Sorry ${username}, a minimum account age of ${verification.required_age} hours is required for this channel. Please contact a moderator for chat permission`)
                             .then((data) => {
