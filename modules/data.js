@@ -380,7 +380,7 @@ module.exports = {
      * @param {Number?} default_threshold_hrs Default threshold to return if no threshold has been defined
      * @returns {Number} Age threshold for channel
      */
-    get_accountage_threshold: (channel_name, default_threshold_hrs = 6) => {
+    get_accountage_threshold: (channel_name, default_threshold_hrs = 0) => {
         if(!ban_cache_map.age_thresholds || Number.isNaN(ban_cache_map.age_thresholds[channel_name])) {
             return default_threshold_hrs;
         } else {
