@@ -362,14 +362,21 @@ module.exports = {
      * Set the minimum hours required for an account's age to be able to chat in a channel
      * @param {string} channel_name Name of channel to set threshold for
      * @param {Number} threshold_hours Minimum number of hours
-     * @returns {Number} new threshould number
+     * @param {string} mod_action Flag signifying action to take when an account fails to meet age threshold
+     * @returns {Object} new threshould settings containing account age and mod action
      */
-    set_accountage_threshold: (channel_name, threshold_hours) => {
+    set_accountage_threshold: (channel_name, threshold_hours, mod_action) => {
         if(ban_cache_map.age_thresholds) {
-            ban_cache_map.age_thresholds[channel_name] = threshold_hours;
+            ban_cache_map.age_thresholds[channel_name] = {
+                threshold_hours,
+                mod_action
+            };
         } else {
             ban_cache_map.age_thresholds = {
-                [channel_name]: threshold_hours };
+                [channel_name]: {
+                    threshold_hours,
+                    mod_action
+                } };
         }
         return ban_cache_map.age_thresholds[channel_name];
     },
@@ -382,7 +389,10 @@ module.exports = {
      */
     get_accountage_threshold: (channel_name, default_threshold_hrs = 0) => {
         if(!ban_cache_map.age_thresholds || Number.isNaN(ban_cache_map.age_thresholds[channel_name])) {
-            return default_threshold_hrs;
+            return {
+                threshold_hours: default_threshold_hrs,
+                mod_action: "timeout"
+            };
         } else {
             return ban_cache_map.age_thresholds[channel_name];
         }

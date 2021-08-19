@@ -251,13 +251,28 @@ module.exports = {
                 };
             } else {
                 const hours = parseInt(msg_parts[1], 10);
-                return (Number.isNaN(hours) || hours < 0) ? {
-                    data: await client.say(channel_name, `@${context.username} Invalid number provided`),
-                    success: false
-                } : {
-                    data: await client.say(channel_name, `@${context.username} Account age restriction set to ${bot_data.set_accountage_threshold(channel_name, hours)} hours`),
-                    success: true
-                };
+                const mod_action = msg_parts[2] || "timeout";
+                const valid_actions = ["ban", "timeout"];
+
+                if(!(valid_actions.includes(mod_action))) {
+                    return {
+                        data: await client.say(channel_name, `@${context.username} Invalid action provided. Valid actions are <ban | timeout>`),
+                        success: false
+                    }
+                }
+
+                if(Number.isNaN(hours) || hours < 0) {
+                    return {
+                        data: await client.say(channel_name, `@${context.username} Invalid number provided`),
+                        success: false
+                    };
+                } else {
+                    const threshold = bot_data.set_accountage_threshold(channel_name, hours, mod_action);
+                    return {
+                        data: await client.say(channel_name, `@${context.username} Account age restriction set to ${threshold.threshold_hours} hours, mod action set to ${threshold.mod_action}`),
+                        success: true
+                    };
+                }
             }
         },
 

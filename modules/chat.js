@@ -74,12 +74,24 @@ function handle_join(channel_name, username, self) {
                             logger.log(`User ${username} has been verified for ${channel_name}: Account age is ${verification.account_age} hours old, required age is ${verification.required_age} hours`);
                         }
                     } else {
-                        client.timeout(channel_name, username, 43200, `Sorry ${username}, a minimum account age of ${verification.required_age} hours is required for this channel. Please contact a moderator for chat permission`)
-                            .then((data) => {
-                                logger.log(data);
-                            }).catch((err) => {
-                                logger.error(err);
-                            });
+                        let mod_cmd;
+                        const reason = `Account age of ${username} (${verification.account_age} hours) failed to meet channel's requirement of at least ${verification.required_age} hours`;
+                        switch(verification.mod_action) {
+                            case "timeout":
+                                mod_cmd = client.timeout(channel_name, username, 43200, reason);
+                                break;
+                            case "ban":
+                                mod_cmd = client.ban(channel_name, username, reason);
+                                break;
+                            default:
+                                throw(`Unknown mod action ${verification.mod_action}`);
+                        }
+                        logger.log(reason);
+                        mod_cmd.then((data) => {
+                            logger.then.log(data);
+                        }).catch((err) => {
+                            logger.error(err);
+                        });
                     }
                 }).catch((err) => {
                     logger.error(err);

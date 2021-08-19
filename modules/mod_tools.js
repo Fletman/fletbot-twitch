@@ -40,7 +40,7 @@ module.exports = {
      */
     verify_account_age: async (channel_name, username, flet_lib) => {
         const age_threshold = bot_data.get_accountage_threshold(channel_name);
-        if(age_threshold == 0) {
+        if(age_threshold.threshold_hours == 0) {
             return {
                 valid: true,
                 check_required: false
@@ -51,10 +51,11 @@ module.exports = {
         const current_date = new Date(Date.now()).getTime();
         const date_diff_hrs = Math.floor((current_date - user_create_date) / one_hour_ms);
         return {
-            valid: date_diff_hrs >= age_threshold,
+            valid: date_diff_hrs >= age_threshold.threshold_hours,
             account_age: date_diff_hrs,
-            required_age: age_threshold,
-            check_required: true
+            required_age: age_threshold.threshold_hours,
+            check_required: true,
+            mod_action: age_threshold.mod_action
         };
     }
 }

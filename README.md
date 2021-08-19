@@ -34,10 +34,10 @@
 - `!fcooldown <command> <cooldown time>`:  When cooldown time is not provided, returns the current cooldown setting for a specified command. When cooldown time is provided, sets cooldown time (in seconds) for given command
   - Example: `!fcooldown !sip`
   - Example: `!fcooldown !sip 5`
-- `!fletage <hours>`: For channels where security measures are enabled, set the minimum required account age (in hours) for users in chat. Accounts below the age threshold are automatically timed out for 12 hours
-  - Threshold defaults to 6 hours
-  - Setting threshold to 0 will disable account age checks
-  - Example: `!fletage 4`
+- `!fletage <hours> <ban | timeout>`: For channels where security measures are enabled: set the minimum required account age (in hours) for users in chat. Accounts below the threshold are timed out for 12 hours or banned depending on which flag is specified
+  - Age threshold defaults to 0 hours (disabled)
+  - Mod action defaults to timeout when flag is omitted
+  - Example: `!fletage 24 ban`
 - `!fcancel <username> <true | false>`: Allow/deny a specified user access to Fletbot commands
   - Example: `!fcancel mrguybrush true`
 - `!fletbot`: Ping Fletbot
