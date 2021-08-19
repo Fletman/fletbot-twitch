@@ -143,7 +143,8 @@ module.exports = {
             sip_map[channel_name] = {
                 active_profile: active_profile,
                 profiles: {
-                    [active_profile]: 1 }
+                    [active_profile]: 1
+                }
             }
         } else {
             active_profile = sip_map[channel_name].active_profile;
@@ -367,7 +368,8 @@ module.exports = {
         if(ban_cache_map.age_thresholds) {
             ban_cache_map.age_thresholds[channel_name] = threshold_hours;
         } else {
-            ban_cache_map.age_thresholds = { [channel_name]: threshold_hours };
+            ban_cache_map.age_thresholds = {
+                [channel_name]: threshold_hours };
         }
         return ban_cache_map.age_thresholds[channel_name];
     },
@@ -378,7 +380,7 @@ module.exports = {
      * @param {Number?} default_threshold_hrs Default threshold to return if no threshold has been defined
      * @returns {Number} Age threshold for channel
      */
-    get_accountage_threshold: (channel_name, default_threshold_hrs=6) => {
+    get_accountage_threshold: (channel_name, default_threshold_hrs = 6) => {
         if(!ban_cache_map.age_thresholds || Number.isNaN(ban_cache_map.age_thresholds[channel_name])) {
             return default_threshold_hrs;
         } else {
