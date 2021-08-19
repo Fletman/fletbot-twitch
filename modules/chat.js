@@ -66,7 +66,23 @@ function handle_join(channel_name, username, self) {
         logger.log(`Connected to channel ${channel_name}`);
         pyramids.channel_init(channel_name);
     } else {
-        logger.log(`User ${username} has joined ${channel_name}`);
+        if(mod_tools.protection_active(channel_name)) {
+            mod_tools.verify_account_age(channel_name, username, fletalytics)
+                .then((verification) => {
+                    if(verification.valid) {
+                        logger.log(`User ${username} has been verified for ${channel_name}: Account age is ${verification.account_age} hours old, required age is ${verification.required_age} hours`);
+                    } else {
+                        client.timeout(channel_name, username, 43200, `Sorry ${username}, a minimum account age of ${verification.required_age} hours is required for this channel. Please contact a moderator for chat permission`)
+                            .then((data) => {
+                                logger.log(data);
+                            }).catch((err) => {
+                                logger.error(err);
+                            });
+                    }
+                }).catch((err) => {
+                    logger.error(err);
+                });
+        }
     }
 }
 

@@ -6,13 +6,16 @@ const path_resolve = require('path').resolve;
 const bot_data = require('./data.js');
 const credentials = require('./credentials.js');
 const logger = require('./fletlog.js');
+const Fletalytics = require('./fletalytics');
 
 const mod_data_file = './resources/mod_data.json';
 const one_minute_ms = 60000;
 const one_hour_ms = one_minute_ms * 60;
-const one_day_ms = one_hour_ms * 24;
 
 module.exports = {
+
+    protection_active: bot_data.is_bot_protected_channel,
+
     /**
      * Start a job to periodically fetch a list of accounts to ban
      * @param {Object} chat_client tmi.js chat client
@@ -22,7 +25,31 @@ module.exports = {
         setInterval(() => ban_wave(chat_client), loop_period);
     },
 
-    manual_ban_wave: ban_wave
+    /**
+     * Pull list of banned usernames from Google Docs/Sheets, apply bans across relevant channels
+     * @param {Object} chat_client tmi.js chat client
+     */
+    manual_ban_wave: ban_wave,
+
+    /**
+     * Determine if a given user's account is old enough to meet a channel's minimum account age threshold
+     * @param {string} channel_name Name of channel in which user's age is verified
+     * @param {string} username Name of user to verify account age
+     * @param {Fletalytics} flet_lib Class containing API interatctions
+     * @returns {Promise<boolean>} Whether account's age meets channel's minimum age threshold
+     */
+    verify_account_age: async (channel_name, username, flet_lib) => {
+        const age_threshold = bot_data.get_accountage_threshold(channel_name);
+        const user_data = await flet_lib.get_user(username);
+        const user_create_date = new Date(user_data.created_at).getTime();
+        const current_date = new Date(Date.now()).getTime();
+        const date_diff_hrs = Math.floor((current_date - user_create_date) / one_hour_ms);
+        return {
+            valid: date_diff_hrs >= age_threshold,
+            account_age: date_diff_hrs,
+            required_age: age_threshold,
+        };
+    }
 }
 
 function delay(t) {
@@ -116,8 +143,8 @@ async function fetch_doc(access_token, doc_data) {
 }
 
 /**
- * Pull list of banned usernames from Google Docs, apply bans across relevant channels
- * @param {Object} chat_client
+ * Pull list of banned usernames from Google Docs/Sheets, apply bans across relevant channels
+ * @param {Object} chat_client tmi.js chat client
  */
 function ban_wave(chat_client) {
     logger.log("Starting ban wave");
