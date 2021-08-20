@@ -88,7 +88,7 @@ function handle_join(channel_name, username, self) {
                         }
                         logger.log(reason);
                         mod_cmd.then((data) => {
-                            logger.then.log(data);
+                            logger.log(data);
                         }).catch((err) => {
                             logger.error(err);
                         });
