@@ -56,7 +56,7 @@
             "default_access": ["moderator"]
         },
         "fletage": {
-            "description": "!fletage <hours> <timeout | ban>: Set the minimum required account age (in hours) for users in chat. Accounts below the threshold are timed out for 12 hours or banned depending on which flag is specified. Defaults to timeout when flag is omitted. | Example: \"!fletage 24 ban\"",
+            "description": "!fletage <hours> <timeout | ban>: Set the minimum required account age (in hours) for users in chat. Accounts below the threshold are timed out or banned depending on the specified flag. Defaults to timeout when flag is omitted. | Example: \"!fletage 24 ban\"",
             "default_access": ["moderator"]
         },
         "fletbot": {
