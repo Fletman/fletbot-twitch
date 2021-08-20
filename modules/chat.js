@@ -78,7 +78,7 @@ function handle_join(channel_name, username, self) {
                         const reason = `Account age of ${username} (${verification.account_age} hours) failed to meet channel's requirement of at least ${verification.required_age} hours`;
                         switch (verification.mod_action) {
                             case "timeout":
-                                mod_cmd = client.timeout(channel_name, username, (verification.required_age - verification.account_age) * 3600, reason);
+                                mod_cmd = client.timeout(channel_name, username, Math.min((verification.required_age - verification.account_age) * 3600, 604800), reason);
                                 break;
                             case "ban":
                                 mod_cmd = client.ban(channel_name, username, reason);
