@@ -33,11 +33,11 @@ module.exports = {
      * @param {string} channel_name Name of channel in which user's age is verified
      * @param {string} username Name of user to verify account age
      * @param {Fletalytics} flet_lib Class containing API interatctions
-     * @returns {Promise<boolean>} Whether account's age meets channel's minimum age threshold
+     * @returns {Promise<Object>} Whether account's age meets channel's minimum age threshold
      */
     verify_account_age: async (channel_name, username, flet_lib) => {
         const age_threshold = bot_data.get_accountage_threshold(channel_name);
-        if(age_threshold.threshold_hours == 0) {
+        if(age_threshold.threshold_hours == 0 || username == channel_name.substring(1)) {
             return {
                 valid: true,
                 check_required: false
@@ -54,6 +54,44 @@ module.exports = {
             check_required: true,
             mod_action: age_threshold.mod_action
         };
+    },
+
+    /**
+     * If protection is active in a channel, check an account's age and ban/timeout the user if they fail to meet channel's age threshold
+     * @param {Object} chat_client tmi.js chat client
+     * @param {string} channel_name 
+     * @param {string} username 
+     * @param {Fletalytics} flet_lib 
+     * @returns {Promise<boolean>} Whether account is allowed to chat in channel
+     */
+    moderate_account_age: async (chat_client, channel_name, username, flet_lib) => {
+        if(module.exports.protection_active(channel_name)) {
+            const verification = await module.exports.verify_account_age(channel_name, username, flet_lib);
+            if(verification.valid) {
+                if(verification.check_required) {
+                    logger.log(`User ${username} has been verified for ${channel_name}: Account age is ${verification.account_age} hours old, required age is ${verification.required_age} hours`);
+                }
+                return true;
+            } else {
+                let mod_cmd;
+                const reason = `Account age of ${username} (${verification.account_age} hours) failed to meet channel's requirement of at least ${verification.required_age} hours`;
+                switch (verification.mod_action) {
+                    case "timeout":
+                        mod_cmd = chat_client.timeout(channel_name, username, Math.min((verification.required_age - verification.account_age) * 3600, 604800), reason);
+                        break;
+                    case "ban":
+                        mod_cmd = chat_client.ban(channel_name, username, reason);
+                        break;
+                    default:
+                        throw (`Unknown mod action ${verification.mod_action}`);
+                }
+                logger.log(reason);
+                logger.log(await mod_cmd);
+                return false;
+            }
+        } else {
+            return true;
+        }
     }
 }
 
