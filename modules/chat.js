@@ -115,6 +115,56 @@ function handle_notice(channel, msg_id, message) {
 function handle_chat_message(channel_name, context, msg, self) {
     if(self) { return; } // ignore messages from self
 
+    parse_chat_msg(channel_name, context, msg);
+}
+
+// event for whispered messages
+function handle_whisper(username, context, msg, self) {
+    if(self) { return; } // ignore whispers from self
+
+    const message = msg.trim().toLowerCase();
+    const msg_parts = message.split(" ");
+    const cmd = msg_parts[0];
+
+    if(commands.whispers.hasOwnProperty(cmd)) {
+        commands.whispers[cmd](client, context, msg_parts);
+    }
+}
+
+// event for a channel being raided
+function handle_raid(channel_name, username, raider_count = 0) {
+    const so_setting = bot_data.get_auto_shoutout(channel_name);
+    if(so_setting) {
+        logger.log(`${channel_name} raided by ${username} with ${raider_count} raiders`);
+        fletalytics.auto_shoutout(username.toLowerCase(), so_setting, 2500)
+            .then((so_msg) => {
+                client.say(channel_name, so_msg)
+                    .then((data) => {
+                        logger.log(data);
+                    }).catch((err) => {
+                        logger.error(err);
+                    });
+            }).catch((err) => {
+                logger.error(err);
+            });
+    }
+}
+
+// event for someone cheering bits
+function handle_cheer(channel_name, context, msg) {
+    const message = msg.trim().toLowerCase();
+    const pyramid = pyramids.pyramid_check(client, channel_name, context.username, message);
+    if(pyramid) {
+        fletrics.publish_pyramid_metric(
+            pyramid.channel,
+            pyramid.phrase,
+            pyramid.time,
+            pyramid.user
+        );
+    }
+}
+
+function parse_chat_msg(channel_name, context, msg) {
     const message = msg.trim().toLowerCase();
     const msg_parts = message.split(" ");
     const cmd = msg_parts[0];
@@ -199,51 +249,5 @@ function handle_chat_message(channel_name, context, msg, self) {
                 pyramid.user
             );
         }
-    }
-}
-
-// event for whispered messages
-function handle_whisper(username, context, msg, self) {
-    if(self) { return; } // ignore whispers from self
-
-    const message = msg.trim().toLowerCase();
-    const msg_parts = message.split(" ");
-    const cmd = msg_parts[0];
-
-    if(commands.whispers.hasOwnProperty(cmd)) {
-        commands.whispers[cmd](client, context, msg_parts);
-    }
-}
-
-// event for a channel being raided
-function handle_raid(channel_name, username, raider_count = 0) {
-    const so_setting = bot_data.get_auto_shoutout(channel_name);
-    if(so_setting) {
-        logger.log(`${channel_name} raided by ${username} with ${raider_count} raiders`);
-        fletalytics.auto_shoutout(username.toLowerCase(), so_setting, 2500)
-            .then((so_msg) => {
-                client.say(channel_name, so_msg)
-                    .then((data) => {
-                        logger.log(data);
-                    }).catch((err) => {
-                        logger.error(err);
-                    });
-            }).catch((err) => {
-                logger.error(err);
-            });
-    }
-}
-
-// event for someone cheering bits
-function handle_cheer(channel_name, context, msg) {
-    const message = msg.trim().toLowerCase();
-    const pyramid = pyramids.pyramid_check(client, channel_name, context.username, message);
-    if(pyramid) {
-        fletrics.publish_pyramid_metric(
-            pyramid.channel,
-            pyramid.phrase,
-            pyramid.time,
-            pyramid.user
-        );
     }
 }
