@@ -65,38 +65,6 @@ function handle_join(channel_name, username, self) {
     if(self) { // report self joining chat
         logger.log(`Connected to channel ${channel_name}`);
         pyramids.channel_init(channel_name);
-    } else {
-        if(mod_tools.protection_active(channel_name)) {
-            mod_tools.verify_account_age(channel_name, username, fletalytics)
-                .then((verification) => {
-                    if(verification.valid) {
-                        if(verification.check_required) {
-                            logger.log(`User ${username} has been verified for ${channel_name}: Account age is ${verification.account_age} hours old, required age is ${verification.required_age} hours`);
-                        }
-                    } else {
-                        let mod_cmd;
-                        const reason = `Account age of ${username} (${verification.account_age} hours) failed to meet channel's requirement of at least ${verification.required_age} hours`;
-                        switch (verification.mod_action) {
-                            case "timeout":
-                                mod_cmd = client.timeout(channel_name, username, Math.min((verification.required_age - verification.account_age) * 3600, 604800), reason);
-                                break;
-                            case "ban":
-                                mod_cmd = client.ban(channel_name, username, reason);
-                                break;
-                            default:
-                                throw (`Unknown mod action ${verification.mod_action}`);
-                        }
-                        logger.log(reason);
-                        mod_cmd.then((data) => {
-                            logger.log(data);
-                        }).catch((err) => {
-                            logger.error(err);
-                        });
-                    }
-                }).catch((err) => {
-                    logger.error(err);
-                });
-        }
     }
 }
 
@@ -115,7 +83,14 @@ function handle_notice(channel, msg_id, message) {
 function handle_chat_message(channel_name, context, msg, self) {
     if(self) { return; } // ignore messages from self
 
-    parse_chat_msg(channel_name, context, msg);
+    mod_tools.moderate_account_age(client, channel_name, context.username, fletalytics)
+        .then((user_allowed) => {
+            if(user_allowed) {
+                parse_chat_msg(channel_name, context, msg);
+            }
+        }).catch((err) => {
+            logger.error(err);
+        });
 }
 
 // event for whispered messages
