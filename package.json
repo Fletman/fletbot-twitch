@@ -6,6 +6,7 @@
   "scripts": {
     "fletbot": "node index.js",
     "win-format": "call dev-resources/format.bat",
+    "google-code": "call dev-resources/get_google_code.bat",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [
