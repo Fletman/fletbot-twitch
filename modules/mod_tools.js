@@ -9,6 +9,8 @@ const mod_data_file = './resources/mod_data.json';
 const one_minute_ms = 60000;
 const one_hour_ms = one_minute_ms * 60;
 
+const user_cache = {};
+
 module.exports = {
 
     protection_active: bot_data.is_bot_protected_channel,
@@ -43,7 +45,8 @@ module.exports = {
                 check_required: false
             }
         }
-        const user_data = await flet_lib.get_user(username);
+        const user_data = user_cache.hasOwnProperty(username) ?  user_cache[username] : await flet_lib.get_user(username);
+        user_cache[username] = user_data;
         const user_create_date = new Date(user_data.created_at).getTime();
         const current_date = new Date(Date.now()).getTime();
         const date_diff_hrs = Math.floor((current_date - user_create_date) / one_hour_ms);
