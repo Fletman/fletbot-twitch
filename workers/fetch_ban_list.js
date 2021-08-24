@@ -23,8 +23,9 @@ parentPort.on('message', (params) => {
                     }).catch((err) => {
                         throw (err);
                     })
-            })
-
+            }).catch((err) => {
+                console.error(err);
+            });
     });
 });
 
