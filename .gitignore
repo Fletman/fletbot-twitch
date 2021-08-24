@@ -1,4 +1,5 @@
 node_modules
+dev-resources/get_google_code.bat
 resources/auth.json
 resources/channels.json
 resources/db_config.json
