@@ -71,9 +71,11 @@ module.exports = {
         if(module.exports.protection_active(channel_name)) {
             const verification = await module.exports.verify_account_age(channel_name, username, flet_lib);
             if(verification.valid) {
+                /*
                 if(verification.check_required) {
                     logger.log(`User ${username} has been verified for ${channel_name}: Account age is ${verification.account_age} hours old, required age is ${verification.required_age} hours`);
                 }
+                */
                 return true;
             } else {
                 let mod_cmd;
