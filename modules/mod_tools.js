@@ -45,8 +45,8 @@ module.exports = {
                 check_required: false
             }
         }
-        const user_data = user_cache.hasOwnProperty(username) ?  user_cache[username] : await flet_lib.get_user(username);
-        user_cache[username] = user_data;
+        const user_data = user_cache.hasOwnProperty(username) ? user_cache[username] : await flet_lib.get_user(username);
+        user_cache[username] = { created_at: user_data.created_at };
         const user_create_date = new Date(user_data.created_at).getTime();
         const current_date = new Date(Date.now()).getTime();
         const date_diff_hrs = Math.floor((current_date - user_create_date) / one_hour_ms);
