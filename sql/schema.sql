@@ -26,6 +26,7 @@ CREATE TABLE IF NOT EXISTS fletbot.data_store (
     data_name TEXT, -- Name of backed up data field
     version_number INTEGER, -- version of data
     json_data JSON, -- JSON dump of data
+    backup_timestamp TIMESTAMP NOT NULL DEFAULT NOW(),
     PRIMARY KEY (data_name, version_number)
 );
 CREATE INDEX IF NOT EXISTS idx_fletbot_data ON fletbot.data_store(data_name);
