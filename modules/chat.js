@@ -23,12 +23,16 @@ module.exports = {
     /**
      * Initiate chat with event handlers
      * @param chat_client tmi.js Client object
+     * @param {Object} args Additional arguments to configure behavior
+     * @param {string[]} args.channels List of channels to connect to
+     * @param {string} args.metrics Datasource to output metrics to
+     * @param {string} args.backup Datasource to backup data to
      */
-    init: (chat_client) => {
+    init: (chat_client, args) => {
         client = chat_client;
 
         fletalytics = new Fletalytics(client);
-        fletrics = new Fletrics("postgres");
+        fletrics = new Fletrics(args.metrics);
         bot_data.init(chat_meta.commands);
         commands.init(chat_meta, fletalytics);
         pyramids.set_block_messages(chat_meta.pyramid_block_pool);
@@ -43,7 +47,7 @@ module.exports = {
         client.on('cheer', handle_cheer);
 
         // connect to channels specified in command line args
-        logger.log(`Connecting to channels: ${process.argv.slice(2)}`);
+        logger.log(`Connecting to channels: ${args.channels}`);
         client.connect()
             .then((data) => {
                 logger.log(data);
