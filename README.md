@@ -13,9 +13,9 @@
 ## Usage
 ### Running
 - Run Fletbot with the following command:
- ```npm run fletbot <list of channels to connect to>```
+ ```npm run fletbot channels=<comma-separated list of channels> metrics=<metrics datasource: console|postgres> backup=<backup datasource: file|postgres>```
   - ex.
-   ```npm run fletbot fletman795 fletbot795```
+   ```npm run fletbot channels=fletman795,fletbot795 metrics=postgres backup=file```
 ### Joining Channels
 - Once active, Fletbot can join/leave any channel through a whispered command:
   - `!fletjoin <channel name>` to have Fletbot join a specified channel
