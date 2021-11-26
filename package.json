@@ -15,10 +15,11 @@
   "author": "Fletman",
   "license": "ISC",
   "dependencies": {
-    "axios": "^0.21.1",
+    "axios": "^0.21.4",
+    "minimist": "^1.2.5",
     "pg": "^8.6.0",
     "string-similarity": "^4.0.2",
-    "tmi.js": "^1.5.0",
+    "tmi.js": "^1.8.5",
     "twitch": "^4.2.6",
     "twitch-auth": "^4.2.6",
     "twitch-pubsub-client": "^4.2.6",
