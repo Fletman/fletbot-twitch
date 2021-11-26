@@ -499,7 +499,7 @@ async function load_from_db(data_name, version) {
         // get specific version of data
         query = `SELECT data_version, json_data
                  FROM fletbot.data_store
-                 WHERE data_name = $1::text AND version_number = $2::integer`;
+                 WHERE data_name = $1::text AND data_version = $2::integer`;
         args = [data_name, version];
     } else {
         // get latest version of data
@@ -524,15 +524,23 @@ async function load_from_db(data_name, version) {
 async function write_to_db(field_name, data_map) {
     // insert new latest version to table
     const data_name = datasources[field_name]['postgres'];
-    let query = `INSERT INTO fletbot.data_store (data_name, data_version, json_data)
-                 SELECT $1::text,
-                        data_version + 1,
-                        $2::json
-                 FROM fletbot.data_store
-                 WHERE data_name = $1::text
-                 ORDER BY data_version DESC
-                 LIMIT 1
-                 RETURNING data_version`;
+    let query = `
+        WITH prev_data AS (
+            SELECT data_version
+            FROM fletbot.data_store
+            WHERE data_name = $1::text
+            ORDER BY data_version DESC
+            LIMIT 1
+        )
+        INSERT INTO fletbot.data_store (data_name, json_data, data_version)
+        SELECT $1::text,
+               $2::json,
+               CASE WHEN EXISTS (
+                   SELECT * FROM prev_data
+               ) THEN (SELECT data_version + 1 FROM prev_data)
+                 ELSE 1
+               END
+        RETURNING data_version`;
     let args = [data_name, data_map];
     const result = await db_client.query(query, args);
     const new_version = result.rows[0].data_version;
