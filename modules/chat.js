@@ -1,6 +1,7 @@
 const fs = require('fs');
 const bot_data = require('./data.js');
 const commands = require('./commands.js');
+const database = require('./database.js');
 const Fletalytics = require('./fletalytics.js');
 const Fletrics = require('./metrics.js');
 const logger = require('./fletlog.js');
@@ -30,32 +31,49 @@ module.exports = {
      */
     init: (chat_client, args) => {
         client = chat_client;
+        new Promise((resolve, reject) => {
+            if(args.metrics === 'postgres' || args.backup === 'postgres') {
+                database.get_db()
+                    .then((db) => {
+                        resolve(db);
+                    }).catch((err) => {
+                        reject(err);
+                    });
+            } else {
+                resolve(null);
+            }
+        }).then((db) => {
+            fletalytics = new Fletalytics(client);
+            fletrics = new Fletrics(args.metrics, db);
+            commands.init(chat_meta, fletalytics);
+            pyramids.set_block_messages(chat_meta.pyramid_block_pool);
+            bot_data.init(chat_meta.commands, args.backup, db)
+                .then(() => {
+                    // register event handlers
+                    client.on('connected', handle_connect);
+                    client.on('join', handle_join);
+                    client.on("notice", handle_notice);
+                    client.on('chat', handle_chat_message);
+                    client.on('whisper', handle_whisper);
+                    client.on('raided', handle_raid);
+                    client.on('cheer', handle_cheer);
 
-        fletalytics = new Fletalytics(client);
-        fletrics = new Fletrics(args.metrics);
-        bot_data.init(chat_meta.commands);
-        commands.init(chat_meta, fletalytics);
-        pyramids.set_block_messages(chat_meta.pyramid_block_pool);
-
-        // register event handlers
-        client.on('connected', handle_connect);
-        client.on('join', handle_join);
-        client.on("notice", handle_notice);
-        client.on('chat', handle_chat_message);
-        client.on('whisper', handle_whisper);
-        client.on('raided', handle_raid);
-        client.on('cheer', handle_cheer);
-
-        // connect to channels specified in command line args
-        logger.log(`Connecting to channels: ${args.channels}`);
-        client.connect()
-            .then((data) => {
-                logger.log(data);
-            })
-            .catch((err) => {
-                logger.error(err);
-            });
-        mod_tools.start_ban_loop(client);
+                    // connect to channels specified in command line args
+                    logger.log(`Connecting to channels: ${args.channels}`);
+                    client.connect()
+                        .then((data) => {
+                            logger.log(data);
+                        })
+                        .catch((err) => {
+                            logger.error(err);
+                        });
+                    mod_tools.start_ban_loop(client);
+                }).catch((err) => {
+                    logger.error(err);
+                });
+        }).catch((err) => {
+            logger.error(err);
+        });
     }
 };
 

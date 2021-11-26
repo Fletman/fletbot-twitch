@@ -2,11 +2,28 @@ const fs = require('fs');
 const logger = require('./fletlog.js');
 const path_resolve = require('path').resolve;
 
-const sip_file = './data/sips.json';
-const so_file = './data/so.json';
-const cmd_access_file = './data/cmd_access.json';
-const cmd_cd_file = './data/cmd_cooldown.json';
-const ban_cache_file = './data/ban_cache.json';
+const datasources = {
+    'sip': {
+        'file': "./data/sips.json",
+        'postgres': "sip"
+    },
+    'shoutout': {
+        'file': "./data/so.json",
+        'postgres': "shoutout"
+    },
+    'command access': {
+        'file': "./data/cmd_access.json",
+        'postgres': "cmd_access"
+    },
+    'command cooldown': {
+        'file': "./data/cmd_cooldown.json",
+        'postgres': "cmd_cooldown"
+    },
+    'ban cache': {
+        'file': "./data/ban_cache.json",
+        'postgres': "ban_cache"
+    }
+};
 
 let sip_map;
 let shoutout_map;
@@ -14,54 +31,95 @@ let access_map;
 let cooldown_map;
 let ban_cache_map;
 
+let db_client;
+
 module.exports = {
-    init: (commands) => {
-        sip_map = load_map(sip_file, 'sip');
-        shoutout_map = load_map(so_file, 'shoutout');
-        access_map = load_map(cmd_access_file, 'command access');
-        cooldown_map = load_map(cmd_cd_file, 'command cooldown');
-        ban_cache_map = load_map(ban_cache_file, 'ban cache');
+    /**
+     * 
+     * @param {Object} commands Map of Fletbot commands 
+     * @param {string} datasource Flag denoting what datasource to store bot data to
+     * @param {Object} db Database client
+     * @param {Number?} data_version Version of data to load. Defaults to latest version when omitted (only used with postgres datasource)
+     */
+    init: async (commands, datasource, db, data_version = null) => {
+        db_client = db;
+        sip_map = await load_map('sip', datasource, data_version);
+        shoutout_map = await load_map('shoutout', datasource, data_version);
+        access_map = await load_map('command access', datasource, data_version);
+        cooldown_map = await load_map('command cooldown', datasource, data_version);
+        ban_cache_map = await load_map('ban cache', datasource, data_version);
+
         Object.entries(commands).forEach((entry) => {
             const cmd_name = entry[0];
             if(!(cmd_name in access_map)) {
                 access_map[cmd_name] = { default: entry[1].default_access }
             }
         });
-        backup_loop(1000 * 60 * 60 * 12); // auto backup every 12hrs
+        backup_loop(datasource, 1000 * 60 * 60 * 12); // auto backup every 12hrs
     },
 
     /**
      * Backup maps to file
      */
-    backup: () => {
-        const files = [{
-                file: sip_file,
-                data_map: sip_map,
-                desc: 'Sip counts'
-            },
-            {
-                file: so_file,
-                data_map: shoutout_map,
-                desc: 'Shoutout settings'
-            },
-            {
-                file: cmd_access_file,
-                data_map: access_map,
-                desc: 'Command access settings'
-            },
-            {
-                file: cmd_cd_file,
-                data_map: cooldown_map,
-                desc: 'Command cooldown settings'
-            },
-            {
-                file: ban_cache_file,
-                data_map: ban_cache_map,
-                desc: 'Ban cache'
-            }
-        ];
-        for(const f of files) {
-            fs.writeFile(f.file, JSON.stringify(f.data_map), () => logger.log(`${f.desc} saved to ${path_resolve(f.file)}`));
+    backup: (datasource) => {
+        switch(datasource) {
+            case 'file':
+                const files = [
+                    {
+                        file: sip_file,
+                        data_map: sip_map,
+                        desc: 'Sip counts'
+                    },
+                    {
+                        file: so_file,
+                        data_map: shoutout_map,
+                        desc: 'Shoutout settings'
+                    },
+                    {
+                        file: cmd_access_file,
+                        data_map: access_map,
+                        desc: 'Command access settings'
+                    },
+                    {
+                        file: cmd_cd_file,
+                        data_map: cooldown_map,
+                        desc: 'Command cooldown settings'
+                    },
+                    {
+                        file: ban_cache_file,
+                        data_map: ban_cache_map,
+                        desc: 'Ban cache'
+                    }
+                ];
+                for(const f of files) {
+                    fs.writeFile(f.file, JSON.stringify(f.data_map), () => logger.log(`${f.desc} saved to ${path_resolve(f.file)}`));
+                }
+                break;
+            case 'postgres':
+                const maps = {
+                    'sip': sip_map,
+                    'shoutout': shoutout_map,
+                    'command access': access_map,
+                    'command cooldown': cooldown_map,
+                    'ban cache': ban_cache_map
+                };
+                for(const m in maps) {
+                    write_to_db(m, maps[m])
+                        .then((new_version) => {
+                            logger.log(`${m} data backed up to database, latest version: ${new_version}`);
+                        }).catch((err) => {
+                            logger.error(err);
+                        });
+                }
+                break;
+            default:
+                logger.error(`Unknown datasource ${datasource}. Dumping contents to file.`);
+                fs.writeFileSync('./sip_dump.json', JSON.stringify(sip_map));
+                fs.writeFileSync('./shoutout_dump.json', JSON.stringify(shoutout_map));
+                fs.writeFileSync('./access_dump.json', JSON.stringify(access_map));
+                fs.writeFileSync('./cooldown_dump.json', JSON.stringify(cooldown_map));
+                fs.writeFileSync('./ban_dump.json', JSON.stringify(ban_cache_map));
+                throw(`Unable to backup data using datasource ${datasource}. Data has been dumped to temp files`);
         }
     },
 
@@ -406,16 +464,95 @@ module.exports = {
     }
 };
 
-function load_map(file_path, map_name = "") {
-    if(fs.existsSync(file_path)) {
-        logger.log(`Loading ${map_name} file from ${path_resolve(file_path)}`);
-        return JSON.parse(fs.readFileSync(file_path));
+/**
+ * 
+ * @param {string} data_name Name of data field to load
+ * @param {string} datasource Flag denoting which datasource to load from
+ * @param {Number?} data_version Version of data to load (only used when datasource is set to postgres)
+ * @returns {Promise<Object>} Map of data
+ */
+async function load_map(data_name, datasource, data_version) {
+    switch(datasource) {
+        case 'file':
+            const file_path = datasources[data_name][datasource];
+            if(fs.existsSync(file_path)) {
+                logger.log(`Loading ${data_name} file from ${path_resolve(file_path)}`);
+                return JSON.parse(fs.readFileSync(file_path));
+            } else {
+                logger.log(`No file found at ${path_resolve(file_path)}`);
+                return {};
+            }
+        case 'postgres':
+            return await load_from_db(datasources[data_name][datasource], data_version);
+        default:
+            throw(`Unknown datasource ${datasource}`);
+    }
+
+}
+
+
+async function load_from_db(data_name, version) {
+    let query;
+    let args;
+
+    if(version) {
+        // get specific version of data
+        query = `SELECT data_version, json_data
+                 FROM fletbot.data_store
+                 WHERE data_name = $1::text AND version_number = $2::integer`;
+        args = [data_name, version];
     } else {
-        logger.log(`No file found at ${path_resolve(file_path)}`);
+        // get latest version of data
+        query = `SELECT data_version, json_data
+                 FROM fletbot.data_store
+                 WHERE data_name = $1::text
+                 ORDER BY version DESC
+                 LIMIT 1`;
+        args = [data_name];
+    }
+
+    const result = await db_client.query(query, args);
+    if(result.rows[0] && result.rows[0].json_data) {
+        logger.log(`Loaded ${data_name} data from database, using version ${result.rows[0].data_version}`);
+        return result.rows[0].json_data;
+    } else {
+        logger.log(`No data found in database for ${data_name}, using empty map`);
         return {};
     }
 }
 
-function backup_loop(interval = 3600000) {
-    setInterval(module.exports.backup, interval);
+async function write_to_db(field_name, data_map) {
+    // insert new latest version to table
+    const data_name = datasources[field_name]['postgres'];
+    let query = `INSERT INTO fletbot.data_store (data_name, data_version, json_data)
+                 SELECT $1::text,
+                        data_version + 1,
+                        $2::json
+                 FROM fletbot.data_store
+                 WHERE data_name = $1::text
+                 ORDER BY data_version DESC
+                 LIMIT 1
+                 RETURNING data_version`;
+    let args = [data_name, data_map];
+    const result = await db_client.query(query, args);
+    const new_version = result.rows[0].data_version;
+
+    // delete versions more than 5 behind latest
+    query = `DELETE FROM fletbot.data_store
+             WHERE data_name = $1::text
+                AND data_version NOT IN (
+                    SELECT data_version
+                    FROM fletbot.data_store
+                    WHERE data_name = $1::text
+                    ORDER BY data_version DESC
+                    LIMIT 5
+                )`;
+    args = [data_name];
+    await db_client.query(query, args);
+
+    return new_version;
+}
+
+function backup_loop(datasource, interval = 3600000) {
+    setInterval(() => module.exports.backup(datasource), interval);
 }

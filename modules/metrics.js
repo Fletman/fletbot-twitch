@@ -1,10 +1,8 @@
 const os = require('os');
-const data = require('./data.js');
-const database = require('./database.js');
 const logger = require('./fletlog.js');
 
 module.exports = class Fletrics {
-    constructor(datasource = 'console') {
+    constructor(datasource = 'console', db_client = null) {
         switch (datasource) {
             case 'console':
                 this.cmd_publish_fn = console_log_cmd_metric;
@@ -14,12 +12,7 @@ module.exports = class Fletrics {
             case 'postgres':
                 this.cmd_publish_fn = insert_cmd_metric_to_pg;
                 this.pyramid_publish_fn = insert_pyramid_metric_to_pg;
-                database.get_db()
-                    .then((db_client) => {
-                        this.datasource = db_client;
-                    }).catch((err) => {
-                        logger.error(err);
-                    })
+                this.datasource = db_client;
                 break;
             default:
                 throw (`Unsupported datasource ${datasource}`);
