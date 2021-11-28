@@ -31,23 +31,25 @@ let access_map;
 let cooldown_map;
 let ban_cache_map;
 
+let datasource;
 let db_client;
 
 module.exports = {
     /**
      * 
      * @param {Object} commands Map of Fletbot commands 
-     * @param {string} datasource Flag denoting what datasource to store bot data to
+     * @param {string} data_source Flag denoting what datasource to store bot data to
      * @param {Object} db Database client
      * @param {Number?} data_version Version of data to load. Defaults to latest version when omitted (only used with postgres datasource)
      */
-    init: async (commands, datasource, db, data_version = null) => {
+    init: async (commands, data_source, db, data_version = null) => {
+        datasource = data_source;
         db_client = db;
-        sip_map = await load_map('sip', datasource, data_version);
-        shoutout_map = await load_map('shoutout', datasource, data_version);
-        access_map = await load_map('command access', datasource, data_version);
-        cooldown_map = await load_map('command cooldown', datasource, data_version);
-        ban_cache_map = await load_map('ban cache', datasource, data_version);
+        sip_map = await load_map('sip', data_version);
+        shoutout_map = await load_map('shoutout', data_version);
+        access_map = await load_map('command access', data_version);
+        cooldown_map = await load_map('command cooldown', data_version);
+        ban_cache_map = await load_map('ban cache', data_version);
 
         Object.entries(commands).forEach((entry) => {
             const cmd_name = entry[0];
@@ -55,38 +57,45 @@ module.exports = {
                 access_map[cmd_name] = { default: entry[1].default_access }
             }
         });
-        backup_loop(datasource, 1000 * 60 * 60 * 12); // auto backup every 12hrs
+        backup_loop(1000 * 60 * 60 * 12); // auto backup every 12hrs
     },
 
     /**
      * Backup maps to file
+     * @param {string?} ds optional flag to force backing up data to specified data source
      */
-    backup: (datasource) => {
-        switch(datasource) {
+    backup: (ds = null) => {
+        let data_output;
+        if(ds && ['file', 'postgres'].includes(ds)) {
+            data_output = ds;
+        } else {
+            data_output = datasource;
+        }
+        switch(data_output) {
             case 'file':
                 const files = [
                     {
-                        file: sip_file,
+                        file: datasources['sip']['file'],
                         data_map: sip_map,
                         desc: 'Sip counts'
                     },
                     {
-                        file: so_file,
+                        file: datasources['shoutout']['file'],
                         data_map: shoutout_map,
                         desc: 'Shoutout settings'
                     },
                     {
-                        file: cmd_access_file,
+                        file: datasources['command access']['file'],
                         data_map: access_map,
                         desc: 'Command access settings'
                     },
                     {
-                        file: cmd_cd_file,
+                        file: datasources['command cooldown']['file'],
                         data_map: cooldown_map,
                         desc: 'Command cooldown settings'
                     },
                     {
-                        file: ban_cache_file,
+                        file: datasources['ban cache']['file'],
                         data_map: ban_cache_map,
                         desc: 'Ban cache'
                     }
@@ -218,7 +227,18 @@ module.exports = {
      * @returns {Number} Updated sip count
      */
     set_sips: (channel_name, sip_count) => {
-        const active_profile = sip_map[channel_name].active_profile;
+        let active_profile;
+        if(sip_map[channel_name]) {
+            active_profile = sip_map[channel_name].active_profile;
+        } else {
+            active_profile = 'default';
+            sip_map[channel_name] = {
+                active_profile: active_profile,
+                profiles: {
+                    [active_profile]: 0
+                }
+            }
+        }
         sip_map[channel_name].profiles[active_profile] = sip_count;
         return sip_map[channel_name].profiles[active_profile];
     },
@@ -467,11 +487,10 @@ module.exports = {
 /**
  * 
  * @param {string} data_name Name of data field to load
- * @param {string} datasource Flag denoting which datasource to load from
  * @param {Number?} data_version Version of data to load (only used when datasource is set to postgres)
  * @returns {Promise<Object>} Map of data
  */
-async function load_map(data_name, datasource, data_version) {
+async function load_map(data_name, data_version) {
     switch(datasource) {
         case 'file':
             const file_path = datasources[data_name][datasource];
@@ -506,7 +525,7 @@ async function load_from_db(data_name, version) {
         query = `SELECT data_version, json_data
                  FROM fletbot.data_store
                  WHERE data_name = $1::text
-                 ORDER BY version DESC
+                 ORDER BY data_version DESC
                  LIMIT 1`;
         args = [data_name];
     }
@@ -561,6 +580,6 @@ async function write_to_db(field_name, data_map) {
     return new_version;
 }
 
-function backup_loop(datasource, interval = 3600000) {
-    setInterval(() => module.exports.backup(datasource), interval);
+function backup_loop(interval_ms = 3600000) {
+    setInterval(module.exports.backup, interval_ms);
 }
