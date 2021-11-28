@@ -727,9 +727,9 @@ module.exports = {
             });
         },
 
-        "!fletbackup": (client, context) => {
+        "!fletbackup": (client, context, msg_parts) => {
             if(chat_meta.bot_owners.includes(context.username)) {
-                bot_data.backup();
+                bot_data.backup(msg_parts[1]);
             }
         },
 
