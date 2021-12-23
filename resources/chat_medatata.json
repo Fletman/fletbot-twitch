@@ -157,7 +157,8 @@
             "Auntie TwitchUnity",
             "DoritosChip TakeNRG",
             "KappaPride"
-        ]
+        ],
+        "thors_dadbod": "Fucking Thor, man"
     },
-    "changelog": "Latest change: Fletbot's enjoying all the space in his new home. Take a look at all the organizing he's done in his new pad: http://72.83.11.138:3000/dashboards"
+    "changelog": "Updates to data backup functionality to stop Fletbot from being irresponsible and slacking on the job"
 }
