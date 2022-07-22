@@ -462,7 +462,7 @@ module.exports = {
 
         "!fletalytics": async (client, channel_name, context) => {
             return {
-                data: await client.say(channel_name, `@${context.username} Fletbot analytics and stats can be viewed here: 'http://fletinc.ddns.net:3000/dashboards'`),
+                data: await client.say(channel_name, `@${context.username} Fletbot analytics and stats can be viewed here: http://fletinc.ddns.net:3000/dashboards`),
                 success: true
             };
         },
@@ -564,6 +564,13 @@ module.exports = {
         "!fletsrc": async (client, channel_name) => {
             return {
                 data: await client.say(channel_name, "https://github.com/Fletman/fletbot-twitch"),
+                success: true
+            };
+        },
+
+        "!fletlog": async (client, channel_name, context) => {
+            return {
+                data: await client.say(channel_name, `@${context.username} Fletbot changelog can be found here: https://github.com/Fletman/fletbot-twitch/blob/command-deprecate/CHANGELOG.md`),
                 success: true
             };
         }
