@@ -126,6 +126,10 @@
         "fletsrc": {
             "description": "!fletsrc: View Fletbot source code | Example: \"!fletsrc\"",
             "default_access": []
+        },
+        "fletlog": {
+            "description": "!fletlog: View Fletbot changelog | Example: \"!fletlog\"",
+            "default_access": []
         }
     },
     "custom_greetings": {

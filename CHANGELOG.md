@@ -1,6 +1,6 @@
 # Fletbot Changelog
 
-## July 22nd 2022
+## July 22 2022
 
 ### Features
 - Added !fletlog command to point to changelog
