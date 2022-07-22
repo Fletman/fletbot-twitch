@@ -570,7 +570,7 @@ module.exports = {
 
         "!fletlog": async (client, channel_name, context) => {
             return {
-                data: await client.say(channel_name, `@${context.username} Fletbot changelog can be found here: https://github.com/Fletman/fletbot-twitch/blob/command-deprecate/CHANGELOG.md`),
+                data: await client.say(channel_name, `@${context.username} Fletbot changelog can be found here: https://github.com/Fletman/fletbot-twitch/blob/master/CHANGELOG.md`),
                 success: true
             };
         }
