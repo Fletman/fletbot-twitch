@@ -119,20 +119,8 @@
             "description": "!fletyt <query>: Search YouTube for a video using the provided query | Example: \"!fletyt Boston Dynamics\"",
             "default_access": []
         },
-        "fletevents": {
-            "description": "!fletevents <active | inactive>: enable/disable fletevents such as reactions to channel rewards redemptions or bit cheers. Requires permissions to be given prior to use. See !fletpermit for details | Example: \"!fletevents active\"",
-            "default_access": ["moderator"]
-        },
-        "fletpermit": {
-            "description": "!fletpermit: Retrieve a link to a Twitch authorization page to give Fletbot permission to view events on caller's channel | Example: \"!fletpermit\"",
-            "default_access": ["broadcaster"]
-        },
-        "fletunpermit": {
-            "description": "!fletunpermit: Remove Fletbot's permissions to view events of a channel | Example: \"!fletunpermit\"",
-            "default_access": ["broadcaster"]
-        },
         "fletalytics": {
-            "description": "!fletalytics: View changelog and preview some fancy new (potential) features coming soon™ | Example: \"!fletalytics\"",
+            "description": "!fletalytics: View stats and analytics on command usage and pyramid screwing | Example: \"!fletalytics\"",
             "default_access": []
         },
         "fletsrc": {

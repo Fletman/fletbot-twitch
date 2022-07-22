@@ -460,9 +460,9 @@ module.exports = {
             }
         },
 
-        "!fletalytics": async (client, channel_name) => {
+        "!fletalytics": async (client, channel_name, context) => {
             return {
-                data: await client.action(channel_name, chat_meta.changelog),
+                data: await client.say(channel_name, `@${context.username} Fletbot analytics and stats can be viewed here: 'http://fletinc.ddns.net:3000/dashboards'`),
                 success: true
             };
         },
@@ -495,46 +495,28 @@ module.exports = {
         "!fletpermit": async (client, channel_name, context) => {
             return {
                 data: await client.say(
-                    channel_name,
-                    `@${context.username} Permission link: ${fletalytics.get_permit_link(channel_name.slice(1))} ` +
-                    "Upon permission confirmation, you will be redirected to a dummy URL containing an access code. " +
-                    "From the URL copy the value for access code (i.e. code=<code value>), " +
-                    "then *WHISPER* it to Fletbot using !fletpermit <code value>"
+                    channel_name, `@${context.username} This command is now deprecated. For more information, see the changelog by typing "!fletlog"`
                 ),
                 success: true
             };
         },
 
         "!fletunpermit": async (client, channel_name, context) => {
-            await fletalytics.remove_permit(channel_name.slice(1));
             return {
-                data: await client.say(channel_name, `@${context.username} fletalytics permissions removed`),
+                data: await client.say(
+                    channel_name, `@${context.username} This command is now deprecated. For more information, see the changelog by typing "!fletlog"`
+                ),
                 success: true
             };
         },
 
         "!fletevents": async (client, channel_name, context, msg_parts) => {
-            if(!msg_parts[1] && !["active", "inactive"].includes(msg_parts[1])) {
-                return {
-                    data: await client.say(channel_name, `@${context.username} Invalid argument`),
-                    success: false
-                };
-            } else {
-                const channel = channel_name.slice(1);
-                if(msg_parts[1] == "active") {
-                    const result = await fletalytics.listen(channel);
-                    return {
-                        data: await client.say(channel_name, `@${context.username} ${result}`),
-                        success: true
-                    };
-                } else if(msg_parts[1] == "inactive") {
-                    const result = await fletalytics.unlisten(channel);
-                    return {
-                        data: await client.say(channel_name, `@${context.username} ${result}`),
-                        success: true
-                    };
-                }
-            }
+            return {
+                data: await client.say(
+                    channel_name, `@${context.username} This command is now deprecated. For more information, see the changelog by typing "!fletlog"`
+                ),
+                success: true
+            };
         },
 
         "!fletyt": async (client, channel_name, context, msg_parts) => {
