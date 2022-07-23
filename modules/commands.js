@@ -359,10 +359,11 @@ module.exports = {
             let result_msg;
             let success;
             if(!msg_parts[1]) {
-                result_msg = "No flag specified, valid options are <set | list | delete>";
+                result_msg = "No flag specified, valid options are <set | list | delete | sip | setsips | getsips>";
                 success = false;
             } else {
-                switch (msg_parts[1]) {
+                const action = msg_parts[1].startsWith('!') ? msg_parts[1].substring(1) : msg_parts[1];
+                switch (action) {
                     case 'set':
                         if(!msg_parts[2]) {
                             result_msg = "No profile name specified";
@@ -396,8 +397,50 @@ module.exports = {
                             success = true;
                         }
                         break;
+                    case 'sip':
+                        if(!msg_parts[2]) {
+                            result_msg = "No profile name specified";
+                            success = false;
+                        } else {
+                            try {
+                                result_msg = add_sip(channel_name, msg_parts[2]);
+                                success = true;
+                            } catch(e) {
+                                result_msg = e.message;
+                                success = false;
+                            }
+                        }
+                        break;
+                    case 'setsips':
+                        if(!msg_parts[2]) {
+                            result_msg = "No profile name specified";
+                            success = false;
+                        } else {
+                            try {
+                                result_msg = set_sips(channel_name, msg_parts[3], msg_parts[2]);
+                                success = true;
+                            } catch(e) {
+                                result_msg = e.message;
+                                success = false;
+                            }
+                        }
+                        break;
+                    case 'getsips':
+                        if(!msg_parts[2]) {
+                            result_msg = "No profile name specified";
+                            success = false;
+                        } else {
+                            try {
+                                result_msg = get_sips(channel_name, msg_parts[2]);
+                                success = true;
+                            } catch(e) {
+                                result_msg = e.message;
+                                success = false;
+                            }
+                        }
+                        break;
                     default:
-                        result_msg = `Unknown flag '${msg_parts[1]}', valid options are <set | list | delete>`;
+                        result_msg = `Unknown flag '${msg_parts[1]}', valid options are <set | list | delete | sip | setsips | getsips>`;
                         success = false;
                         break;
                 }
@@ -410,43 +453,29 @@ module.exports = {
         },
 
         "!sip": async (client, channel_name) => {
-            const sips = bot_data.add_sip(channel_name);
-            let sip_msg;
-            switch (sips) {
-                case 1:
-                    sip_msg = "The first of many sips. Kappa";
-                    break;
-                case 69:
-                    sip_msg = "69 sips. Nice. TPFufun";
-                    break;
-                default:
-                    sip_msg = sips % 50 === 0 ?
-                        `${sips} sips. ${chat_meta.sip_pool[Math.floor(Math.random() * chat_meta.sip_pool.length)]}` :
-                        `${sips} sips... So far. TPFufun`;
-                    break;
-            }
             return {
-                data: await client.action(channel_name, sip_msg),
+                data: await client.action(channel_name, add_sip(channel_name)),
                 success: true
             };
         },
 
         "!setsips": async (client, channel_name, context, msg_parts) => {
-            const sips = parseInt(msg_parts[1], 10);
-            return (Number.isNaN(sips) || sips < 0) ? {
-                data: await client.say(channel_name, `@${context.username} Invalid number provided`),
-                success: false
-            } : {
-                data: await client.say(channel_name, `@${context.username} Sip count set to ${bot_data.set_sips(channel_name, sips)}`),
-                success: true
-            };
+            try {
+                return {
+                    data: await client.say(channel_name, `@${context.username} ${set_sips(channel_name, msg_parts[1])}`),
+                    success: true
+                };
+            } catch(e) {
+                return {
+                    data: await client.say(channel_name, `@${context.username} ${e.message}`),
+                    success: false
+                };
+            }
         },
 
         "!getsips": async (client, channel_name) => {
-            const sips = bot_data.get_sips(channel_name);
-            const sip_msg = sips ? `Current sip count: ${sips}` : "No sips on record, shockingly";
             return {
-                data: await client.action(channel_name, sip_msg),
+                data: await client.action(channel_name, get_sips(channel_name)),
                 success: true
             };
         },
@@ -792,4 +821,58 @@ function validate_commands() {
         }
     });
     logger.log("All chat commands validated");
+}
+
+/**
+ * Increment sip counter and generate sip message
+ * @param {string} channel_name Name of channel
+ * @param {string?} profile Name of sip profile to increment
+ * @throws if sip counter could not be incremented
+ * @returns {string} Result message
+ */
+function add_sip(channel_name, profile = null) {
+    const sips = bot_data.add_sip(channel_name, profile);
+    let sip_str;
+    switch (sips) {
+        case 1:
+            sip_str = "The first of many sips. Kappa";
+            break;
+        case 69:
+            sip_str = "69 sips. Nice. TPFufun";
+            break;
+        default:
+            sip_str = sips % 50 === 0 ?
+                `${sips} sips. ${chat_meta.sip_pool[Math.floor(Math.random() * chat_meta.sip_pool.length)]}` :
+                `${sips} sips... So far. TPFufun`;
+            break;
+    }
+    return sip_str;
+}
+
+/**
+ * Set sip count to specified number
+ * @param {string} channel_name Name of channel
+ * @param {string} sip_count String representation of number to update count to
+ * @param {string?} profile Profile to update
+ * @throws For invalid sip_count value
+ * @returns {string} Result message
+ */
+function set_sips(channel_name, sip_count, profile = null) {
+    const sips = parseInt(sip_count, 10);
+    if(Number.isNaN(sips) || sips < 0) {
+        throw new Error("Invalid number provided");
+    }
+    return `Sip count set to ${bot_data.set_sips(channel_name, sips, profile)}`;
+}
+
+/**
+ * Get sip count
+ * @param {string} channel_name Name of channel 
+ * @param {string?} profile Profile to retrieve sip count from
+ * @throws If specified profile does not exist
+ * @returns {string} Result message
+ */
+function get_sips(channel_name, profile = null) {
+    const sips = bot_data.get_sips(channel_name, profile);
+    return sips ? `Current sip count: ${sips}` : "No sips on record, shockingly";
 }

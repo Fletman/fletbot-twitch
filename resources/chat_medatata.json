@@ -84,7 +84,7 @@
             "default_access": ["moderator"]
         },
         "sipprofile": {
-            "description": "!sipprofile <set | list | delete> <profile name>: Create, list, or delete profiles that can be used to track multiple sip counters simultaneously | Example: \"!sipprofile set halo\"",
+            "description": "!sipprofile <action> <profile name>: Create, list, or delete profiles that can be used to track multiple sip counters simultaneously. Possible action parameters are: <set | list | delete | sip | setsips | getsips> | Example: \"!sipprofile set halo\"",
             "default_access": ["moderator"]
         },
         "sip": {

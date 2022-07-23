@@ -201,21 +201,26 @@ module.exports = {
     /**
      * Incremenet channel's sip counter
      * @param {string} channel_name Name of channel
+     * @param {string?} profile Profile to increment counter for, defaults to current active profile in unspecified
+     * @throws if specified profile does not exist
      * @returns {Number} Updated sip count
      */
-    add_sip: (channel_name) => {
+    add_sip: (channel_name, profile = null) => {
         let active_profile;
         if(!sip_map[channel_name]) {
-            active_profile = 'default';
+            active_profile = profile || 'default';
             sip_map[channel_name] = {
                 active_profile: active_profile,
-                profiles: {
-                    [active_profile]: 1
-                }
-            }
+                profiles: { default: 1 }
+            };
+            sip_map[channel_name].profiles[active_profile] = 1;
         } else {
-            active_profile = sip_map[channel_name].active_profile;
-            sip_map[channel_name].profiles[active_profile]++;
+            active_profile = profile || sip_map[channel_name].active_profile;
+            if(!sip_map[channel_name].profiles.hasOwnProperty(active_profile)) {
+                throw new Error(`Profile "${active_profile}" does not exist`);
+            } else {
+                sip_map[channel_name].profiles[active_profile]++;
+            }
         }
         return sip_map[channel_name].profiles[active_profile];
     },
@@ -224,19 +229,18 @@ module.exports = {
      * Update channel's sip count to specified number
      * @param {string} channel_name Name of channel
      * @param {Number} sip_count Number to update counter to
+     * @param {string?} profile Profile to update sip count, defaults to current active profile in unspecified
      * @returns {Number} Updated sip count
      */
-    set_sips: (channel_name, sip_count) => {
+    set_sips: (channel_name, sip_count, profile = null) => {
         let active_profile;
         if(sip_map[channel_name]) {
-            active_profile = sip_map[channel_name].active_profile;
+            active_profile = profile || sip_map[channel_name].active_profile;
         } else {
-            active_profile = 'default';
+            active_profile = profile || 'default';
             sip_map[channel_name] = {
                 active_profile: active_profile,
-                profiles: {
-                    [active_profile]: 0
-                }
+                profiles: { default: 0 }
             }
         }
         sip_map[channel_name].profiles[active_profile] = sip_count;
@@ -246,10 +250,15 @@ module.exports = {
     /**
      * Get sip count for a given channel
      * @param {string} channel_name Name of channel
-     * @returns {Number} Updated sip count
+     * @returns {Number?} Sip count, or null if no sip count exists
      */
-    get_sips: (channel_name) => {
-        return sip_map[channel_name] ? sip_map[channel_name].profiles[sip_map[channel_name].active_profile] : null;
+    get_sips: (channel_name, profile = null) => {
+        if(sip_map[channel_name]) {
+            const active_profile = profile || sip_map[channel_name].active_profile;
+            return sip_map[channel_name].profiles[active_profile];
+        } else {
+            return null;
+        }
     },
 
     /**
