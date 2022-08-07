@@ -80,15 +80,8 @@
   - Example: `!fletclip @ti8ick called out`
 - `!fletyt <query>`: Search YouTube for a video using the provided query
   - Example: `!fletyt Boston Dynamics`
-- `!fletevents <active | inactive>`: enable/disable fletevents such as reactions to channel rewards redemptions or bit cheers
-  - Requires permissions to be given prior to use. See !fletpermit for details
-  - Example: `!fletevents active`
-- `!fletpermit`: Retrieve a link to a Twitch authorization page to give Fletbot permission to view events on caller's channel
-  - Example: `!fletpermit`
-- `!fletunpermit`: Remove Fletbot's permissions to view events of a channel
-  - Example: `!fletunpermit`
-- `!fletalytics`: View changelog and preview some fancy new (potential) features coming soon™
-  - Example: `!fletalytics`
+- `!fletlog`: View changelog and preview some fancy new (potential) features coming soon™
+  - Example: `!fletlog`
 
 ### Bot Protection
 Channels can opt in/out from Fletbot's bot account protection system. Bot usernames are periodically pulled from a maintaned list and banned from every channel where the protection is active.
