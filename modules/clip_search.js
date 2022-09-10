@@ -3,14 +3,9 @@ const str_similarity = require('string-similarity');
 
 /**
  * Search channel's top 1000 clips for matching title. Bailout early if title match meets specified threshold
- * @param {string} client_id 
- * @param {string} token 
- * @param {string} channel_id 
- * @param {string} clip_title 
- * @param {number} match_threshold 
  */
 module.exports = {
-    clip_search: async (client_id, token, channel_id, clip_title, match_threshold = .85) => {
+    clip_search: async (client_id, token, channel_id, search_params, match_threshold = .85) => {
         if(match_threshold < 0 || match_threshold > 1) {
             throw (`Invalid match threshold: ${match_threshold} Value must be between 0 and 1`);
         }
@@ -38,7 +33,7 @@ module.exports = {
                 req = axios(req_body);
             }
             page_index++;
-            match = get_best_match(match, clip_title, response.data.data);
+            match = get_best_match(match, search_params.title, response.data.data, search_params.game);
         } while(paging && match.percentage < match_threshold);
 
         return match.url ?
@@ -51,7 +46,7 @@ module.exports = {
             null;
     },
 
-    random_clip: async (client_id, token, channel_id) => {
+    random_clip: async (client_id, token, channel_id, game = null) => {
         const req_body = {
             method: 'get',
             url: `https://api.twitch.tv/helix/clips?broadcaster_id=${channel_id}&first=100`,
@@ -61,21 +56,29 @@ module.exports = {
             }
         };
         const response = await axios(req_body);
-        const clip = response.data.data[Math.floor(Math.random() * response.data.data.length)];
+        let clip;
+        if(game) {
+            const shuffled_clips = response.data.data.sort(() => Math.random() > .5 ? 1 : -1);
+            clip = shuffled_clips.find(c => c.game_id === game.id);
+        } else {
+            clip = response.data.data[Math.floor(Math.random() * response.data.data.length)];
+        }
         return clip ? {
             title: clip.title,
+            game: clip.game_id,
             url: clip.url
         } : null;
     }
 };
 
-function get_best_match(prev_match, clip_title, clips) {
+function get_best_match(prev_match, clip_title, clips, game = null) {
     let match = prev_match;
     for(const clip of clips) {
         const title_match = str_similarity.compareTwoStrings(clip_title, clip.title.toLowerCase());
-        if(!match.url || title_match > match.percentage) {
+        if((!game || clip.game_id === game.id) && (!match.url || title_match > match.percentage)) {
             match = {
                 title: clip.title,
+                game: clip.game_id,
                 url: clip.url,
                 percentage: title_match
             };

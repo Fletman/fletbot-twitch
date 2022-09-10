@@ -1,6 +1,7 @@
 "use strict";
 
 const axios = require('axios');
+const minimist = require('minimist-string');
 const unescape = require('unescape');
 const { Worker } = require('worker_threads');
 const clip_searcher = require('./clip_search.js');
@@ -175,8 +176,10 @@ module.exports = class Fletalytics {
      * @param {boolean} [threading=true] Whether to spawn a worker thread to search or perform search in main thread
      * @returns {Promise<string>} Clip link
      */
-    async get_clip_link(channel, clip_title, threading = true) {
-        logger.log(`Search for clip [${clip_title}] under ${channel}, threading: ${threading}`);
+    async get_clip_link(channel, clip_args, threading = true) {
+        const args = minimist(clip_args);
+        let clip_title = args['title'];
+        const clip_game = args['game'];
 
         const client_id = credentials.get_client_id();
         const default_token = await credentials.get_default_access_token();
@@ -192,6 +195,34 @@ module.exports = class Fletalytics {
         });
         if(res.data.data.length == 0) { return null; }
         const channel_id = res.data.data[0].id;
+
+        let search_params;
+
+        if((!clip_title && !clip_game) || (clip_title && !clip_game)) { // search for clip via title only. If no longform args provided, assume full arg is title
+            logger.log(`Search for clip [${clip_args}] under ${channel}, threading: ${threading}`);
+            clip_title = clip_title || clip_args;
+            search_params = {
+                search_type: 'title',
+                title: clip_title
+            };
+        }  else if(!clip_title && clip_game) { // clip game provided without title, pull random clip from game
+            logger.log(`Clip search for game [${clip_game}] under ${channel}, threading: ${threading}`);
+            const game = await this.get_game(clip_game);
+            if(!game) { return null; }
+            search_params = {
+                search_type: 'game',
+                game: game
+            };
+        } else { // filter clips by both title and game
+            logger.log(`Search for clip [${clip_title}] in game ${clip_game} under ${channel}, threading: ${threading}`);
+            const game = await this.get_game(clip_game);
+            if(!game) { return null; }
+            search_params = {
+                search_type: 'full',
+                title: clip_title,
+                game: game
+            };
+        }
 
         if(threading) {
             const worker = new Worker('./workers/clip_searcher.js');
@@ -215,7 +246,7 @@ module.exports = class Fletalytics {
                 client_id: client_id,
                 token: default_token,
                 channel: channel_id,
-                clip_title: clip_title
+                search_params: search_params
             });
 
             const clip = await search_promise;
@@ -226,13 +257,14 @@ module.exports = class Fletalytics {
                 await clip_searcher.random_clip(
                     client_id,
                     default_token,
-                    channel_id
+                    channel_id,
+                    search_params.game
                 ) :
                 await clip_searcher.clip_search(
                     client_id,
                     default_token,
                     channel_id,
-                    clip_title
+                    search_params
                 );
         }
     }
@@ -350,6 +382,24 @@ module.exports = class Fletalytics {
             stream: streams_data.data.data.length === 0 ? null : streams_data.data.data[0],
             vod: vod_data.data.data.length === 0 ? null : vod_data.data.data[0]
         };
+    }
+
+    /**
+     * Get Twitch game data
+     * @param {string} game // Game name
+     * @returns {Promise<object?>} Game data object
+     */
+    async get_game(game) {
+        const default_token = await credentials.get_default_access_token();
+        const response = await axios({
+            method: 'get',
+                url: `https://api.twitch.tv/helix/games?name=${game}`,
+                headers: {
+                    'client-id': credentials.get_client_id(),
+                    'Authorization': `Bearer ${default_token}`
+                }
+        });
+        return response.data.data[0];
     }
 
     /**
