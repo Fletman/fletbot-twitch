@@ -1,5 +1,14 @@
 # Fletbot Changelog
 
+## September 10 2022
+
+### Features
+
+#### Fletclip
+- Updated !fletclip command with functionality to filter clips by game
+- Added `--title` and `--game` flags to !fletclip command for specifying filters
+- Example: `!fletclip @ti8ick --game mass effect --title nobody is safe`
+
 ## July 22 2022
 
 ### Features

@@ -78,6 +78,15 @@
   - Example: `!fletmote ti8ick ti8ickTibStalk`
 - `!fletclip <channel name> <clip name>`: Search given channel for a clip whose title most closely resembles the provided clip name
   - Example: `!fletclip @ti8ick called out`
+  - If the given title is '*', this will return a random clip from the channel's top 100 clips
+    - Example: `!fletclip @ti8ick *`
+  - This command can also be used in longform by providing at least one of two flags: `--title` and `--game`.
+    - When `--title` is provided by itself, it will behave similarly to the above functionality
+    - When `--game` is provided by itself, a random clip from the specified channel will be retrieved featuring the specified game
+    - When both flags are provided, clips will be filtered by both title and game
+    - Example: `!fletclip @ti8ick --title called out`
+    - Example: `!fletclip @ti8ick --game dragon age: origins`
+    - Example: `!fletclip @ti8ick --game mass effect --title nobody is safe`
 - `!fletyt <query>`: Search YouTube for a video using the provided query
   - Example: `!fletyt Boston Dynamics`
 - `!fletlog`: View changelog and preview some fancy new (potential) features coming soon™

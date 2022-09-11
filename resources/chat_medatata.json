@@ -112,7 +112,7 @@
             "default_access": []
         },
         "fletclip": {
-            "description": "!fletclip <channel name> <clip name>: Search given channel for a clip whose title most closely resembles the provided clip name. Setting clip name to * will return a random clip from the channel's top 100 clips | Example: \"!fletclip @ti8ick called out\"",
+            "description": "!fletclip <channel name> <clip name>: Search given channel for a clip whose title most closely resembles the provided clip name. Setting clip name to * will return a random clip from the channel's top 100 clips. Can also be used in longform with \"--title\" and \"--game\" flags for advanced filtering | Example: \"!fletclip @ti8ick called out\" | Example: \"!fletclip @bibianski --game Microsoft Flight Simulator\"",
             "default_access": []
         },
         "fletyt": {
@@ -152,5 +152,5 @@
         ],
         "thors_dadbod": "Fucking Thor, man NotLikeThis"
     },
-    "changelog": "Updates to data backup functionality to stop Fletbot from being irresponsible and slacking on the job"
+    "changelog": "Updated !fletclip command with functionality to filter clips by game, using the '--game' flag. Type \"!flethelp !fletclip\" for details"
 }
