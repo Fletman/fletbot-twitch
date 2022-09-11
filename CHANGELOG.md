@@ -7,6 +7,9 @@
 #### Fletclip
 - Updated !fletclip command with functionality to filter clips by game
 - Added `--title` and `--game` flags to !fletclip command for specifying filters
+  - When `--title` is provided by itself, it will behave similarly to the above functionality
+  - When `--game` is provided by itself, a random clip from the specified channel will be retrieved featuring the specified game
+  - When both flags are provided, clips will be filtered by both title and game
 - Example: `!fletclip @ti8ick --game mass effect --title nobody is safe`
 
 ## July 22 2022
