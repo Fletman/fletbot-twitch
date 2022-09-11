@@ -1,7 +1,6 @@
 "use strict";
 
 const axios = require('axios');
-const minimist = require('minimist-string');
 const unescape = require('unescape');
 const { Worker } = require('worker_threads');
 const clip_searcher = require('./clip_search.js');
@@ -172,12 +171,12 @@ module.exports = class Fletalytics {
     /**
      * Search a channel for a clip most closely resembling given title
      * @param {string} channel Channel name
-     * @param {string} clip_title Title of clip to search for
+     * @param {string} clip_args String form of args to use in search
      * @param {boolean} [threading=true] Whether to spawn a worker thread to search or perform search in main thread
      * @returns {Promise<string>} Clip link
      */
     async get_clip_link(channel, clip_args, threading = true) {
-        const args = minimist(clip_args);
+        const args = this._parse_arg_str(clip_args);
         let clip_title = args['title'];
         const clip_game = args['game'];
 
@@ -199,8 +198,8 @@ module.exports = class Fletalytics {
         let search_params;
 
         if((!clip_title && !clip_game) || (clip_title && !clip_game)) { // search for clip via title only. If no longform args provided, assume full arg is title
-            logger.log(`Search for clip [${clip_args}] under ${channel}, threading: ${threading}`);
             clip_title = clip_title || clip_args;
+            logger.log(`Search for clip [${clip_title}] under ${channel}, threading: ${threading}`);
             search_params = {
                 search_type: 'title',
                 title: clip_title
@@ -434,5 +433,28 @@ module.exports = class Fletalytics {
         }
         const divided_diff = Math.floor(date_diff / diff.divide);
         return `${divided_diff} ${diff.str}${divided_diff > 1 ? "s" : ""} ago`;
+    }
+
+    /**
+     * Parse string into arg map
+     * @private
+     * @param {string} arg_str Argument string to parse
+     * @returns {Object} Map of args and values
+     */
+    _parse_arg_str(arg_str) {
+        const args = {};
+        let index = -1;
+        do {
+            index = arg_str.indexOf('--', index+1);
+            if(index === -1) { break; }
+            const arg_name_index_end = arg_str.indexOf(' ', index) !== -1 ? arg_str.indexOf(' ', index) : arg_str.length;
+            const arg_val_index_end = arg_str.indexOf('--', arg_name_index_end+1) !== -1 ? arg_str.indexOf('--', arg_name_index_end+1) : arg_str.length;
+            const arg_name = arg_str.substring(index+2, arg_name_index_end);
+            const arg_val = arg_str.substring(arg_name_index_end+1, arg_val_index_end).trim();
+            if(arg_val.length > 0) {
+                args[arg_name] = arg_val;
+            }
+        } while(index !== -1);
+        return args;
     }
 }
