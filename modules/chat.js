@@ -168,9 +168,8 @@ function parse_chat_msg(channel_name, context, msg) {
 
     if(commands.chat.hasOwnProperty(cmd)) {
         const cmd_start_time = Date.now();
-        const command_access = commands.check_cmd_access(channel_name, context, cmd);
-        const command_cooldown = commands.check_cmd_cooldown(channel_name, cmd);
-        if(command_access.allowed && command_cooldown.available) {
+        const cmd_availability = cmd_is_available(channel_name, context, cmd);
+        if(cmd_availability.available) {
             commands.chat[cmd](client, channel_name, context, msg_parts)
                 .then((result) => {
                     const cmd_end_time = Date.now();
@@ -196,15 +195,7 @@ function parse_chat_msg(channel_name, context, msg) {
                     logger.error(err);
                 });
         } else {
-            let deny_msg;
-            if(!command_cooldown.available) {
-                deny_msg = `@${context.username} ${cmd} is on cooldown for ${command_cooldown.time_remaining_sec} ${command_cooldown.time_remaining_sec > 1 ? "seconds" : "second"}`;
-            } else if(command_access.ban) {
-                deny_msg = "";
-            } else {
-                deny_msg = `@${context.username} Not allowed to use ${cmd} command. Must be one of: ${command_access.roles.join(", ")}`;
-            }
-            client.say(channel_name, deny_msg)
+            client.say(channel_name, cmd_availability.deny_msg)
                 .then((data) => {
                     const cmd_end_time = Date.now();
                     fletrics.publish_cmd_metric(
@@ -247,4 +238,24 @@ function parse_chat_msg(channel_name, context, msg) {
             );
         }
     }
+}
+
+function cmd_is_available(channel_name, context, cmd) {
+    const command_access = commands.check_cmd_access(channel_name, context, cmd);
+    if(!command_access.allowed) {
+        return {
+            available: false,
+            deny_msg: `@${context.username} Not allowed to use ${cmd} command. Must be one of: ${command_access.roles.join(", ")}`
+        };
+    }
+
+    const command_cooldown = commands.check_cmd_cooldown(channel_name, cmd);
+    if(!command_cooldown.available) {
+        return {
+            available: false,
+            deny_msg: `@${context.username} ${cmd} is on cooldown for ${command_cooldown.time_remaining_sec} ${command_cooldown.time_remaining_sec > 1 ? "seconds" : "second"}`
+        }
+    }
+
+    return { available: true };
 }
