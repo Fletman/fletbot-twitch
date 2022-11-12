@@ -318,7 +318,13 @@ module.exports = {
                     success: false
                 };
             } else {
-                const so_msg = await fletalytics.shoutout(msg_parts[1]);
+                const so_overrides = {
+                    'bigbossyoshi': async () => await fletalytics.shoutout('bigbossyoshi')
+                };
+                const so_promise = context.username in so_overrides ?
+                    so_overrides[context.username]() :
+                    fletalytics.shoutout(msg_parts[1]);
+                const so_msg = await so_promise;
                 return {
                     data: await client.say(channel_name, so_msg),
                     success: true
