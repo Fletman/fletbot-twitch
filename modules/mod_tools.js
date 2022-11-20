@@ -97,6 +97,25 @@ module.exports = {
         } else {
             return true;
         }
+    },
+
+    /**
+     * Ban a given user from all channels where Fletbot is a moderator
+     * NOTE: this function is restricted for admins and should only be used in specific circumstances
+     * @param {Object} chat_client tmi.js chat client
+     * @param {string} username Name of user to ban
+     * @param {string?} reason Reason for ban
+     */
+    global_ban_user: async (chat_client, username, reason = null) => {
+        const channels = chat_client.getChannels();
+        for(const channel_name of channels) {
+            const mod_list = await chat_client.mods(channel_name);
+            if(mod_list.includes("fletbot795")) {
+                await new Promise(resolve => setTimeout(resolve, 5000)); // wait 5 seconds between calls to avoid throttling
+                const data = await chat_client.ban(channel_name, username, reason);
+                logger.log(data);
+            }
+        }
     }
 }
 

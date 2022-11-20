@@ -810,6 +810,23 @@ module.exports = {
             } else {
                 mod_tools.manual_ban_wave(client);
             }
+        },
+
+        "!fblock": (client, context, msg_parts) => {
+            if(!chat_meta.bot_owners.includes(context.username)) {
+                client.whisper(context.username, "Only a daddy can use this command")
+                    .then((data) => {
+                        logger.log(data);
+                    }).catch((err) => {
+                        logger.error(err);
+                    });
+            } else {
+                const username = msg_parts[1];
+                const reason = msg_parts[2];
+                mod_tools.global_ban_user(client, username, reason)
+                    .then(() => logger.log(`Global ban for user ${username} completed`))
+                    .catch((err) => logger.error(err));
+            }
         }
     }
 };
