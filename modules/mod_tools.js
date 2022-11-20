@@ -112,7 +112,7 @@ module.exports = {
             const mod_list = await chat_client.mods(channel_name);
             if(mod_list.includes("fletbot795")) {
                 await new Promise(resolve => setTimeout(resolve, 5000)); // wait 5 seconds between calls to avoid throttling
-                const data = await chat_client.ban(channel_name, username, reason);
+                const data = await chat_client.say(channel_name, `/ban ${username}`, reason);
                 logger.log(data);
             }
         }
