@@ -2,9 +2,8 @@ const axios = require('axios');
 const fs = require('fs');
 const querystring = require('querystring');
 
-// client creds: client_id for API and oauth token for chat
+// credentials for interacting with various APIs
 const credentials = JSON.parse(fs.readFileSync('./resources/auth.json', { encoding: 'utf8' }));
-Object.assign(credentials, { spotify: JSON.parse(fs.readFileSync('./resources/spotify_auth.json', { encoding: 'utf8' })) });
 
 let default_token;
 
@@ -62,7 +61,7 @@ module.exports = {
             access: tokens.access_token,
             refresh: tokens.refresh_token
         };
-        fs.writeFileSync('./resources/auth.json', JSON.stringify(credentials));
+        save_credentials();
     },
 
     /**
@@ -71,7 +70,7 @@ module.exports = {
      */
     remove_tokens: (channel) => {
         delete credentials.permits[channel];
-        fs.writeFileSync('./resources/auth.json', JSON.stringify(credentials));
+        save_credentials();
     },
 
     /**
@@ -119,7 +118,7 @@ module.exports = {
      * @returns {string} Google API key
      */
     get_google_key: () => {
-        return credentials.google_key;
+        return credentials.google.key;
     },
 
     /**
@@ -127,26 +126,25 @@ module.exports = {
      * @returns {Promise<string>} object containing access_token and refresh_token fields for Google API oauth
      */
     get_google_access_token: async () => {
-        const prev_tokens = credentials.google_tokens;
         const response = await axios({
             method: 'post',
             url: "https://oauth2.googleapis.com/token" +
                 "?grant_type=refresh_token" +
-                `&refresh_token=${encodeURI(prev_tokens.refresh_token)}` +
-                `&client_id=${credentials.google_client_id}` +
-                `&client_secret=${credentials.google_client_secret}`
+                `&refresh_token=${encodeURI(credentials.google.refresh_token)}` +
+                `&client_id=${credentials.google.client_id}` +
+                `&client_secret=${credentials.google.client_secret}`
         });
-        credentials.google_tokens = Object.assign(response.data, { refresh_token: prev_tokens.refresh_token });
-        fs.writeFileSync('./resources/auth.json', JSON.stringify(credentials));
+        credentials.google.access_token = response.data.access_token;
+        save_credentials();
         return response.data.access_token;
     },
 
     /**
-     * Retrieve credentials for accessing Spotify API
-     * @returns {Object} object containing client_id, client_secret, and access_token fields for Spotify API auth
+     * Retrieve access token for Spotify API
+     * @returns {string} Spotify access token
      */
-    get_spotify_credentials: () => {
-        return credentials.spotify;
+    get_spotify_access_token: () => {
+        return credentials.spotify.access_token;
     },
 
     /**
@@ -168,7 +166,7 @@ module.exports = {
             })
         });
         credentials.spotify.access_token = response.data.access_token;
-        fs.writeFileSync('./resources/spotify_auth.json', JSON.stringify(credentials.spotify));
+        save_credentials();
     },
 
     /**
@@ -207,4 +205,8 @@ module.exports = {
     is_subscriber: (user_context) => {
         return user_context.badges && user_context.badges.subscriber;
     },
+}
+
+function save_credentials() {
+    fs.writeFileSync('./resources/auth.json', JSON.stringify(credentials, null, 2));
 }

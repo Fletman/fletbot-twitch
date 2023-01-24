@@ -183,7 +183,7 @@ module.exports = class Fletalytics {
             const list_response = await axios({
                 method: 'get',
                 url,
-                headers: { 'Authorization': `Bearer ${credentials.get_spotify_credentials().access_token}` }
+                headers: { 'Authorization': `Bearer ${credentials.get_spotify_access_token()}` }
             });
             switch(search_type) {
                 case 'track':
