@@ -1,8 +1,11 @@
 const axios = require('axios');
 const fs = require('fs');
+const querystring = require('querystring');
 
 // client creds: client_id for API and oauth token for chat
 const credentials = JSON.parse(fs.readFileSync('./resources/auth.json', { encoding: 'utf8' }));
+Object.assign(credentials, { spotify: JSON.parse(fs.readFileSync('./resources/spotify_auth.json', { encoding: 'utf8' })) });
+
 let default_token;
 
 /**
@@ -136,6 +139,36 @@ module.exports = {
         credentials.google_tokens = Object.assign(response.data, { refresh_token: prev_tokens.refresh_token });
         fs.writeFileSync('./resources/auth.json', JSON.stringify(credentials));
         return response.data.access_token;
+    },
+
+    /**
+     * Retrieve credentials for accessing Spotify API
+     * @returns {Object} object containing client_id, client_secret, and access_token fields for Spotify API auth
+     */
+    get_spotify_credentials: () => {
+        return credentials.spotify;
+    },
+
+    /**
+     * Refresh access_token field for Spotify API credentials
+     * @returns {Promise<void>}
+     */
+    refresh_spotify_token: async () => {
+        const response = await axios({
+            method: 'post',
+            url: "https://accounts.spotify.com/api/token",
+            auth: {
+                username: credentials.spotify.client_id,
+                password: credentials.spotify.client_secret
+            },
+            headers: { 'Content-Type': "application/x-www-form-urlencoded" },
+            data: querystring.stringify({
+                grant_type: 'refresh_token',
+                refresh_token: credentials.spotify.refresh_token
+            })
+        });
+        credentials.spotify.access_token = response.data.access_token;
+        fs.writeFileSync('./resources/spotify_auth.json', JSON.stringify(credentials.spotify));
     },
 
     /**

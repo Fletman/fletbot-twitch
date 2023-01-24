@@ -147,7 +147,7 @@ module.exports = class Fletalytics {
     /**
      * Perform a YouTube search, returning a link to the video matching search criteria
      * @param {string} search Search query to provide to YouTube
-     * @returns {Promise<string>} YouTube video link
+     * @returns {Promise<Object>} Object containing YouTube video info: title (string), url (string)
      */
     async get_yt_link(search) {
         logger.log(`Calling YouTube search for "${search}"`);
@@ -166,6 +166,60 @@ module.exports = class Fletalytics {
             title: unescape(title),
             url: `https://www.youtube.com/watch?v=${video_id}`
         };
+    }
+
+    /**
+     * Perform a Spotify search, returning a link to the track matching the search criteria
+     * @param {string} search Search query to provide to Spotify
+     * @returns {Promise<Object>} Object containing Spotify track info: artist (string), name (string), link (string)
+     */
+    async get_spotify_track(search) {
+        const episode_regex = /.+\s+((episode|ep\.?)\s*\d+(\.(\d+))?)$/gm; // query is considered a podcast episode search if it ends with "episode <number>" format
+        const search_type = episode_regex.test(search) ? 'episode' : 'track';
+        logger.log(`Calling Spotify search for "${search}" using type: ${search_type}`);
+
+        const url = `https://api.spotify.com/v1/search?type=${search_type}&limit=1&q=${search}`;
+        const search_f = async () => {
+            const list_response = await axios({
+                method: 'get',
+                url,
+                headers: { 'Authorization': `Bearer ${credentials.get_spotify_credentials().access_token}` }
+            });
+            switch(search_type) {
+                case 'track':
+                    const lr = list_response.data.tracks.items[0];
+                    return {
+                        artist: lr.artists[0].name,
+                        name: lr.name,
+                        link: lr.external_urls.spotify
+                    };
+                case 'episode':
+                    const ep_response = await axios({
+                        method: 'get',
+                        url: list_response.data[`${search_type}s`].items[0].href,
+                        headers
+                    });
+                    const er = ep_response.data;
+                    return {
+                        artist: er.show.publisher,
+                        name: `${er.show.name}: ${er.name}`,
+                        link: er.external_urls.spotify
+                    }
+                default:
+                    throw(`Unknown search type ${search_type}`);
+            }
+        };
+
+        try {
+            return await search_f();
+        } catch(e) {
+            if(e.response && e.response.status === 401) {
+                await credentials.refresh_spotify_token();
+                return await search_f();
+            } else {
+                throw(e);
+            }
+        }
     }
 
     /**
