@@ -561,11 +561,43 @@ module.exports = {
                     success: false
                 };
             } else {
-                const yt_link = await fletalytics.get_yt_link(msg_parts.slice(1).join(" "));
-                const yt = (yt_link ? yt_link : "Unable to find video for search criteria");
+                let msg;
+                let success;
+                const yt = await fletalytics.get_yt_link(msg_parts.slice(1).join(" "));
+                if(yt) {
+                    msg = `${yt.title}: ${yt.url}`;
+                    success = true;
+                } else {
+                    msg = "Unable to find video from search criteria";
+                    success = false;
+                }
                 return {
-                    data: await client.say(channel_name, `@${context.username} ${yt.title}: ${yt.url}`),
-                    success: true
+                    data: await client.say(channel_name, `@${context.username} ${msg}`),
+                    success
+                };
+            }
+        },
+
+        "!fletify": async(client, channel_name, context, msg_parts) => {
+            if(msg_parts.length < 2) {
+                return {
+                    data: await client.say(channel_name, `@${context.username} No search criteria provided`),
+                    success: false
+                };
+            } else {
+                let msg;
+                let success;
+                const track = await fletalytics.get_spotify_track(msg_parts.slice(1).join(" "));
+                if(track) {
+                    msg = `${track.artist} - ${track.name}: ${track.link}`;
+                    success = true;
+                } else {
+                    msg = "Unable to find Spotify track from search criteria";
+                    success = false;
+                }
+                return {
+                    data: await client.say(channel_name, `@${context.username} ${msg}`),
+                    success
                 };
             }
         },

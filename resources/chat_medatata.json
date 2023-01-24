@@ -119,6 +119,10 @@
             "description": "!fletyt <query>: Search YouTube for a video using the provided query | Example: \"!fletyt Boston Dynamics\"",
             "default_access": []
         },
+        "fletify": {
+            "description": "!fletify <query>: Search Spotify for a track using the provided query. To search for podcast episodes, query must end with \"episode <number>\" | Example: \"!fletify On The Wrong Page episode 1\"",
+            "default_access": []
+        },
         "fletalytics": {
             "description": "!fletalytics: View stats and analytics on command usage and pyramid screwing | Example: \"!fletalytics\"",
             "default_access": []
