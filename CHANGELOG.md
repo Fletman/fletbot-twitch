@@ -1,5 +1,19 @@
 # Fletbot Changelog
 
+## January 23 2023
+
+### Features
+
+#### Spotify
+- Added !fletify command for retrieving tracks and podcasts from Spotify
+  - Example: `!fletify My Heart Will Go On`
+  - By default, queries will be used against Spotify tracks & songs. To search for podcasts, queries must end with `episode <number>` format
+    - Example: `!fletify On The Wrong Page episode 1`
+    - Note that other variations of "episode" are also accepted:
+      - episode
+      - ep
+      - ep.
+
 ## September 10 2022
 
 ### Features
