@@ -628,6 +628,47 @@ module.exports = {
             }
         },
 
+        "!flettimer": async (client, channel_name, context, msg_parts) => {
+            switch(msg_parts.length) {
+                case 1:
+                    // TODO: get current timer
+                    //break;
+                case 2:
+                    return {
+                        data: await client.say(channel_name, `@${context.username} no time unit specified`),
+                        success: false
+                    };
+                default:
+                    const ms_map = {
+                        'millisecond': (v) => v,
+                        'second': (v) => v * 1000,
+                        'minute': (v) => v * 60 * 1000,
+                        'hour': (v) => v * 60 * 60 * 1000
+                    };
+                    const val = parseInt(msg_parts[1]);
+                    const unit = msg_parts[2].endsWith('s') ? msg_parts[2].slice(0, -1) : msg_parts[2];
+                    const msg = msg_parts.length > 3 ? `Timer has expired: ${msg_parts.slice(3).join(" ")}` : "Timer has expired";
+                    let success = true;
+                    let data;
+
+                    if(isNaN(val)) {
+                        success = false;
+                        data = await client.say(channel_name, `@${context.username} Invalid number specified: "${val}"`);
+                    } else if(!(unit in ms_map)) {
+                        success = false;
+                    } else {
+                        const ms = ms_map[unit](val);
+                        setTimeout(() => {
+                            client.say(channel_name, msg)
+                                .then((data) => logger.log(data))
+                                .catch((err) => logger.error(err));
+                        }, ms);
+                        data = await client.say(channel_name, `@${context.username} Timer set for ${val} ${unit}(s)`);
+                    }
+                return { success, data };
+            }
+        },
+
         "!fletsrc": async (client, channel_name) => {
             return {
                 data: await client.say(channel_name, "https://github.com/Fletman/fletbot-twitch"),

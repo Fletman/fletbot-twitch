@@ -1,5 +1,13 @@
 # Fletbot Changelog
 
+## May 11 2023
+
+### Features
+
+#### Flettimer
+- Added !flettimer command for creating a message on a timer
+- Example `!flettimer 10 seconds Dragon's Dogma 2 has released`
+
 ## January 23 2023
 
 ### Features

@@ -89,13 +89,17 @@
     - Example: `!fletclip @ti8ick --game mass effect --title nobody is safe`
 - `!fletyt <query>`: Search YouTube for a video using the provided query
   - Example: `!fletyt Boston Dynamics`
-- `fletify <query>`: Search Spotify for a track or podcast using the provided query
+- `!fletify <query>`: Search Spotify for a track or podcast using the provided query
   - Example: `!fletify My Heart Will Go On`
   - NOTE: In order to search for podcast episodes, query must end with `episode <number>` format
     - Note that other variations of "episode" are also accepted:
         - episode
         - ep
         - ep.
+- `!flettimer <value> <unit> <message>`: Set a new timer, or check remaining time on an existing timer
+  - An optional message can be included to send when the timer has expired
+  - Valid time units are millisecond, second, minute, hour
+  - Example: `!flettimer 10 seconds Dragon's Dogma 2 has released`
 - `!fletlog`: View changelog and preview some fancy new (potential) features coming soon™
   - Example: `!fletlog`
 

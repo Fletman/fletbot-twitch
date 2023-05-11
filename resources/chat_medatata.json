@@ -123,6 +123,10 @@
             "description": "!fletify <query>: Search Spotify for a track using the provided query. To search for podcast episodes, query must end with \"episode <number>\" | Example: \"!fletify On The Wrong Page episode 1\"",
             "default_access": []
         },
+        "flettimer": {
+            "description": "!flettimer <value> <unit> <message>: Set a new timer, or check remaining time on an existing timer. An optional message can be included to send when the timer has expired. Valid time units are millisecond, second, minute, hour | Example: \"!flettimer 10 seconds Dragon's Dogma 2 has released\"",
+            "default_access": ["moderator"]
+        },
         "fletalytics": {
             "description": "!fletalytics: View stats and analytics on command usage and pyramid screwing | Example: \"!fletalytics\"",
             "default_access": []
@@ -138,7 +142,7 @@
     },
     "custom_greetings": {
         "fletman795": "GivePLZ Daddy",
-        "dorklina": "dorkli2Bleh hellluuuu",
+        "dorklina": "hellluuuu",
         "bluethunder0005": "howdy partna",
         "mrguybrush": "Ahoy Captain o7",
         "chawzs": [
