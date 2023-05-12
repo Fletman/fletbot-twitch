@@ -347,10 +347,7 @@ module.exports = class Fletalytics {
                     name: username,
                     role: "user",
                     content: character_limit > 0 ? `${prompt} in under ${character_limit} characters` : prompt
-                }],
-                stop: [
-                    '\n\n'
-                ]
+                }]
             }
         });
         const stream = response.data;
