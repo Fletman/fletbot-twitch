@@ -99,38 +99,32 @@ module.exports = {
                     });
                 break;
             case 'max': // timeout pyramid makers
-                client.mods(channel_name)
-                    .then((mod_list) => {
-                        if(channel_name == "#fletbot795" || mod_list.includes("fletbot795")) {
-                            active_blocking[channel_name] = true;
-                            if(!mod_channels.includes(channel_name)) {
-                                mod_channels.push(channel_name);
-                            }
-                            client.say(channel_name, `@${context.username} Pyramid screwing set to no-mercy mode DarkMode`)
-                                .then((data) => {
-                                    logger.log(data);
-                                    logger.log(`Pyramid blocking level updated by ${context.username} for ${channel_name}:`);
-                                    logger.log({
-                                        blocking: active_blocking,
-                                        modded: mod_channels
-                                    });
-                                })
-                                .catch((err) => {
-                                    logger.error(err);
-                                });
-                        } else {
-                            client.say(channel_name, `@${context.username} Fletbot must be a moderator for this setting`)
-                                .then((data) => {
-                                    logger.log(data);
-                                })
-                                .catch((err) => {
-                                    logger.error(err);
-                                });
-                        }
-                    })
-                    .catch((err) => {
-                        logger.error(err);
-                    });
+                if(channel_name == "#fletbot795" || client.isMod(channel_name, "fletbot795")) {
+                    active_blocking[channel_name] = true;
+                    if(!mod_channels.includes(channel_name)) {
+                        mod_channels.push(channel_name);
+                    }
+                    client.say(channel_name, `@${context.username} Pyramid screwing set to no-mercy mode DarkMode`)
+                        .then((data) => {
+                            logger.log(data);
+                            logger.log(`Pyramid blocking level updated by ${context.username} for ${channel_name}:`);
+                            logger.log({
+                                blocking: active_blocking,
+                                modded: mod_channels
+                            });
+                        })
+                        .catch((err) => {
+                            logger.error(err);
+                        });
+                } else {
+                    client.say(channel_name, `@${context.username} Fletbot must be a moderator for this setting`)
+                        .then((data) => {
+                            logger.log(data);
+                        })
+                        .catch((err) => {
+                            logger.error(err);
+                        });
+                }
                 break;
             default:
                 client.say(channel_name, `@${context.username} Invalid flag. Valid flags are <off | normal | max>`)
