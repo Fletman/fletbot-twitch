@@ -170,6 +170,14 @@ module.exports = {
     },
 
     /**
+     * Retrieve API key for OpenAI
+     * @returns {string} OpenAI API key
+     */
+    get_openai_key: () => {
+        return credentials.openai.key;
+    },
+
+    /**
      * Check whether a given user is channel broadcaster
      * @param {object} user_context tmi.js chat context object
      * @returns {boolean} whether user is channel broadcaster

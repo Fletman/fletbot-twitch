@@ -100,6 +100,10 @@
   - An optional message can be included to send when the timer has expired
   - Valid time units are millisecond, second, minute, hour
   - Example: `!flettimer 10 seconds Dragon's Dogma 2 has released`
+- `!fletchat <prompt>`: Send a prompt to OpenAI chat
+  - Multi-message conversations are not currently supported
+  - Example `!fletchat What is Dragon's Dogma 2?`
+  - Note that OpenAI charges for API usage, so use this command responsibly
 - `!fletlog`: View changelog and preview some fancy new (potential) features coming soon™
   - Example: `!fletlog`
 
