@@ -4,6 +4,10 @@
 
 ### Features
 
+#### Fletchat
+- Added !fletchat command for integration with OpenAI: `gpt-3.5-turbo`
+- Example: `!fletchat What is Dragon's Dogma 2?`
+
 #### Flettimer
 - Added !flettimer command for creating a message on a timer
 - Example `!flettimer 10 seconds Dragon's Dogma 2 has released`

@@ -628,6 +628,22 @@ module.exports = {
             }
         },
 
+        "!fletchat": async (client, channel_name, context, msg_parts) => {
+            if(msg_parts.length < 2) {
+                return {
+                    data: await client.say(channel_name, `@${context.username} No prompt provided`),
+                    success: false
+                };
+            }
+            const prompt = msg_parts.splice(1).join(' ');
+            logger.log(`AI prompt in channel ${channel_name} from ${context.username}: "${prompt}"`);
+            const res = await fletalytics.ai_prompt(context.username, prompt);
+            return {
+                data: await client.say(channel_name, `@${context.username} ${res}`),
+                success: true
+            };
+        },
+
         "!flettimer": async (client, channel_name, context, msg_parts) => {
             switch(msg_parts.length) {
                 case 1:

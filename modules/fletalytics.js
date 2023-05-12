@@ -323,6 +323,74 @@ module.exports = class Fletalytics {
     }
 
     /**
+     * Send a prompt to OpenAI chat, returning the AI response
+     * @param {string} username Name of user prompting AI
+     * @param {string} prompt Prompt to send
+     * @param {number?} tokens Optional, max tokens for prompt. Defaults to 100 when unspecified
+     * @param {number?} character_limit Optional limit on the number of characters in the AI response. Defaults to 425. Ignored when set to 0
+     */
+    async ai_prompt(username, prompt, tokens = 100, character_limit = 425) {
+        const response = await axios({
+            method: 'post',
+            url: 'https://api.openai.com/v1/chat/completions',
+            responseType: 'stream',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${credentials.get_openai_key()}`
+            },
+            data: {
+                model: 'gpt-3.5-turbo',
+                top_p: 1,
+                max_tokens: tokens,
+                stream: true,
+                messages: [{
+                    name: username,
+                    role: "user",
+                    content: character_limit > 0 ? `${prompt} in under ${character_limit} characters` : prompt
+                }],
+                stop: [
+                    '\n\n'
+                ]
+            }
+        });
+        const stream = response.data;
+        const output_buffer = await new Promise((resolve, reject) => {
+            const buffer = [];
+            stream.on('data', (data) => {
+                const data_lines = new Buffer
+                    .from(data)
+                    .toString()
+                    .split('\n')
+                    .filter((s) => s.length > 0);
+                for(const line of data_lines) {
+                    if(line.startsWith('data:') && line !== 'data: [DONE]') {
+                        const message = JSON.parse(line.substring('data: '.length));
+                        buffer.push(message.choices[0].delta.content);
+                    }
+                }
+            });
+            stream.on('end', () => {
+                resolve(buffer.filter((s) => s));
+            });
+            stream.on('error', (err) => {
+                reject(err);
+            })
+        });
+        const fluff_strs = [
+            'As an AI language model, ',
+            "I'm sorry, but as an AI language model, "
+        ];
+        let output_str = output_buffer.join('');
+        for(const fluff of fluff_strs) {
+            if(output_str.startsWith(fluff)) {
+                output_str = output_str.substring(fluff.length);
+                break;
+            }
+        }
+        return output_str;
+    }
+
+    /**
      * "Shoutout" a user, returning a string containing link to user's channel and their last played game
      * @param {string} username Username
      * @returns {Promise<string>} String for user's shoutout

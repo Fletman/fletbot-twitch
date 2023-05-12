@@ -127,6 +127,10 @@
             "description": "!flettimer <value> <unit> <message>: Set a new timer, or check remaining time on an existing timer. An optional message can be included to send when the timer has expired. Valid time units are millisecond, second, minute, hour | Example: \"!flettimer 10 seconds Dragon's Dogma 2 has released\"",
             "default_access": ["moderator"]
         },
+        "fletchat": {
+            "description": "!fletchat <prompt>: Send a prompt to AI chat. Note that multi-message conversations are not supported at this time | Example \"!fletchat What is Dragon's Dogma 2?\"",
+            "default_access": ["moderator"]
+        },
         "fletalytics": {
             "description": "!fletalytics: View stats and analytics on command usage and pyramid screwing | Example: \"!fletalytics\"",
             "default_access": []
