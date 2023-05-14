@@ -637,11 +637,27 @@ module.exports = {
             }
             const prompt = msg_parts.splice(1).join(' ');
             logger.log(`AI prompt in channel ${channel_name} from ${context.username}: "${prompt}"`);
-            const res = await fletalytics.ai_prompt(context.username, prompt);
-            return {
-                data: await client.say(channel_name, `@${context.username} ${res}`),
-                success: true
-            };
+            try {
+                const res = await fletalytics.ai_prompt(context.username, prompt);
+                return {
+                    data: await client.say(channel_name, `@${context.username} ${res}`),
+                    success: true
+                };
+            } catch(err) {
+                let err_msg;
+                if(err.response) {
+                    err_msg = err.response.status === 429 ?
+                        "Too many requests. Please wait and try again later.":
+                        `OpenAI error: ${err.message}`;
+                } else {
+                    err_msg = "An error occurred; unable to process request.";
+                }
+                logger.error(err.config);
+                return {
+                    data: await client.say(channel_name, `@${context.username} ${err_msg}`),
+                    success: false
+                };
+            }
         },
 
         "!flettimer": async (client, channel_name, context, msg_parts) => {
