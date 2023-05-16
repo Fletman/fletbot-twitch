@@ -646,13 +646,14 @@ module.exports = {
             } catch(err) {
                 let err_msg;
                 if(err.response) {
+                    logger.error(err.response.data);
                     err_msg = err.response.status === 429 ?
                         "Too many requests. Please wait and try again later.":
                         `OpenAI error: ${err.message}`;
                 } else {
+                    logger.error(err.message);
                     err_msg = "An error occurred; unable to process request.";
                 }
-                logger.error(err.message);
                 return {
                     data: await client.say(channel_name, `@${context.username} ${err_msg}`),
                     success: false
