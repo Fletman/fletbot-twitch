@@ -327,9 +327,9 @@ module.exports = class Fletalytics {
      * @param {string} username Name of user prompting AI
      * @param {string} prompt Prompt to send
      * @param {number?} tokens Optional, max tokens for prompt. Defaults to 100 when unspecified
-     * @param {number?} character_limit Optional limit on the number of characters in the AI response. Defaults to 416. Ignored when set to 0
+     * @param {number?} character_limit Optional limit on the number of characters in the AI response. Defaults to 400. Ignored when set to 0
      */
-    async ai_prompt(username, prompt, tokens = 100, character_limit = 416) {
+    async ai_prompt(username, prompt, tokens = 100, character_limit = 400) {
         const response = await axios({
             method: 'post',
             url: 'https://api.openai.com/v1/chat/completions',
