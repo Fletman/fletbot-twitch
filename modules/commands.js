@@ -652,7 +652,7 @@ module.exports = {
                 } else {
                     err_msg = "An error occurred; unable to process request.";
                 }
-                logger.error(err.config);
+                logger.error(err.message);
                 return {
                     data: await client.say(channel_name, `@${context.username} ${err_msg}`),
                     success: false
