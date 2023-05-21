@@ -40,6 +40,7 @@ function argparse() {
 
     validate_arg(argmap, 'metrics', ['console', 'postgres']);
     validate_arg(argmap, 'backup', ['file', 'postgres']);
+    validate_arg(argmap, 'logger', ['console', 'discord']);
     if(!argmap['channels']) {
         if(fs.existsSync('./resources/channels.json')) {
             argmap['channels'] = JSON.parse(fs.readFileSync('./resources/channels.json'));

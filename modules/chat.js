@@ -28,9 +28,11 @@ module.exports = {
      * @param {string[]} args.channels List of channels to connect to
      * @param {string} args.metrics Datasource to output metrics to
      * @param {string} args.backup Datasource to backup data to
+     * @param {string} args.logger Output location for logs
      */
     init: (chat_client, args) => {
         client = chat_client;
+        logger.set_output(args.logger);
         new Promise((resolve, reject) => {
             if(args.metrics === 'postgres' || args.backup === 'postgres') {
                 database.get_db()
