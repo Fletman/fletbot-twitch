@@ -176,6 +176,23 @@ module.exports = {
     get_openai_key: () => {
         return credentials.openai.key;
     },
+    
+    /**
+     * Retrieve Discord OAuth token
+     * @returns {string} Discord OAuth Token
+     */
+    get_discord_token: () => {
+        return credentials.discord.token;
+    },
+
+    /**
+     * Retrieve channel ID for Discord
+     * @param {string} channel_name Name of guild to retrieve ID for
+     * @returns {string} Channel ID
+     */
+    get_discord_channel: (channel_name) => {
+        return credentials.discord.channels[channel_name];
+    },
 
     /**
      * Check whether a given user is channel broadcaster
