@@ -34,7 +34,7 @@ module.exports = {
         client = chat_client;
 
         // initialize libraries
-        const db = await database.get_db();
+        const db = args.metrics === 'postgres' || args.backup === 'postgres' ? await database.get_db() : null;
         fletalytics = new Fletalytics(client);
         fletrics = new Fletrics(args.metrics, db);
         commands.init(chat_meta, fletalytics);
