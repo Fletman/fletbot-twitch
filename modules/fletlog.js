@@ -86,7 +86,7 @@ async function discord_message(...msg) {
         maxArrayLength: null,
         getters: true
     };
-    const message = msg.map((m) => "```" +  (typeof m === 'object' ? inspect(m, format_opts) : m) + "```").join("\n\n");
+    const message = msg.map((m) => "```" + inspect(m, format_opts) + "```").join("\n\n");
     const channel = await discord_client.channels.fetch(credentials.get_discord_channel('log'));
     await channel.send(message);
 }
