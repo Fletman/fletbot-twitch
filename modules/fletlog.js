@@ -49,14 +49,11 @@ module.exports = {
      * @param  {...any} data Data message(s) to log
      */
     log: (...data) => {
-        let log_fn;
         switch(output) {
             case "console":
-                log_fn = console.log;
-                log_fn.apply(null, [`[ ${new Date(Date.now()).toLocaleString()} ]`, "INFO:"].concat(data));
+                console.log.apply(null, [`[ ${new Date(Date.now()).toLocaleString()} ]`, "INFO:"].concat(data));
                 break;
             case "discord":
-                log_fn = discord_message;
                 discord_message(...data);
                 break;
             default:
@@ -69,14 +66,11 @@ module.exports = {
      * @param  {...any} err Error message(s) to log
      */
     error: (...err) => {
-        let log_fn;
         switch(output) {
             case "console":
-                log_fn = console.error;
-                log_fn.apply(null, [`[ ${new Date(Date.now()).toLocaleString()} ]`, "ERROR:"].concat(err));
+                console.error.apply(null, [`[ ${new Date(Date.now()).toLocaleString()} ]`, "ERROR:"].concat(err));
                 break;
             case "discord":
-                log_fn = discord_message;
                 discord_message(...err);
                 break;
             default:
