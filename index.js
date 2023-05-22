@@ -18,7 +18,9 @@ const chat_client = new tmi.client({
     channels: argv.channels
 });
 
-chat.init(chat_client, argv);
+chat.init(chat_client, argv).catch((err) => {
+    console.error(err);
+});
 
 
 /**

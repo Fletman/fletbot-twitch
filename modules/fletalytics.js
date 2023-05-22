@@ -253,13 +253,11 @@ module.exports = class Fletalytics {
 
         if((!clip_title && !clip_game) || (clip_title && !clip_game)) { // search for clip via title only. If no longform args provided, assume full arg is title
             clip_title = clip_title || clip_args;
-            logger.log(`Search for clip [${clip_title}] under ${channel}, threading: ${threading}`);
             search_params = {
                 search_type: 'title',
                 title: clip_title
             };
         }  else if(!clip_title && clip_game) { // clip game provided without title, pull random clip from game
-            logger.log(`Clip search for game [${clip_game}] under ${channel}, threading: ${threading}`);
             const game = await this.get_game(clip_game);
             if(!game) { return null; }
             search_params = {
@@ -267,7 +265,6 @@ module.exports = class Fletalytics {
                 game: game
             };
         } else { // filter clips by both title and game
-            logger.log(`Search for clip [${clip_title}] in game ${clip_game} under ${channel}, threading: ${threading}`);
             const game = await this.get_game(clip_game);
             if(!game) { return null; }
             search_params = {
@@ -276,6 +273,8 @@ module.exports = class Fletalytics {
                 game: game
             };
         }
+
+        logger.log(`Clip search in channel ${channel}`, search_params);
 
         if(threading) {
             const worker = new Worker('./workers/clip_searcher.js');
