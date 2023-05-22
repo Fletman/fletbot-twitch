@@ -1,5 +1,6 @@
 const credentials = require('./credentials.js');
 const { Client, GatewayIntentBits } = require('discord.js');
+const { inspect } = require('util');
 
 let output = "console";
 /**
@@ -80,7 +81,12 @@ module.exports = {
 }
 
 async function discord_message(...msg) {
-    const message = msg.map((m) => "```" +  (typeof m === 'object' ? JSON.stringify(m, null, 2) : m) + "```").join("\n\n");
+    const format_opts = {
+        depth: null,
+        maxArrayLength: null,
+        getters: true
+    };
+    const message = msg.map((m) => "```" +  (typeof m === 'object' ? inspect(m, format_opts) : m) + "```").join("\n\n");
     const channel = await discord_client.channels.fetch(credentials.get_discord_channel('log'));
     await channel.send(message);
 }
