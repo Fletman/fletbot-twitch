@@ -80,7 +80,7 @@ module.exports = {
 }
 
 async function discord_message(...msg) {
-    const message = msg.map((m) => typeof m === 'object' ? "```" + JSON.stringify(m, null, 2) + "```" : "```" + m + "```").join("\n");
+    const message = msg.map((m) => "```" +  (typeof m === 'object' ? JSON.stringify(m, null, 2) : m) + "```").join("\n\n");
     const channel = await discord_client.channels.fetch(credentials.get_discord_channel('log'));
     await channel.send(message);
 }
