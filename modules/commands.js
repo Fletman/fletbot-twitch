@@ -646,7 +646,7 @@ module.exports = {
             } catch(err) {
                 let err_msg;
                 if(err.response) {
-                    logger.error(err.response.data);
+                    logger.error(err.message);
                     err_msg = err.response.status === 429 ?
                         "Too many requests. Please wait and try again later.":
                         `OpenAI error: ${err.message}`;
