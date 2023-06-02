@@ -360,8 +360,13 @@ module.exports = class Fletalytics {
                     .filter((s) => s.length > 0);
                 for(const line of data_lines) {
                     if(line.startsWith('data:') && line !== 'data: [DONE]') {
-                        const message = JSON.parse(line.substring('data: '.length));
-                        buffer.push(message.choices[0].delta.content);
+                        try {
+                            const message = JSON.parse(line.substring('data: '.length));
+                            buffer.push(message.choices[0].delta.content);
+                        } catch(e) {
+                            logger.error(line, e.message);
+                            // TODO: for now, log error and continue attempting to parse
+                        }
                     }
                 }
             });
