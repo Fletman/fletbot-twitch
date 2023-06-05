@@ -42,7 +42,7 @@ module.exports = {
     channel_init: (channel_name) => {
         // every channel defaults to active pyramid blocking
         active_blocking[channel_name] = true;
-        logger.log(active_blocking);
+        // logger.log(active_blocking);
     },
 
     /**
