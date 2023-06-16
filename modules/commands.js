@@ -646,10 +646,11 @@ module.exports = {
             } catch(err) {
                 let err_msg;
                 if(err.response) {
-                    logger.error(err.message);
+                    const res = JSON.parse(await fletalytics.parse_stream(err.response.data));
+                    logger.error(res);
                     err_msg = err.response.status === 429 ?
                         "Too many requests. Please wait and try again later.":
-                        `OpenAI error: ${err.message}`;
+                        `OpenAI error: ${res.error.message || err.message}`;
                 } else {
                     logger.error(err.message);
                     err_msg = "An error occurred; unable to process request.";
@@ -1003,3 +1004,4 @@ function get_sips(channel_name, profile = null) {
     const sips = bot_data.get_sips(channel_name, profile);
     return sips ? `Current sip count: ${sips}` : "No sips on record, shockingly";
 }
+

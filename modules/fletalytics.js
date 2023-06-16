@@ -3,6 +3,7 @@
 const axios = require('axios');
 const unescape = require('unescape');
 const { Worker } = require('worker_threads');
+const { Readable } = require('stream');
 const clip_searcher = require('./clip_search.js');
 const credentials = require('./credentials.js');
 const logger = require('./fletlog.js');
@@ -350,33 +351,7 @@ module.exports = class Fletalytics {
             }
         });
         const stream = response.data;
-        const output_buffer = await new Promise((resolve, reject) => {
-            const buffer = [];
-            stream.on('data', (data) => {
-                const data_lines = new Buffer
-                    .from(data)
-                    .toString()
-                    .split('\n')
-                    .filter((s) => s.length > 0);
-                for(const line of data_lines) {
-                    if(line.startsWith('data:') && line !== 'data: [DONE]') {
-                        try {
-                            const message = JSON.parse(line.substring('data: '.length));
-                            buffer.push(message.choices[0].delta.content);
-                        } catch(e) {
-                            logger.error(line, e.message);
-                            // TODO: for now, log error and continue attempting to parse
-                        }
-                    }
-                }
-            });
-            stream.on('end', () => {
-                resolve(buffer.filter((s) => s));
-            });
-            stream.on('error', (err) => {
-                reject(err);
-            })
-        });
+        const output_buffer = await this.parse_sse_stream(stream);
         const fluff_strs = [
             'As an AI language model, ',
             "I'm sorry, but as an AI language model, "
@@ -579,5 +554,52 @@ module.exports = class Fletalytics {
             }
         } while(index !== -1);
         return args;
+    }
+
+    /**
+     * Parse a data stream into a string
+     * @param {Readable} stream Input stream to parse
+     * @returns {Promise<string>} String concatenation of stream data
+     */
+    parse_stream(stream) {
+        return new Promise((resolve, reject) => {
+            const buffer = [];
+            stream.on('data', (data) => {
+                const line = new Buffer.from(data).toString();
+                buffer.push(line);
+            });
+            stream.on('end', () => resolve(buffer.join('')));
+            stream.on('error', (err) => reject(err));
+        });
+    }
+
+    /**
+     * Parse an SSE stream into an array of strings
+     * @param {Readable} stream Input stream to parse
+     * @returns {Promise<string[]>} Array of string messages read from stream
+     */
+    parse_sse_stream(stream) {
+        return new Promise((resolve, reject) => {
+            const buffer = [];
+            stream.on('data', (data) => {
+                const data_lines = new Buffer
+                    .from(data)
+                    .toString()
+                    .split('\n')
+                    .filter((s) => s.length > 0);
+                for(const line of data_lines) {
+                    if(line.startsWith('data:') && line !== 'data: [DONE]') {
+                        try {
+                            const message = JSON.parse(line.substring('data: '.length));
+                            buffer.push(message.choices[0].delta.content);
+                        } catch(e) {
+                            logger.error(line, e.message); // TODO: for now, log error and continue attempting to parse
+                        }
+                    }
+                }
+            });
+            stream.on('end', () => resolve(buffer.filter((s) => s)));
+            stream.on('error', (err) => reject(err));
+        });
     }
 }
