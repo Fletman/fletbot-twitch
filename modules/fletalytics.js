@@ -381,7 +381,7 @@ module.exports = class Fletalytics {
             'As an AI language model, ',
             "I'm sorry, but as an AI language model, "
         ];
-        let output_str = output_buffer.join('');
+        let output_str = output_buffer.join('').replaceAll("\n", " | ");
         for(const fluff of fluff_strs) {
             if(output_str.startsWith(fluff)) {
                 output_str = output_str.substring(fluff.length);
