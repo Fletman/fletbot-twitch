@@ -148,7 +148,7 @@ module.exports = class Fletalytics {
     /**
      * Perform a YouTube search, returning a link to the video matching search criteria
      * @param {string} search Search query to provide to YouTube
-     * @returns {Promise<Object>} Object containing YouTube video info: title (string), url (string)
+     * @returns {Promise<Object?>} Object containing YouTube video info: title (string), url (string) or returns null if no video could be found
      */
     async get_yt_link(search) {
         logger.log(`Calling YouTube search for "${search}"`);
@@ -160,13 +160,15 @@ module.exports = class Fletalytics {
             method: 'get',
             url: uri
         });
-        const title = response.data.items[0].snippet.title;
-        const video_id = response.data.items[0].id.videoId;
-
-        return {
-            title: unescape(title),
-            url: `https://www.youtube.com/watch?v=${video_id}`
-        };
+        if(response.data.items.length > 0) {
+            const title = response.data.items[0].snippet.title;
+            const video_id = response.data.items[0].id.videoId;
+            return {
+                title: unescape(title),
+                url: `https://www.youtube.com/watch?v=${video_id}`
+            };
+        }
+        return null;
     }
 
     /**
