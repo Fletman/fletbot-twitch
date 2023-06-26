@@ -195,6 +195,16 @@ module.exports = {
     },
 
     /**
+     * Check whether a given user is a bot admin
+     * @param {object} user_context tmi.js chat context object
+     * @param {object} chat_context context object for chat commands
+     * @returns {boolean} whether user is an admin
+     */
+    is_admin: (user_context, chat_context) => {
+        return chat_context.bot_owners.includes(user_context.username);
+    },
+
+    /**
      * Check whether a given user is channel broadcaster
      * @param {object} user_context tmi.js chat context object
      * @returns {boolean} whether user is channel broadcaster

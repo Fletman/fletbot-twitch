@@ -23,7 +23,7 @@ module.exports = {
         const user_banned = bot_data.get_ban_list().includes(context.username);
         const can_access = user_banned ? false :
             access_roles.length === 0 || // no roles specified implies no restrictions
-            chat_meta.bot_owners.includes(context.username) || // admin role
+            credentials.is_admin(context, chat_meta) || // admin role
             access_roles.some((role) => {
                 let access_allowed = false;
                 switch (role) {

@@ -142,6 +142,11 @@
         "fletlog": {
             "description": "!fletlog: View Fletbot changelog | Example: \"!fletlog\"",
             "default_access": []
+        },
+        "fcancel": {
+            "description": "!fcancel <user> <true | false>: Block a user from accessing Fletbot commands",
+            "default_access": ["admin"],
+            "immutable": true
         }
     },
     "custom_greetings": {
