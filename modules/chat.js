@@ -155,7 +155,7 @@ function parse_chat_msg(channel_name, context, msg) {
         if(cmd_availability.available) {
             commands.chat[cmd](client, channel_name, context, msg_parts)
                 .then((result) => {
-                    cmd_success = true;
+                    cmd_success = result.success;
                     logger.log(result.data);
                 }).catch((err) => {
                     cmd_success = false;
