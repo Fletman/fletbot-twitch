@@ -149,46 +149,27 @@ function parse_chat_msg(channel_name, context, msg) {
     if(commands.chat.hasOwnProperty(cmd)) {
         const cmd_start_time = Date.now();
         const cmd_availability = cmd_is_available(channel_name, context, cmd);
-        let cmd_end_time;
         let cmd_success;
-
-        if(cmd_availability.available) {
-            commands.chat[cmd](client, channel_name, context, msg_parts)
-                .then((result) => {
-                    cmd_success = result.success;
-                    logger.log(result.data);
-                }).catch((err) => {
-                    cmd_success = false;
-                    logger.error(err);
-                }).finally(() => {
-                    cmd_end_time = Date.now();
-                    fletrics.publish_cmd_metric(
-                        channel_name.slice(1),
-                        cmd.slice(1),
-                        cmd_start_time.valueOf(),
-                        (cmd_end_time - cmd_start_time || 1),
-                        cmd_success,
-                        context.username
-                    ).catch((err) => logger.error(err));
-                });
-        } else {
-            client.say(channel_name, cmd_availability.deny_msg)
-                .then((data) => {
-                    logger.log(data);
-                }).catch((err) => {
-                    logger.error(err);
-                }).finally(() => {
-                    cmd_end_time = Date.now();
-                    fletrics.publish_cmd_metric(
-                        channel_name.slice(1),
-                        cmd.slice(1),
-                        cmd_start_time.valueOf(),
-                        (cmd_end_time - cmd_start_time || 1),
-                        false,
-                        context.username
-                    ).catch((err) => logger.error(err));
-                });
-        }
+        const cmd_promise = cmd_availability.available ?
+            commands.chat[cmd](client, channel_name, context, msg_parts):
+            client.say(channel_name, cmd_availability.deny_msg);
+        cmd_promise.then((result) => {
+            cmd_success = (cmd_availability.available === true && result.success === true)
+            logger.log(result.data || result);
+        }).catch((err) => {
+            cmd_success = false;
+            logger.error(err);
+        }).finally(() => {
+            const cmd_end_time = Date.now();
+            fletrics.publish_cmd_metric(
+                channel_name.slice(1),
+                cmd.slice(1),
+                cmd_start_time.valueOf(),
+                (cmd_end_time - cmd_start_time || 1),
+                cmd_success,
+                context.username
+            ).catch((err) => logger.error(err));
+        });
     } else if(message.includes("#teampav")) {
         client.say(channel_name, `@${context.username} Team Pav, the one true team`)
             .then((data) => {
