@@ -341,7 +341,7 @@ module.exports = class Fletalytics {
                 'Authorization': `Bearer ${credentials.get_openai_key()}`
             },
             data: {
-                model: 'gpt-3.5-turbo',
+                model: 'gpt-4-1106-preview',
                 top_p: 1,
                 max_tokens: tokens,
                 stream: true,
@@ -595,7 +595,7 @@ module.exports = class Fletalytics {
                             const message = JSON.parse(line.substring('data: '.length));
                             buffer.push(message.choices[0].delta.content);
                         } catch(e) {
-                            logger.error(line, e.message); // TODO: for now, log error and continue attempting to parse
+                            // TODO: for now, ignore error and continue attempting to parse
                         }
                     }
                 }
