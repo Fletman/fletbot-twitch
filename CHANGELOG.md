@@ -1,5 +1,12 @@
 # Fletbot Changelog
 
+## May 12 2024
+
+### Features
+
+#### Fletchat
+- Updated !fletchat OpenAI integration to `gpt-4-turbo`
+
 ## December 17 2023
 
 ### Features
