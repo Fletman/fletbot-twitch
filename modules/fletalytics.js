@@ -341,7 +341,7 @@ module.exports = class Fletalytics {
                 'Authorization': `Bearer ${credentials.get_openai_key()}`
             },
             data: {
-                model: 'gpt-4-1106-preview',
+                model: 'gpt-4-turbo',
                 top_p: 1,
                 max_tokens: tokens,
                 stream: true,
