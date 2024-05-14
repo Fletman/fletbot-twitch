@@ -341,7 +341,7 @@ module.exports = class Fletalytics {
                 'Authorization': `Bearer ${credentials.get_openai_key()}`
             },
             data: {
-                model: 'gpt-4-turbo',
+                model: 'gpt-4o',
                 top_p: 1,
                 max_tokens: tokens,
                 stream: true,
@@ -358,7 +358,7 @@ module.exports = class Fletalytics {
             'As an AI language model, ',
             "I'm sorry, but as an AI language model, "
         ];
-        let output_str = output_buffer.join('').replaceAll("\n", " | ");
+        let output_str = output_buffer.join('').replaceAll("\n", " ");
         for(const fluff of fluff_strs) {
             if(output_str.startsWith(fluff)) {
                 output_str = output_str.substring(fluff.length);

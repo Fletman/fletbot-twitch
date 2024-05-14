@@ -1,5 +1,13 @@
 # Fletbot Changelog
 
+## May 14 2024
+
+### Features
+
+#### Fletchat
+- Updated !fletchat OpenAI integration to `gpt-4o`
+- Reduced clutter in responses with newlines
+
 ## May 12 2024
 
 ### Features
