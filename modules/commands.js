@@ -845,6 +845,7 @@ module.exports = {
             const broadcast_f = async() => {
                 for(const channel of client.getChannels()) {
                     try {
+                        await new Promise(resolve => setTimeout(resolve, 1000));
                         const data = await client.action(channel, update_msg);
                         logger.log(data);
                         await client.part(channel);
