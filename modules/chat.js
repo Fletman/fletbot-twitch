@@ -141,7 +141,7 @@ function handle_cheer(channel_name, context, msg) {
     }
 }
 
-function parse_chat_msg(channel_name, context, msg) {
+async function parse_chat_msg(channel_name, context, msg) {
     const message = msg.trim().toLowerCase();
     const msg_parts = message.split(" ");
     const cmd = msg_parts[0];
@@ -149,34 +149,39 @@ function parse_chat_msg(channel_name, context, msg) {
     if(commands.chat.hasOwnProperty(cmd)) {
         const cmd_start_time = Date.now();
         const cmd_availability = cmd_is_available(channel_name, context, cmd);
+        let cmd_result;
         let cmd_success;
-        const cmd_promise = cmd_availability.available ?
-            commands.chat[cmd](client, channel_name, context, msg_parts):
-            client.say(channel_name, cmd_availability.deny_msg);
-        cmd_promise.then((result) => {
-            cmd_success = (cmd_availability.available === true && result.success === true)
-            logger.log(result.data || result);
-        }).catch((err) => {
+        try {
+            cmd_result = cmd_availability.available ?
+                await commands.chat[cmd](client, channel_name, context, msg_parts):
+                await client.say(channel_name, cmd_availability.deny_msg);
+            cmd_success = (cmd_availability.available === true && cmd_result.success === true);
+        } catch(e) {
             cmd_success = false;
             logger.error(err);
-        }).finally(() => {
-            const cmd_end_time = Date.now();
-            fletrics.publish_cmd_metric(
-                channel_name.slice(1),
-                cmd.slice(1),
-                cmd_start_time.valueOf(),
-                (cmd_end_time - cmd_start_time || 1),
-                cmd_success,
-                context.username
-            ).catch((err) => logger.error(err));
-        });
+        }
+        const cmd_end_time = Date.now();
+        const cmd_context = { success: cmd_success };
+        if(cmd_success && cmd === "!fletchat") {
+            const response_message = cmd_result.data[1].substring(cmd_result.data[1].indexOf(' ') + 1);
+            cmd_context.prompt = message.slice("!fletchat".length + 1);
+            cmd_context.response = response_message;
+        }
+        await publish_metrics(
+            context.username,
+            channel_name.slice(1),
+            cmd.slice(1),
+            cmd_start_time,
+            cmd_end_time,
+            cmd_context
+        );
     } else if(message.includes("#teampav")) {
-        client.say(channel_name, `@${context.username} Team Pav, the one true team`)
-            .then((data) => {
-                logger.log(data);
-            }).catch((err) => {
-                logger.error(err);
-            });
+        try {
+            const data = await client.say(channel_name, `@${context.username} Team Pav, the one true team`);
+            logger.log(data);
+        } catch(e) {
+            logger.error(e);
+        }
     } else {
         const pyramid = pyramids.pyramid_check(client, channel_name, context.username, message);
         if(pyramid) {
@@ -208,4 +213,30 @@ function cmd_is_available(channel_name, context, cmd) {
     }
 
     return { available: true };
+}
+
+async function publish_metrics(username, channel, cmd, start_time, end_time, context) {
+    const latency = (end_time - start_time || 1);
+    try {
+        await fletrics.publish_cmd_metric(
+            channel,
+            cmd,
+            start_time.valueOf(),
+            latency,
+            context.success,
+            username
+        );
+        if(cmd === "fletchat") {
+            await fletrics.publish_prompt_metric(
+                username,
+                channel,
+                start_time.valueOf(),
+                latency,
+                context.prompt,
+                context.response
+            );
+        }
+    } catch(e) {
+        logger.error(e);
+    }
 }
