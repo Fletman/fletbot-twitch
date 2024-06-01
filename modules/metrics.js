@@ -7,11 +7,13 @@ module.exports = class Fletrics {
             case 'console':
                 this.cmd_publish_fn = console_log_cmd_metric;
                 this.pyramid_publish_fn = console_log_pyramid_metric;
+                this.prompt_publish_fn = console_log_prompt_metric;
                 this.datasource = logger;
                 break;
             case 'postgres':
                 this.cmd_publish_fn = insert_cmd_metric_to_pg;
                 this.pyramid_publish_fn = insert_pyramid_metric_to_pg;
+                this.prompt_publish_fn = insert_prompt_metric_to_pg;
                 this.datasource = db_client;
                 break;
             default:
@@ -55,6 +57,26 @@ module.exports = class Fletrics {
             user
         );
     }
+
+    /**
+     * Publish metrics on AI prompts
+     * @param {string} caller Caller of AI prompt
+     * @param {string} channel Channel where prompt was invoked
+     * @param {Number} start_time Timestamp when prompt was invoked
+     * @param {Number} latency Time in ms to handle AI prompt
+     * @param {string} prompt  
+     * @param {string} response 
+     */
+    async publish_prompt_metric(caller, channel, start_time, latency, prompt, response) {
+        await this.prompt_publish_fn(
+            caller,
+            channel,
+            start_time,
+            latency,
+            prompt,
+            response
+        );
+    }
 }
 
 function get_host() {
@@ -85,6 +107,18 @@ async function console_log_pyramid_metric(channel, phrase, pyramid_time, user) {
     this.datasource.log(metric_obj);
 }
 
+async function console_log_prompt_metric(user, channel, invoke_time, latency, prompt, response) {
+    const metric_obj = {
+        user,
+        channel,
+        invoke_time: new Date(invoke_time).toLocaleString(),
+        latency: `${latency}ms`,
+        prompt,
+        response
+    };
+    this.datasource.log(metric_obj);
+}
+
 async function insert_cmd_metric_to_pg(channel, command, start_time, latency, was_valid, caller) {
     await this.datasource.query(
         `INSERT INTO fletbot.cmd_metric (channel, command, calling_user, invoke_time, valid, host, latency)
@@ -98,5 +132,13 @@ async function insert_pyramid_metric_to_pg(channel, phrase, pyramid_time, user) 
         `INSERT INTO fletbot.pyramid (channel, pyramid_user, phrase, pyramid_time, host)
          VALUES ($1::text, $2::text, $3::text, $4::timestamp, $5::text)`,
         [channel, user, phrase, pyramid_time.toLocaleString(), get_host()]
+    );
+}
+
+async function insert_prompt_metric_to_pg(user, channel, invoke_time, latency, prompt, response) {
+    await this.datasource.query(
+        `INSERT INTO fletbot.ai_prompts (user, channel, invoke_time, processing_time, prompt, response)
+         VALUES ($1::text, $2::text, $3::timestamp, $4::int, $5::text, $6::text)`,
+        [user, channel, new Date(invoke_time).toISOString(), latency, prompt, response]
     );
 }
