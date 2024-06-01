@@ -156,6 +156,7 @@ async function parse_chat_msg(channel_name, context, msg) {
                 await commands.chat[cmd](client, channel_name, context, msg_parts):
                 await client.say(channel_name, cmd_availability.deny_msg);
             cmd_success = (cmd_availability.available === true && cmd_result.success === true);
+            logger.log(cmd_result.data || cmd_result);
         } catch(e) {
             cmd_success = false;
             logger.error(err);

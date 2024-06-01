@@ -23,13 +23,13 @@ CREATE TABLE IF NOT EXISTS fletbot.pyramid (
 CREATE INDEX IF NOT EXISTS idx_pyramid_time ON fletbot.pyramid(pyramid_time);
 
 CREATE TABLE IF NOT EXISTS fletbot.ai_prompts (
-    user TEXT, -- name of user invoking AI prompt
+    username TEXT, -- name of user invoking AI prompt
     channel TEXT, -- name of channel where AI prompt was invoked
     invoke_time TIMESTAMP, -- time at which AI prompt was invoked
     processing_time INTEGER, -- time in ms to process prompt
     prompt TEXT, -- prompt text
     response TEXT, -- AI response to prompt
-    PRIMARY KEY (user, channel, invoke_time)
+    PRIMARY KEY (username, channel, invoke_time)
 );
 CREATE INDEX IF NOT EXISTS idx_prompt_time ON fletbot.ai_prompts(invoke_time);
 

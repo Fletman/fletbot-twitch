@@ -137,7 +137,7 @@ async function insert_pyramid_metric_to_pg(channel, phrase, pyramid_time, user) 
 
 async function insert_prompt_metric_to_pg(user, channel, invoke_time, latency, prompt, response) {
     await this.datasource.query(
-        `INSERT INTO fletbot.ai_prompts (user, channel, invoke_time, processing_time, prompt, response)
+        `INSERT INTO fletbot.ai_prompts (username, channel, invoke_time, processing_time, prompt, response)
          VALUES ($1::text, $2::text, $3::timestamp, $4::int, $5::text, $6::text)`,
         [user, channel, new Date(invoke_time).toISOString(), latency, prompt, response]
     );
