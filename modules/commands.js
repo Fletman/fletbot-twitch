@@ -933,6 +933,20 @@ module.exports = {
                     .then(() => logger.log(`Global ban for user ${username} completed`))
                     .catch((err) => logger.error(err));
             }
+        },
+
+        "!fsay": (client, context, msg_parts) => {
+            if(!chat_meta.bot_owners.includes(context.username)) {
+                client.whisper(context.username, "Only a daddy can use this command")
+                    .then((data) => logger.log(data))
+                    .catch((err) => logger.error(err));
+            } else {
+                const channel = msg_parts[1];
+                const msg = msg_parts.slice(2).join(" ");
+                client.say(channel, msg)
+                    .then((data) => logger.log(data))
+                    .catch((err) => logger.error(err));
+            }
         }
     }
 };
