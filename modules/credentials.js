@@ -219,10 +219,8 @@ module.exports = {
      * @returns {boolean} whether user has moderator privileges
      */
     is_moderator: (user_context) => {
-        return user_context.badges && (
-            user_context.moderator ||
-            user_context.lead_moderator
-        )
+        return user_context.badges &&
+            (user_context.badges.broadcaster || user_context.badges.moderator)
     },
 
     /**
