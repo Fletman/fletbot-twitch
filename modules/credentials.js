@@ -220,7 +220,7 @@ module.exports = {
      */
     is_moderator: (user_context) => {
         return user_context.badges &&
-            (user_context.badges.broadcaster || user_context.badges.moderator)
+            (user_context.badges.moderator || user_context.badges.lead_moderator)
     },
 
     /**
