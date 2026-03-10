@@ -497,7 +497,7 @@ module.exports = {
 
         "!fletalytics": async (client, channel_name, context) => {
             return {
-                data: await client.say(channel_name, `@${context.username} Fletbot analytics and stats can be viewed here: http://fletinc.ddns.net:3000/dashboards`),
+                data: await client.say(channel_name, `@${context.username} Fletbot analytics and stats can be viewed here: http://fletinc.ddns.net/grafana/dashboards`),
                 success: true
             };
         },
