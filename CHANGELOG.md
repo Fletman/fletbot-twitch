@@ -1,5 +1,12 @@
 # Fletbot Changelog
 
+## February 25 2026
+
+### Bug Fixes
+
+#### Super Moderator Support
+- Fixed new Super Moderator role not being granted privileges similar to original Moderator
+
 ## May 14 2024
 
 ### Features
